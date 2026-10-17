@@ -1,0 +1,673 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Lift Log">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#eef0ee" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0f1316" media="(prefers-color-scheme: dark)">
+<title>Lift Log</title>
+<link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAIAAACyr5FlAAABsklEQVR42u3YwQnAIBBFQYvwEkillmOjsYGASEDXOPAa+OucTPm6pdeSEwgOwSE4BIfgEByCQ3AIDsEhwSE4BIfgEByCQ3AIDsEhOCQ4BIfgEByCQ3AIDsEhOASHBIfgEByCQ3AIDsEhOASH4BAcEhyCQ3AIDsEhOASH4BAcgmNhpT7ddj/3XhvhsBEOG+GAAw444IADDjjggAMOOOCAAw6Hg8PhbITDRjjgiI1j9BBwRLsJHHDAAQcccMABBxxwwAEHHHDAAQcccMABBxxwwAEHHHDAAQcccMABBxxwwAEHHHDAAce3wZofHIJDcAgOwSE4PAMccMDhE8wnGBxwwAEHHHDAAQcccMABBxxwwAEHHHDAAYebwAEHHHDAAQcccMABBxxwwAEHHHDAAQcccQ93Ao61wWEjHDbCAQcccMABBxxwwAEHHHDAAQccDgeHw9kIh41wwPEvHIoWHIJDcAgOwSE4BIfgEByCQ3BIcAgOwSE4BIfgEByCQ3AIDgkOwSE4BIfgEByCQ3AIDsEhwSE4BIfgEByCQ3AIDsEhOASHBIfgEByCQ3AIDsEhOASHDqwBtMdFc6+aoioAAAAASUVORK5CYII=">
+<link rel="icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAIAAACyr5FlAAABsklEQVR42u3YwQnAIBBFQYvwEkillmOjsYGASEDXOPAa+OucTPm6pdeSEwgOwSE4BIfgEByCQ3AIDsEhwSE4BIfgEByCQ3AIDsEhOCQ4BIfgEByCQ3AIDsEhOASHBIfgEByCQ3AIDsEhOASH4BAcEhyCQ3AIDsEhOASH4BAcgmNhpT7ddj/3XhvhsBEOG+GAAw444IADDjjggAMOOOCAAw6Hg8PhbITDRjjgiI1j9BBwRLsJHHDAAQcccMABBxxwwAEHHHDAAQcccMABBxxwwAEHHHDAAQcccMABBxxwwAEHHHDAAce3wZofHIJDcAgOwSE4PAMccMDhE8wnGBxwwAEHHHDAAQcccMABBxxwwAEHHHDAAYebwAEHHHDAAQcccMABBxxwwAEHHHDAAQcccQ93Ao61wWEjHDbCAQcccMABBxxwwAEHHHDAAQccDgeHw9kIh41wwPEvHIoWHIJDcAgOwSE4BIfgEByCQ3BIcAgOwSE4BIfgEByCQ3AIDgkOwSE4BIfgEByCQ3AIDsEhwSE4BIfgEByCQ3AIDsEhOASHBIfgEByCQ3AIDsEhOASHDqwBtMdFc6+aoioAAAAASUVORK5CYII=">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@600;700&display=swap">
+<style>
+  /* Layout: one phone-width column. Body numbers first, then one card per lift
+     showing the previous session next to today's entry boxes, settings last. */
+  :root {
+    --bg: #eef0ee; --surface: #ffffff; --surface-2: #f5f7f5; --ink: #14191c; --muted: #59636a; --line: #d5dad7;
+    --accent: #1d4ed8; --accent-ink: #ffffff;
+    --up: #116b34; --up-bg: #e1f3e6; --down: #b0281c; --down-bg: #fbe5e2; --same: #4a545b; --same-bg: #e7eae8;
+    --track: #dde2df; --warn-bg: #fff3d6; --warn-ink: #6b4a00;
+    --display: "Barlow Condensed", "Arial Narrow", Arial, sans-serif;
+    --body: "Barlow", "Helvetica Neue", Arial, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0f1316; --surface: #171d21; --surface-2: #1e262b; --ink: #eceff1; --muted: #97a2a9; --line: #2b353b;
+      --accent: #7aa2ff; --accent-ink: #0b1220;
+      --up: #5fe08d; --up-bg: #15301f; --down: #ff9a8b; --down-bg: #3a1c19; --same: #b4bec4; --same-bg: #262f34;
+      --track: #28323a; --warn-bg: #3a2f10; --warn-ink: #f3d58a;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0f1316; --surface: #171d21; --surface-2: #1e262b; --ink: #eceff1; --muted: #97a2a9; --line: #2b353b;
+    --accent: #7aa2ff; --accent-ink: #0b1220;
+    --up: #5fe08d; --up-bg: #15301f; --down: #ff9a8b; --down-bg: #3a1c19; --same: #b4bec4; --same-bg: #262f34;
+    --track: #28323a; --warn-bg: #3a2f10; --warn-ink: #f3d58a;
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font: 16px/1.45 var(--body);
+    padding-top: max(20px, env(safe-area-inset-top, 0px));
+    padding-bottom: max(40px, env(safe-area-inset-bottom, 0px));
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+  .wrap { max-width: 760px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
+  h1, h2, h3, p { margin: 0; }
+
+  .eyebrow { color: var(--muted); font-size: 0.875rem; letter-spacing: 0.04em; text-transform: uppercase; }
+  h1 { font: 700 2.25rem/1.05 var(--display); text-transform: uppercase; letter-spacing: 0.01em; text-wrap: balance; }
+  .status { color: var(--muted); font-size: 0.875rem; margin-top: -8px; }
+
+  .banner { background: var(--warn-bg); color: var(--warn-ink); border-radius: 8px; padding: 12px 14px; }
+
+  h2 { font: 700 1.5rem/1.1 var(--display); text-transform: uppercase; letter-spacing: 0.03em; }
+  .sec { display: flex; flex-direction: column; gap: 12px; }
+  .sec-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+  .sec-head span { color: var(--muted); font-size: 0.875rem; }
+
+  .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 12px; }
+  .lab { color: var(--muted); font-size: 0.8125rem; letter-spacing: 0.05em; text-transform: uppercase; }
+  .big { font: 700 2rem/1 var(--display); font-variant-numeric: tabular-nums; }
+  .big small { font: 600 1rem/1 var(--body); color: var(--muted); }
+  .sub { color: var(--muted); font-size: 0.875rem; }
+  .bar { height: 10px; border-radius: 999px; background: var(--track); overflow: hidden; }
+  .bar i { display: block; height: 100%; background: var(--accent); border-radius: 999px; transition: width 0.3s ease; }
+  .bar.over i { background: var(--down); }
+  .bar.done i { background: var(--up); }
+  @media (prefers-reduced-motion: reduce) { .bar i { transition: none; } }
+
+  .fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 120px), 1fr)); gap: 10px; }
+  .field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  .field label { color: var(--muted); font-size: 0.75rem; letter-spacing: 0.05em; text-transform: uppercase; }
+  input, textarea {
+    width: 100%; min-width: 0; padding: 0 10px;
+    background: var(--surface-2); color: var(--ink);
+    border: 1px solid var(--line); border-radius: 8px;
+    font: 600 1.25rem var(--display); font-variant-numeric: tabular-nums;
+  }
+  input { height: 48px; }
+  input.text, textarea { font: 500 1rem var(--body); }
+  textarea { padding: 10px; min-height: 120px; resize: vertical; line-height: 1.4; }
+  input::placeholder, textarea::placeholder { color: var(--muted); opacity: 0.7; font-weight: 500; }
+  input:focus-visible, textarea:focus-visible, button:focus-visible, summary:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+  button {
+    min-height: 48px; padding: 0 18px; border-radius: 8px; border: 0; cursor: pointer;
+    background: var(--accent); color: var(--accent-ink); font: 600 1rem var(--body);
+  }
+  button.quiet { background: var(--surface-2); color: var(--ink); border: 1px solid var(--line); }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .lifts { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: 12px; }
+  .lift-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  h3 { font: 700 1.5rem/1 var(--display); text-transform: uppercase; letter-spacing: 0.03em; }
+  .pill { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; padding: 4px 8px; border-radius: 999px; background: var(--up-bg); color: var(--up); white-space: nowrap; }
+  .prev { background: var(--surface-2); border-radius: 8px; padding: 10px 12px; display: flex; flex-direction: column; gap: 4px; }
+  .prevnums { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+  .prevnums b { font: 700 1.5rem/1 var(--display); font-variant-numeric: tabular-nums; }
+  .prevnums span { font: 600 1.125rem var(--display); color: var(--muted); font-variant-numeric: tabular-nums; }
+  .entry { display: grid; grid-template-columns: 1.35fr 1fr 1fr 1fr; gap: 8px; }
+  .gain { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; min-height: 28px; font-size: 0.875rem; color: var(--muted); }
+  .chip { display: inline-flex; gap: 6px; align-items: baseline; padding: 4px 9px; border-radius: 999px; font: 600 0.9375rem var(--body); font-variant-numeric: tabular-nums; }
+  .chip small { font-size: 0.6875rem; letter-spacing: 0.05em; text-transform: uppercase; opacity: 0.85; }
+  .chip.up { background: var(--up-bg); color: var(--up); }
+  .chip.down { background: var(--down-bg); color: var(--down); }
+  .chip.same { background: var(--same-bg); color: var(--same); }
+  .hint { font-size: 0.875rem; color: var(--warn-ink); background: var(--warn-bg); border-radius: 8px; padding: 8px 10px; flex-basis: 100%; }
+  .msg { font-size: 0.875rem; min-height: 1.2em; }
+  .msg.ok { color: var(--up); }
+  .msg.err { color: var(--down); }
+  .foot { color: var(--muted); font-size: 0.8125rem; }
+
+  details.panel summary { font: 700 1.5rem/1 var(--display); text-transform: uppercase; letter-spacing: 0.03em; cursor: pointer; min-height: 32px; display: flex; align-items: center; }
+  details.panel[open] summary { margin-bottom: 4px; }
+  .group { display: flex; flex-direction: column; gap: 10px; border-top: 1px solid var(--line); padding-top: 12px; }
+  .group h3 { font-size: 1.125rem; }
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+
+<script>
+(function () {
+  "use strict";
+
+  var STORE_KEY = "liftlog-v1";
+  var KG_PER_LB = 0.45359237;
+  var DEFAULT_LIFTS = ["Squat", "Chest", "Biceps", "Triceps", "Shoulders"];
+  var LABELS = {
+    name: "Name",
+    calNeed: "Daily calories needed (kcal)",
+    calGoal: "Daily calorie intake goal (kcal)",
+    stepGoal: "Daily step goal",
+    startWeight: "Starting weight (kg)"
+  };
+
+  function freshSettings() {
+    return { name: "", calNeed: null, calGoal: null, stepGoal: null, startWeight: null, lifts: DEFAULT_LIFTS.slice() };
+  }
+  var store = { lifts: [], body: [], settings: freshSettings(), settingsDirty: false, sync: { url: "", key: "" }, uid: 1, lastSync: null };
+  var ui = { touched: {}, msgs: {}, busy: {}, syncing: false, syncError: null, settingsOpen: false, storageWarn: false, renderedDate: "" };
+
+  function $(s) { return document.querySelector(s); }
+  function esc(s) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+  function pad(n) { return String(n).padStart(2, "0"); }
+  function todayISO() {
+    var d = new Date();
+    return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
+  }
+  function fmtDate(iso, opts) {
+    var p = iso.split("-").map(Number);
+    var o = Object.assign({ timeZone: "UTC" }, opts);
+    return new Date(Date.UTC(p[0], p[1] - 1, p[2])).toLocaleDateString("en-GB", o);
+  }
+  function longDate(iso) { return fmtDate(iso, { weekday: "long", day: "numeric", month: "long", year: "numeric" }); }
+  function shortDate(iso) { return fmtDate(iso, { weekday: "short", day: "numeric", month: "short" }); }
+  function slug(s) { return s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "lift"; }
+  function num(x) {
+    if (x == null || x === "") return null;
+    var n = parseFloat(String(x).replace(/,/g, ""));
+    return Number.isFinite(n) ? n : null;
+  }
+  function normDate(x) {
+    var s = String(x == null ? "" : x).replace(/^'/, "").trim();
+    var m = /^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(s);
+    if (m) return m[1] + "-" + pad(m[2]) + "-" + pad(m[3]);
+    m = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(s);
+    if (m) return m[3] + "-" + pad(m[2]) + "-" + pad(m[1]);
+    return null;
+  }
+  function kg(n) { return String(parseFloat(Number(n).toFixed(2))); }
+  function fmtInt(n) { return Math.round(n).toLocaleString("en-GB"); }
+  function stLb(kgVal) {
+    var lb = Math.round(kgVal / KG_PER_LB);
+    return Math.floor(lb / 14) + " st " + (lb % 14) + " lb";
+  }
+  function byDate(a, b) { return a.date < b.date ? -1 : a.date > b.date ? 1 : a.seq - b.seq; }
+  function time(ms) { return new Date(ms).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }); }
+
+  /* ---------- storage on this phone ---------- */
+  function loadStore() {
+    try {
+      var raw = localStorage.getItem(STORE_KEY);
+      if (!raw) return;
+      var s = JSON.parse(raw);
+      if (!s || typeof s !== "object") return;
+      store.lifts = Array.isArray(s.lifts) ? s.lifts : [];
+      store.body = Array.isArray(s.body) ? s.body : [];
+      store.settings = Object.assign(freshSettings(), s.settings || {});
+      if (!Array.isArray(store.settings.lifts) || !store.settings.lifts.length) store.settings.lifts = DEFAULT_LIFTS.slice();
+      store.sync = Object.assign({ url: "", key: "" }, s.sync || {});
+      store.settingsDirty = !!s.settingsDirty;
+      store.uid = s.uid || 1;
+      store.lastSync = s.lastSync || null;
+    } catch (e) { /* start fresh */ }
+  }
+  function saveStore() {
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(store)); ui.storageWarn = false; }
+    catch (e) { ui.storageWarn = true; }
+  }
+
+  /* ---------- Google Sheet sync through the Apps Script web app ---------- */
+  async function api(action, payload) {
+    var ctrl = typeof AbortController !== "undefined" ? new AbortController() : null;
+    var timer = ctrl ? setTimeout(function () { ctrl.abort(); }, 25000) : null;
+    var res;
+    try {
+      res = await fetch(store.sync.url, {
+        method: "POST",
+        body: JSON.stringify(Object.assign({ key: store.sync.key, action: action }, payload || {})),
+        signal: ctrl ? ctrl.signal : undefined,
+        redirect: "follow"
+      });
+    } catch (e) { throw { code: "network" }; }
+    finally { if (timer) clearTimeout(timer); }
+    var data;
+    try { data = await res.json(); } catch (e) { throw { code: "badresponse" }; }
+    if (!data || data.ok !== true) throw { code: "server", message: (data && data.error) || "unknown error" };
+    return data;
+  }
+  function syncErrText(e) {
+    switch (e && e.code) {
+      case "network": return "Couldn't reach your sheet. Check your internet connection and the web app URL in Settings.";
+      case "badresponse": return "The web app URL didn't return data. Check it was deployed with access set to Anyone.";
+      case "server":
+        return /key/i.test(e.message) ? "The secret key doesn't match the one in your script." : "Your script reported a problem: " + String(e.message).slice(0, 140);
+      default: return "Couldn't sync with your sheet.";
+    }
+  }
+
+  function parseLifts(rows) {
+    var out = [];
+    for (var i = 1; i < rows.length; i++) {
+      var r = rows[i] || [];
+      var date = normDate(r[0]), lift = String(r[1] || "").trim(), w = num(r[2]);
+      if (!date || !lift || w == null) continue;
+      out.push({ date: date, lift: lift, weight: w, reps: [num(r[3]), num(r[4]), num(r[5])], synced: true, seq: i });
+    }
+    return out;
+  }
+  function parseBody(rows) {
+    var out = [];
+    for (var i = 1; i < rows.length; i++) {
+      var r = rows[i] || [];
+      var date = normDate(r[0]);
+      if (!date) continue;
+      out.push({ date: date, weight: num(r[1]), cal: num(r[2]), steps: num(r[3]), synced: true, seq: i });
+    }
+    return out;
+  }
+  function parseSetup(rows) {
+    var map = {};
+    rows.forEach(function (r) { if (r && r[0]) map[r[0]] = r[1]; });
+    return map;
+  }
+  function applySetup(map) {
+    if (store.settingsDirty) return;
+    var s = store.settings;
+    if (map[LABELS.name]) s.name = String(map[LABELS.name]);
+    ["calNeed", "calGoal", "stepGoal", "startWeight"].forEach(function (k) {
+      var v = num(map[LABELS[k]]);
+      if (v != null) s[k] = v;
+    });
+  }
+
+  async function flush() {
+    var pend = store.lifts.filter(function (r) { return !r.synced; });
+    for (var i = 0; i < pend.length; i++) {
+      var r = pend[i];
+      await api("append", { tab: "Lifts", row: [r.date, r.lift, r.weight, r.reps[0], r.reps[1], r.reps[2]] });
+      r.synced = true; saveStore();
+    }
+    pend = store.body.filter(function (r) { return !r.synced; });
+    for (var j = 0; j < pend.length; j++) {
+      var b = pend[j];
+      await api("append", { tab: "Body", row: [b.date, b.weight == null ? "" : b.weight, b.cal == null ? "" : b.cal, b.steps == null ? "" : b.steps] });
+      b.synced = true; saveStore();
+    }
+    if (store.settingsDirty) {
+      var keys = Object.keys(LABELS);
+      for (var k = 0; k < keys.length; k++) {
+        var v = store.settings[keys[k]];
+        if (v == null || v === "") continue;
+        await api("setup", { label: LABELS[keys[k]], value: v });
+      }
+      store.settingsDirty = false; saveStore();
+    }
+  }
+
+  async function syncNow() {
+    if (!store.sync.url || ui.syncing) return false;
+    ui.syncing = true; ui.syncError = null; render();
+    var ok = false;
+    try {
+      await flush();
+      var d = await api("read", {});
+      store.lifts = parseLifts(d.lifts || []).concat(store.lifts.filter(function (r) { return !r.synced; })).sort(byDate);
+      store.body = parseBody(d.body || []).concat(store.body.filter(function (r) { return !r.synced; })).sort(byDate);
+      applySetup(parseSetup(d.setup || []));
+      store.lastSync = Date.now();
+      ok = true;
+    } catch (e) {
+      ui.syncError = syncErrText(e);
+    }
+    ui.syncing = false; saveStore(); render();
+    return ok;
+  }
+
+  /* ---------- derived data ---------- */
+  function liftNames() {
+    var names = store.settings.lifts.slice(), seen = {};
+    names.forEach(function (n) { seen[n.toLowerCase()] = true; });
+    store.lifts.forEach(function (e) {
+      var k = e.lift.toLowerCase();
+      if (!seen[k]) { seen[k] = true; names.push(e.lift); }
+    });
+    return names;
+  }
+  function liftInfo(name) {
+    var key = name.toLowerCase(), t = todayISO();
+    var all = store.lifts.filter(function (e) { return e.lift.toLowerCase() === key; });
+    var before = all.filter(function (e) { return e.date < t; });
+    var today = all.filter(function (e) { return e.date === t; });
+    return { prev: before[before.length - 1] || null, today: today[today.length - 1] || null };
+  }
+  function bodyToday() {
+    var t = todayISO(), o = { weight: null, cal: null, steps: null };
+    store.body.forEach(function (r) {
+      if (r.date !== t) return;
+      if (r.weight != null) o.weight = r.weight;
+      if (r.cal != null) o.cal = r.cal;
+      if (r.steps != null) o.steps = r.steps;
+    });
+    return o;
+  }
+  function latestWeight() {
+    for (var i = store.body.length - 1; i >= 0; i--) if (store.body[i].weight != null) return store.body[i];
+    return null;
+  }
+  function pending() {
+    return store.lifts.filter(function (r) { return !r.synced; }).length + store.body.filter(function (r) { return !r.synced; }).length;
+  }
+
+  /* ---------- rendering ---------- */
+  function statusText() {
+    if (!store.sync.url) return "Saved on this phone only. Add a Google Sheet in Settings to sync.";
+    if (ui.syncing) return "Syncing with your sheet…";
+    if (ui.syncError) return "Not synced. " + ui.syncError + (pending() ? " " + pending() + " entries are waiting on this phone." : "");
+    if (store.lastSync) return "Synced with your sheet at " + time(store.lastSync) + ".";
+    return "Sheet connected. Not synced yet.";
+  }
+
+  function bar(value, goal, kind) {
+    var pct = goal > 0 ? Math.min(100, Math.round((value / goal) * 100)) : 0;
+    var cls = "bar";
+    if (kind === "cal" && value > goal) cls += " over";
+    if (kind === "steps" && value >= goal) cls += " done";
+    return '<div class="' + cls + '" role="progressbar" aria-valuemin="0" aria-valuemax="' + esc(goal) + '" aria-valuenow="' + esc(value) + '"><i style="width:' + pct + '%"></i></div>';
+  }
+
+  function bodySection() {
+    var bt = bodyToday(), lw = latestWeight(), s = store.settings;
+    var need = s.calNeed, goal = s.calGoal, stepGoal = s.stepGoal, start = s.startWeight;
+
+    var weight = '<div class="panel"><span class="lab">Body weight</span>';
+    if (lw) {
+      weight += '<div class="big">' + esc(kg(lw.weight)) + ' <small>kg</small></div>';
+      weight += '<p class="sub">' + esc(stLb(lw.weight)) + ", logged " + esc(shortDate(lw.date));
+      if (start != null) {
+        var d = lw.weight - start;
+        weight += "<br>Started at " + esc(kg(start)) + " kg, " + (d > 0 ? "up " : d < 0 ? "down " : "unchanged") + (d !== 0 ? esc(kg(Math.abs(d))) + " kg" : "");
+      }
+      weight += "</p>";
+    } else {
+      weight += '<p class="sub">No weight logged yet.</p>';
+    }
+    weight += "</div>";
+
+    var cal = '<div class="panel"><span class="lab">Calories today</span>';
+    if (goal != null) {
+      if (bt.cal != null) {
+        cal += '<div class="big">' + esc(fmtInt(bt.cal)) + ' <small>/ ' + esc(fmtInt(goal)) + ' kcal</small></div>' + bar(bt.cal, goal, "cal");
+        var left = goal - bt.cal;
+        cal += '<p class="sub">' + (left >= 0 ? esc(fmtInt(left)) + " kcal left to your goal." : esc(fmtInt(-left)) + " kcal over your goal.") + "</p>";
+      } else {
+        cal += '<div class="big">&ndash; <small>/ ' + esc(fmtInt(goal)) + ' kcal</small></div><p class="sub">Not logged today.</p>';
+      }
+      if (need != null) cal += '<p class="sub">Daily need ' + esc(fmtInt(need)) + " kcal, planned deficit " + esc(fmtInt(need - goal)) + " kcal.</p>";
+    } else {
+      cal += '<p class="sub">Set a daily calorie goal in Settings.</p>';
+      if (bt.cal != null) cal += '<div class="big">' + esc(fmtInt(bt.cal)) + ' <small>kcal today</small></div>';
+    }
+    cal += "</div>";
+
+    var steps = '<div class="panel"><span class="lab">Steps today</span>';
+    if (stepGoal != null && stepGoal > 0) {
+      if (bt.steps != null) {
+        steps += '<div class="big">' + esc(fmtInt(bt.steps)) + ' <small>/ ' + esc(fmtInt(stepGoal)) + '</small></div>' + bar(bt.steps, stepGoal, "steps");
+      } else {
+        steps += '<div class="big">&ndash; <small>/ ' + esc(fmtInt(stepGoal)) + '</small></div><p class="sub">Not logged today.</p>';
+      }
+    } else {
+      steps += '<p class="sub">Set a daily step goal in Settings.</p>';
+      if (bt.steps != null) steps += '<div class="big">' + esc(fmtInt(bt.steps)) + ' <small>steps today</small></div>';
+    }
+    steps += "</div>";
+
+    var m = ui.msgs.body || {};
+    var form = '<div class="panel"><div class="sec-head"><h3>Log today</h3><span>' + esc(shortDate(todayISO())) + "</span></div>" +
+      '<div class="fields">' +
+      '<div class="field"><label for="b-w">Weight kg</label><input id="b-w" type="number" inputmode="decimal" step="0.1" min="0" value="' + esc(bt.weight != null ? kg(bt.weight) : "") + '" placeholder="' + esc(lw ? kg(lw.weight) : "") + '"></div>' +
+      '<div class="field"><label for="b-c">Calories eaten</label><input id="b-c" type="number" inputmode="numeric" step="1" min="0" value="' + esc(bt.cal != null ? bt.cal : "") + '"></div>' +
+      '<div class="field"><label for="b-s">Steps</label><input id="b-s" type="number" inputmode="numeric" step="1" min="0" value="' + esc(bt.steps != null ? bt.steps : "") + '"></div>' +
+      "</div>" +
+      '<button data-act="save-body"' + (ui.busy.body ? " disabled" : "") + ">Save today's numbers</button>" +
+      '<p class="msg ' + esc(m.kind || "") + '" role="status">' + esc(m.text || "") + "</p></div>";
+
+    return '<section class="sec"><div class="sec-head"><h2>Today</h2></div><div class="tiles">' + weight + cal + steps + "</div>" + form + "</section>";
+  }
+
+  function liftCard(name) {
+    var id = slug(name), info = liftInfo(name), prev = info.prev, today = info.today;
+    var m = ui.msgs[id] || {};
+    var h = '<article class="panel lift" data-lift="' + esc(name) + '">';
+    h += '<div class="lift-head"><h3>' + esc(name) + "</h3>" + (today ? '<span class="pill">Logged today</span>' : "") + "</div>";
+    if (prev) {
+      h += '<div class="prev"><span class="lab">Previous session &middot; ' + esc(shortDate(prev.date)) + "</span>" +
+        '<div class="prevnums"><b>' + esc(kg(prev.weight)) + ' kg</b><span>' +
+        prev.reps.map(function (r) { return r == null ? "–" : esc(r); }).join(" &middot; ") + " reps</span></div></div>";
+    } else {
+      h += '<div class="prev"><span class="lab">Previous session</span><p class="sub">No earlier session logged yet.</p></div>';
+    }
+    var defW = today ? today.weight : (prev ? prev.weight : "");
+    var defR = function (n) { return today && today.reps[n] != null ? today.reps[n] : ""; };
+    var phR = function (n) { return prev && prev.reps[n] != null ? prev.reps[n] : ""; };
+    h += '<div class="entry">' +
+      '<div class="field"><label for="w-' + id + '">Weight kg</label><input id="w-' + id + '" type="number" inputmode="decimal" step="0.5" min="0" value="' + esc(defW === "" ? "" : kg(defW)) + '"></div>';
+    for (var n = 0; n < 3; n++) {
+      h += '<div class="field"><label for="r' + (n + 1) + "-" + id + '">Set ' + (n + 1) + '</label><input id="r' + (n + 1) + "-" + id + '" type="number" inputmode="numeric" step="1" min="0" value="' + esc(defR(n)) + '" placeholder="' + esc(phR(n)) + '"></div>';
+    }
+    h += "</div>";
+    h += '<div class="gain" id="gain-' + id + '"></div>';
+    h += '<button data-act="save-lift" data-lift="' + esc(name) + '"' + (ui.busy[id] ? " disabled" : "") + ">Save " + esc(name) + "</button>";
+    h += '<p class="msg ' + esc(m.kind || "") + '" role="status">' + esc(m.text || "") + "</p>";
+    h += "</article>";
+    return h;
+  }
+
+  function liftSection() {
+    return '<section class="sec"><div class="sec-head"><h2>Lifts</h2><span>Aim: 3 sets of 10 to 20 reps</span></div><div class="lifts">' +
+      liftNames().map(liftCard).join("") + "</div></section>";
+  }
+
+  function settingsSection() {
+    var s = store.settings, sm = ui.msgs.settings || {}, ym = ui.msgs.sync || {};
+    var val = function (v) { return esc(v == null ? "" : v); };
+    return '<details class="panel" id="settings"' + (ui.settingsOpen ? " open" : "") + "><summary>Settings</summary>" +
+      '<div class="fields">' +
+      '<div class="field"><label for="s-name">Name</label><input class="text" id="s-name" type="text" autocomplete="off" value="' + val(s.name) + '"></div>' +
+      '<div class="field"><label for="s-start">Starting weight kg</label><input id="s-start" type="number" inputmode="decimal" step="0.1" min="0" value="' + val(s.startWeight) + '"></div>' +
+      '<div class="field"><label for="s-need">Calories needed a day</label><input id="s-need" type="number" inputmode="numeric" min="0" value="' + val(s.calNeed) + '"></div>' +
+      '<div class="field"><label for="s-goal">Calorie goal a day</label><input id="s-goal" type="number" inputmode="numeric" min="0" value="' + val(s.calGoal) + '"></div>' +
+      '<div class="field"><label for="s-steps">Step goal a day</label><input id="s-steps" type="number" inputmode="numeric" min="0" value="' + val(s.stepGoal) + '"></div>' +
+      "</div>" +
+      '<div class="field"><label for="s-lifts">Lifts, one per line</label><textarea id="s-lifts" spellcheck="false">' + esc(s.lifts.join("\n")) + "</textarea></div>" +
+      '<button data-act="save-settings">Save settings</button>' +
+      '<p class="msg ' + esc(sm.kind || "") + '" role="status">' + esc(sm.text || "") + "</p>" +
+      '<div class="group"><h3>Google Sheet sync</h3>' +
+      '<p class="sub">Optional. Paste the web app URL and secret key from your Apps Script. Without them, everything is saved on this phone only.</p>' +
+      '<div class="field"><label for="sync-url">Web app URL</label><input class="text" id="sync-url" type="url" autocomplete="off" autocapitalize="off" spellcheck="false" value="' + val(store.sync.url) + '" placeholder="https://script.google.com/macros/s/…/exec"></div>' +
+      '<div class="field"><label for="sync-key">Secret key</label><input class="text" id="sync-key" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" value="' + val(store.sync.key) + '"></div>' +
+      '<button class="quiet" data-act="save-sync"' + (ui.syncing ? " disabled" : "") + ">Save and sync</button>" +
+      '<p class="msg ' + esc(ym.kind || "") + '" role="status">' + esc(ym.text || "") + "</p></div>" +
+      "</details>";
+  }
+
+  function html() {
+    var t = todayISO();
+    var name = store.settings.name;
+    var h = '<header><p class="eyebrow">' + esc(longDate(t)) + "</p><h1>" + (name ? esc(name) + "'s lift log" : "Lift log") + "</h1></header>";
+    h += '<p class="status" role="status">' + esc(statusText()) + "</p>";
+    if (ui.storageWarn) h += '<div class="banner" role="alert">This browser isn\'t saving data on your phone. Turn off private browsing, or entries will be lost when you close the page.</div>';
+    if (store.settings.calGoal == null && !store.sync.url) h += '<div class="banner">Set your goals, and optionally connect a Google Sheet, in Settings at the bottom of the page.</div>';
+    h += bodySection() + liftSection() + settingsSection();
+    h += '<p class="foot">The date is added automatically from today\'s date on this phone.</p>';
+    return h;
+  }
+
+  function render() {
+    var snap = {};
+    document.querySelectorAll("#app input, #app textarea").forEach(function (i) {
+      if (i.id && ui.touched[i.id]) snap[i.id] = i.value;
+    });
+    var ae = document.activeElement;
+    var focusId = ae && ae.id && ae.closest && ae.closest("#app") ? ae.id : null;
+    $("#app").innerHTML = html();
+    Object.keys(snap).forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) el.value = snap[id];
+    });
+    if (focusId) {
+      var f = document.getElementById(focusId);
+      if (f && f.focus) f.focus();
+    }
+    ui.renderedDate = todayISO();
+    liftNames().forEach(updateGain);
+  }
+
+  /* ---------- live change vs previous session ---------- */
+  function chip(label, v, unit) {
+    var cls = v > 0 ? "up" : v < 0 ? "down" : "same";
+    var sign = v > 0 ? "+" : v < 0 ? "−" : "±";
+    var val = Math.abs(parseFloat(v.toFixed(2))).toLocaleString("en-GB");
+    return '<span class="chip ' + cls + '"><small>' + label + "</small> " + sign + val + " " + unit + "</span>";
+  }
+  function updateGain(name) {
+    var id = slug(name), box = document.getElementById("gain-" + id);
+    if (!box) return;
+    var prev = liftInfo(name).prev;
+    var w = num((document.getElementById("w-" + id) || {}).value);
+    var reps = [1, 2, 3].map(function (n) { return num((document.getElementById("r" + n + "-" + id) || {}).value); });
+    var ready = w != null && reps.every(function (r) { return r != null; });
+    var out = "";
+    if (!ready) {
+      out = "Enter the weight and all three sets to see your change.";
+    } else if (!prev || prev.reps.some(function (r) { return r == null; })) {
+      out = "First logged session for this lift, so there is nothing to compare yet.";
+    } else {
+      var sum = reps[0] + reps[1] + reps[2];
+      var pSum = prev.reps[0] + prev.reps[1] + prev.reps[2];
+      out = chip("Weight", w - prev.weight, "kg") + chip("Reps", sum - pSum, "reps") + chip("Volume", w * sum - prev.weight * pSum, "kg");
+    }
+    if (ready && reps.every(function (r) { return r >= 20; })) {
+      out += '<div class="hint">Every set reached 20 reps. Try a heavier weight next time.</div>';
+    }
+    box.innerHTML = out;
+  }
+
+  /* ---------- saving ---------- */
+  function setMsg(key, text, kind) { ui.msgs[key] = { text: text, kind: kind || "" }; }
+  function clearTouched(prefixes) {
+    Object.keys(ui.touched).forEach(function (k) {
+      if (prefixes.some(function (p) { return k.indexOf(p) === 0; })) delete ui.touched[k];
+    });
+  }
+  function afterLocalSave(key) {
+    if (!store.sync.url) { setMsg(key, "Saved on this phone.", "ok"); render(); return; }
+    setMsg(key, "Saved on this phone. Syncing…", "ok"); render();
+    syncNow().then(function (ok) {
+      setMsg(key, ok ? "Saved and synced to your sheet." : "Saved on this phone. It will sync when your sheet is reachable.", ok ? "ok" : "err");
+      render();
+    });
+  }
+
+  function saveLift(name) {
+    var id = slug(name);
+    var w = num(document.getElementById("w-" + id).value);
+    var reps = [1, 2, 3].map(function (n) { return num(document.getElementById("r" + n + "-" + id).value); });
+    if (w == null || w <= 0 || reps.some(function (r) { return r == null || r < 1 || !Number.isInteger(r); })) {
+      setMsg(id, "Enter the weight and whole-number reps for all three sets.", "err"); render(); return;
+    }
+    store.lifts.push({ date: todayISO(), lift: name, weight: w, reps: reps, synced: false, seq: 1000000 + store.uid++ });
+    store.lifts.sort(byDate);
+    saveStore();
+    clearTouched(["w-" + id, "r1-" + id, "r2-" + id, "r3-" + id]);
+    afterLocalSave(id);
+  }
+
+  function saveBody() {
+    var w = num(document.getElementById("b-w").value);
+    var c = num(document.getElementById("b-c").value);
+    var s = num(document.getElementById("b-s").value);
+    if (w == null && c == null && s == null) { setMsg("body", "Enter at least one of weight, calories or steps.", "err"); render(); return; }
+    if ((w != null && w <= 0) || (c != null && c < 0) || (s != null && s < 0)) { setMsg("body", "Use positive numbers.", "err"); render(); return; }
+    store.body.push({ date: todayISO(), weight: w, cal: c, steps: s, synced: false, seq: 1000000 + store.uid++ });
+    store.body.sort(byDate);
+    saveStore();
+    clearTouched(["b-w", "b-c", "b-s"]);
+    afterLocalSave("body");
+  }
+
+  function saveSettings() {
+    var s = store.settings;
+    var v = function (id) { return document.getElementById(id).value; };
+    var checks = { "s-start": "Starting weight", "s-need": "Calories needed", "s-goal": "Calorie goal", "s-steps": "Step goal" };
+    for (var id in checks) {
+      var raw = v(id).trim();
+      if (raw !== "" && (num(raw) == null || num(raw) < 0)) { setMsg("settings", checks[id] + " must be a positive number.", "err"); render(); return; }
+    }
+    s.name = v("s-name").trim().slice(0, 40);
+    s.startWeight = num(v("s-start")); s.calNeed = num(v("s-need")); s.calGoal = num(v("s-goal")); s.stepGoal = num(v("s-steps"));
+    var seen = {}, lifts = [];
+    v("s-lifts").split(/\r?\n/).forEach(function (l) {
+      l = l.trim().slice(0, 30);
+      if (l && !seen[l.toLowerCase()]) { seen[l.toLowerCase()] = true; lifts.push(l); }
+    });
+    s.lifts = lifts.length ? lifts : DEFAULT_LIFTS.slice();
+    store.settingsDirty = true;
+    saveStore();
+    clearTouched(["s-name", "s-start", "s-need", "s-goal", "s-steps", "s-lifts"]);
+    setMsg("settings", store.sync.url ? "Saved. Syncing…" : "Saved on this phone.", "ok");
+    render();
+    if (store.sync.url) syncNow().then(function (ok) { setMsg("settings", ok ? "Saved and synced to your sheet." : "Saved on this phone. It will sync when your sheet is reachable.", ok ? "ok" : "err"); render(); });
+  }
+
+  function saveSync() {
+    var url = document.getElementById("sync-url").value.trim();
+    var key = document.getElementById("sync-key").value.trim();
+    if (url && !/^https:\/\/script\.google\.com\/macros\/s\/[^\s]+\/exec$/.test(url)) {
+      setMsg("sync", "That doesn't look like a web app URL. It should start with https://script.google.com/macros/s/ and end with /exec.", "err"); render(); return;
+    }
+    if (url && !key) { setMsg("sync", "Enter the secret key from your script.", "err"); render(); return; }
+    store.sync = { url: url, key: key };
+    store.lastSync = null;
+    saveStore();
+    clearTouched(["sync-url", "sync-key"]);
+    if (!url) { setMsg("sync", "Sync turned off. Entries stay on this phone.", "ok"); render(); return; }
+    setMsg("sync", "Connecting…", ""); render();
+    syncNow().then(function (ok) {
+      setMsg("sync", ok ? "Connected. Your sheet and this phone are in sync." : ui.syncError, ok ? "ok" : "err");
+      render();
+    });
+  }
+
+  /* ---------- events ---------- */
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest ? e.target.closest("[data-act]") : null;
+    if (!b || b.disabled) return;
+    var a = b.getAttribute("data-act");
+    if (a === "save-lift") saveLift(b.getAttribute("data-lift"));
+    else if (a === "save-body") saveBody();
+    else if (a === "save-settings") saveSettings();
+    else if (a === "save-sync") saveSync();
+  });
+  document.addEventListener("input", function (e) {
+    var t = e.target;
+    if (t && t.id) ui.touched[t.id] = true;
+    var card = t && t.closest ? t.closest(".lift") : null;
+    if (card) updateGain(card.getAttribute("data-lift"));
+  });
+  document.addEventListener("toggle", function (e) {
+    if (e.target && e.target.id === "settings") ui.settingsOpen = e.target.open;
+  }, true);
+  document.addEventListener("visibilitychange", function () {
+    if (document.visibilityState !== "visible") return;
+    if (ui.renderedDate !== todayISO()) render();
+    if (store.sync.url && (!store.lastSync || Date.now() - store.lastSync > 60000)) syncNow();
+  });
+
+  /* ---------- start ---------- */
+  loadStore();
+  render();
+  if (store.sync.url) syncNow();
+})();
+</script>
+</body>
+</html>
