@@ -16,6 +16,7 @@ var SECRET = "change-this-secret";
 var TABS = {
   Lifts: ["Date", "Lift", "Weight (kg)", "Set 1 reps", "Set 2 reps", "Set 3 reps"],
   Body: ["Date", "Weight (kg)", "Calories eaten", "How I feel (1-5)"],
+  Steps: ["Date", "Steps", "Updated"],
   Setup: ["Setting", "Value", "Notes"]
 };
 
@@ -42,6 +43,7 @@ function doPost(e) {
         ok: true,
         lifts: sheet_(ss, "Lifts").getDataRange().getDisplayValues(),
         body: sheet_(ss, "Body").getDataRange().getDisplayValues(),
+        steps: sheet_(ss, "Steps").getDataRange().getDisplayValues(),
         setup: sheet_(ss, "Setup").getDataRange().getDisplayValues()
       });
     }
@@ -53,6 +55,33 @@ function doPost(e) {
       var r = sh.getLastRow() + 1;
       sh.getRange(r, 1).setNumberFormat("@"); // keep the date as plain text
       sh.getRange(r, 1, 1, req.row.length).setValues([req.row]);
+      return out_({ ok: true });
+    }
+    if (req.action === "steps") {
+      // Sent by an iPhone Shortcut. One row per day; the latest value for the day wins.
+      var n = Number(req.steps);
+      if (!isFinite(n) || n < 0 || n > 200000) {
+        return out_({ ok: false, error: "bad steps value" });
+      }
+      var tz = ss.getSpreadsheetTimeZone();
+      var date = /^\d{4}-\d{2}-\d{2}$/.test(String(req.date || "")) ? String(req.date) : Utilities.formatDate(new Date(), tz, "yyyy-MM-dd");
+      var st = sheet_(ss, "Steps");
+      var last = st.getLastRow();
+      var srow = 0;
+      if (last >= 2) {
+        var dates = st.getRange(2, 1, last - 1, 1).getDisplayValues();
+        for (var j = dates.length - 1; j >= 0; j--) {
+          if (dates[j][0] === date) { srow = j + 2; break; }
+        }
+      }
+      if (!srow) {
+        srow = last + 1;
+        st.getRange(srow, 1).setNumberFormat("@");
+        st.getRange(srow, 1).setValue(date);
+      }
+      st.getRange(srow, 2).setValue(Math.round(n));
+      st.getRange(srow, 3).setNumberFormat("@");
+      st.getRange(srow, 3).setValue(Utilities.formatDate(new Date(), tz, "HH:mm"));
       return out_({ ok: true });
     }
     if (req.action === "setup") {

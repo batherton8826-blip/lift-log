@@ -36,6 +36,28 @@ Do this once per person who wants their own sheet.
 
 The script creates the Lifts, Body and Setup tabs if they are missing. If you already have a sheet with those tabs, it uses them.
 
+## 4. Optional: daily steps from the iPhone Health app
+
+A web app can't read Apple Health, so a Shortcut on the iPhone reads the day's steps and sends them to your Google Sheet. The app then shows "Today 5,234 steps" under Target steps. This needs the sheet connection from section 3, using the latest version of `apps-script.gs`.
+
+Set up the Shortcut once. Menu names can differ slightly between iOS versions.
+
+1. Open the **Shortcuts** app, tap **+**, and name it "Send steps".
+2. Add **Find Health Samples**. Set the type to **Steps** and add a filter: **Start Date** is **Today**.
+3. Add **Calculate Statistics** and choose **Sum**.
+4. Add **Get Contents of URL**. Paste the web app URL. Tap the arrow to show more options, then set Method to **POST** and Request Body to **JSON**. Add three fields:
+   - Text, `key`: your secret key
+   - Text, `action`: `steps`
+   - Number, `steps`: the result of Calculate Statistics
+5. Tap the Shortcut to run it. Allow access to Health when asked. Reopen the app and the steps appear.
+
+How often it updates:
+
+- The app reads the sheet each time you open it, and again when you come back to it after a minute away. It shows the latest figure the Shortcut sent, with the time it was sent.
+- The Shortcut only updates the figure when it runs. The most reliable way is to run it when the phone is in use: add it to the Home Screen (open the Shortcut, tap Share, then **Add to Home Screen**) and tap it whenever you want a fresh figure.
+- You can also set an automation (Shortcuts, **Automation**, **+**) that runs it when you open an app such as Health, or at set times of day. iOS locks Health data while the phone is locked, so a run at a set time can fail if the phone hasn't been used. Turn on **Run Immediately** so it doesn't ask first.
+- If the steps look too high because an iPhone and an Apple Watch both recorded them, add a Source filter to Find Health Samples so it counts only one of them.
+
 ## Good to know
 
 - The secret key is the only thing stopping someone with the web app URL from reading or adding to that sheet. Use a long, private phrase and don't share the URL.

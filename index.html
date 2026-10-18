@@ -175,7 +175,7 @@
   function freshSettings() {
     return { name: "", calNeed: null, calGoal: null, stepGoal: null, startWeight: null, sex: "", age: null, heightCm: null, activity: "", lifts: DEFAULT_LIFTS.slice() };
   }
-  var store = { lifts: [], body: [], settings: freshSettings(), settingsDirty: false, sync: { url: "", key: "" }, uid: 1, lastSync: null };
+  var store = { lifts: [], body: [], steps: [], settings: freshSettings(), settingsDirty: false, sync: { url: "", key: "" }, uid: 1, lastSync: null };
   var ui = { touched: {}, msgs: {}, busy: {}, syncing: false, syncError: null, settingsOpen: false, storageWarn: false, renderedDate: "", feel: null, showKey: false };
 
   function $(s) { return document.querySelector(s); }
@@ -280,6 +280,7 @@
       store.lifts = Array.isArray(s.lifts) ? s.lifts : [];
       store.body = Array.isArray(s.body) ? s.body : [];
       store.body.forEach(function (r) { if (r.feel === undefined) r.feel = null; delete r.steps; });
+      store.steps = Array.isArray(s.steps) ? s.steps : [];
       store.settings = Object.assign(freshSettings(), s.settings || {});
       if (!Array.isArray(store.settings.lifts) || !store.settings.lifts.length) store.settings.lifts = DEFAULT_LIFTS.slice();
       store.sync = Object.assign({ url: "", key: "" }, s.sync || {});
@@ -342,6 +343,16 @@
     }
     return out;
   }
+  function parseSteps(rows) {
+    var out = [];
+    for (var i = 1; i < rows.length; i++) {
+      var r = rows[i] || [];
+      var date = normDate(r[0]), n = num(r[1]);
+      if (!date || n == null) continue;
+      out.push({ date: date, steps: n, at: /^\d{1,2}:\d{2}$/.test(String(r[2] || "")) ? String(r[2]) : "" });
+    }
+    return out;
+  }
   function parseSetup(rows) {
     var map = {};
     rows.forEach(function (r) { if (r && r[0]) map[r[0]] = r[1]; });
@@ -393,6 +404,7 @@
       store.lifts = parseLifts(d.lifts || []).concat(store.lifts.filter(function (r) { return !r.synced; })).sort(byDate);
       store.body = parseBody(d.body || []).concat(store.body.filter(function (r) { return !r.synced; })).sort(byDate);
       applySetup(parseSetup(d.setup || []));
+      store.steps = parseSteps(d.steps || []);
       store.lastSync = Date.now();
       ok = true;
     } catch (e) {
@@ -432,6 +444,11 @@
   function latestWeight() {
     for (var i = store.body.length - 1; i >= 0; i--) if (store.body[i].weight != null) return store.body[i];
     return null;
+  }
+  function stepsToday() {
+    var t = todayISO(), hit = null;
+    store.steps.forEach(function (r) { if (r.date === t) hit = r; });
+    return hit;
   }
   function pending() {
     return store.lifts.filter(function (r) { return !r.synced; }).length + store.body.filter(function (r) { return !r.synced; }).length;
@@ -488,11 +505,17 @@
     }
     cal += "</div>";
 
+    var stepsNow = stepsToday();
     var steps = '<div class="panel"><span class="lab">Target steps</span>';
     if (stepGoal != null && stepGoal > 0) {
       steps += '<div class="big">' + esc(fmtInt(stepGoal)) + ' <small>steps a day</small></div>';
     } else {
       steps += '<p class="sub">Set a daily step goal in Settings.</p>';
+    }
+    if (stepsNow) {
+      var toGo = stepGoal != null && stepGoal > 0 ? stepGoal - stepsNow.steps : null;
+      steps += '<p class="sub">Today ' + esc(fmtInt(stepsNow.steps)) + " steps" + (stepsNow.at ? ", as of " + esc(stepsNow.at) : "") +
+        (toGo == null ? "." : toGo > 0 ? ", " + esc(fmtInt(toGo)) + " to go." : ", goal reached.") + "</p>";
     }
     steps += "</div>";
 
