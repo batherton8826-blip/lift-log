@@ -40,5 +40,6 @@ The script creates the Lifts, Body and Setup tabs if they are missing. If you al
 
 - The secret key is the only thing stopping someone with the web app URL from reading or adding to that sheet. Use a long, private phrase and don't share the URL.
 - If you change the script later, choose **Deploy > Manage deployments**, edit the deployment and set a new version. The web app URL stays the same.
+- The Body tab's fourth column is how you feel, from 1 (Rough) to 5 (Great). Steps are now a daily target in Settings, not something you log.
 - If the phone is offline when you save, the entry stays on the phone and syncs the next time the app can reach the sheet.
 - Clearing Safari's website data removes entries stored only on the phone. Entries already synced stay in the sheet.

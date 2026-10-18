@@ -15,7 +15,7 @@ var SECRET = "change-this-secret";
 
 var TABS = {
   Lifts: ["Date", "Lift", "Weight (kg)", "Set 1 reps", "Set 2 reps", "Set 3 reps"],
-  Body: ["Date", "Weight (kg)", "Calories eaten", "Steps"],
+  Body: ["Date", "Weight (kg)", "Calories eaten", "How I feel (1-5)"],
   Setup: ["Setting", "Value", "Notes"]
 };
 
@@ -82,6 +82,10 @@ function doGet() {
 
 function sheet_(ss, name) {
   var sh = ss.getSheetByName(name);
+  if (sh && name === "Body" && sh.getRange(1, 4).getValue() === "Steps") {
+    // Older versions of the app logged steps in column D. It now holds how the person feels.
+    sh.getRange(1, 4).setValue(TABS.Body[3]);
+  }
   if (!sh) {
     sh = ss.insertSheet(name);
     sh.getRange(1, 1, 1, TABS[name].length).setValues([TABS[name]]).setFontWeight("bold");

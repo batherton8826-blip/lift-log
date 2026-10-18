@@ -126,6 +126,17 @@
   details.panel[open] summary { margin-bottom: 4px; }
   .group { display: flex; flex-direction: column; gap: 10px; border-top: 1px solid var(--line); padding-top: 12px; }
   .group h3 { font-size: 1.125rem; }
+  select {
+    width: 100%; min-width: 0; height: 48px; padding: 0 10px;
+    background: var(--surface-2); color: var(--ink);
+    border: 1px solid var(--line); border-radius: 8px; font: 500 1rem var(--body);
+  }
+  select:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+  .feel { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+  .feel button { min-height: 48px; padding: 0 4px; background: var(--surface-2); color: var(--ink); border: 1px solid var(--line); font: 600 0.875rem var(--body); }
+  .feel button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+  .calc { background: var(--surface-2); border-radius: 8px; padding: 10px 12px; display: flex; flex-direction: column; gap: 6px; }
+  .calc b { font: 700 1.75rem/1 var(--display); font-variant-numeric: tabular-nums; }
 </style>
 </head>
 <body>
@@ -143,14 +154,26 @@
     calNeed: "Daily calories needed (kcal)",
     calGoal: "Daily calorie intake goal (kcal)",
     stepGoal: "Daily step goal",
-    startWeight: "Starting weight (kg)"
+    startWeight: "Starting weight (kg)",
+    sex: "Sex",
+    age: "Age",
+    heightCm: "Height (cm)",
+    activity: "Activity level"
   };
+  var FEEL = ["Rough", "Low", "Okay", "Good", "Great"];
+  var ACTIVITY = [
+    { id: "sedentary", f: 1.2, label: "Sedentary: desk job, little exercise" },
+    { id: "light", f: 1.375, label: "Lightly active: exercise 1 to 3 days a week" },
+    { id: "moderate", f: 1.55, label: "Moderately active: exercise 3 to 5 days a week" },
+    { id: "very", f: 1.725, label: "Very active: hard exercise 6 to 7 days a week" },
+    { id: "extra", f: 1.9, label: "Extra active: physical job plus hard training" }
+  ];
 
   function freshSettings() {
-    return { name: "", calNeed: null, calGoal: null, stepGoal: null, startWeight: null, lifts: DEFAULT_LIFTS.slice() };
+    return { name: "", calNeed: null, calGoal: null, stepGoal: null, startWeight: null, sex: "", age: null, heightCm: null, activity: "", lifts: DEFAULT_LIFTS.slice() };
   }
   var store = { lifts: [], body: [], settings: freshSettings(), settingsDirty: false, sync: { url: "", key: "" }, uid: 1, lastSync: null };
-  var ui = { touched: {}, msgs: {}, busy: {}, syncing: false, syncError: null, settingsOpen: false, storageWarn: false, renderedDate: "" };
+  var ui = { touched: {}, msgs: {}, busy: {}, syncing: false, syncError: null, settingsOpen: false, storageWarn: false, renderedDate: "", feel: null };
 
   function $(s) { return document.querySelector(s); }
   function esc(s) {
@@ -193,6 +216,57 @@
   function byDate(a, b) { return a.date < b.date ? -1 : a.date > b.date ? 1 : a.seq - b.seq; }
   function time(ms) { return new Date(ms).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }); }
 
+  function feelVal(x) {
+    var n = num(x);
+    return n != null && Number.isInteger(n) && n >= 1 && n <= 5 ? n : null;
+  }
+  function gainText(prev, w, reps) {
+    if (!prev || prev.reps.some(function (r) { return r == null; })) return "";
+    var dw = w - prev.weight;
+    var dr = reps[0] + reps[1] + reps[2] - (prev.reps[0] + prev.reps[1] + prev.reps[2]);
+    if (dw === 0 && dr === 0) return "Same as last time.";
+    var parts = [];
+    if (dw !== 0) parts.push((dw > 0 ? "up " : "down ") + kg(Math.abs(dw)) + " kg");
+    if (dr !== 0) parts.push((dr > 0 ? "up " : "down ") + Math.abs(dr) + " reps");
+    return "Compared with last time: " + parts.join(" and ") + ".";
+  }
+
+  /* ---------- maintenance calories (Mifflin-St Jeor) ---------- */
+  function readCalc() {
+    var g = function (id) { var el = document.getElementById(id); return el ? el.value : ""; };
+    var lw = latestWeight();
+    var wt = lw ? lw.weight : store.settings.startWeight;
+    var age = num(g("s-age")), h = num(g("s-height")), sex = g("s-sex"), act = g("s-activity");
+    var a = ACTIVITY.filter(function (x) { return x.id === act; })[0];
+    if (wt == null) return { ready: false, why: "Log your weight or set a starting weight first." };
+    if (!sex || age == null || h == null || !a) return { ready: false, why: "Choose sex, age, height and activity level to see the result." };
+    if (age < 10 || age > 100 || h < 100 || h > 250) return { ready: false, why: "Check the age and height." };
+    var bmr = 10 * wt + 6.25 * h - 5 * age + (sex === "male" ? 5 : -161);
+    return { ready: true, wt: wt, bmr: bmr, maint: bmr * a.f, a: a };
+  }
+  function updateCalc() {
+    var box = document.getElementById("calc");
+    if (!box) return;
+    var c = readCalc();
+    if (!c.ready) { box.innerHTML = '<span class="sub">' + esc(c.why) + "</span>"; return; }
+    var goal = num((document.getElementById("s-goal") || {}).value);
+    var h = '<span class="lab">Maintenance calories</span><b>' + fmtInt(c.maint) + ' kcal a day</b>' +
+      '<span class="sub">Resting rate (BMR) ' + fmtInt(c.bmr) + " kcal, times " + c.a.f + " for activity. Based on " + kg(c.wt) + " kg.</span>";
+    if (goal != null && goal < c.bmr) {
+      h += '<span class="sub">The calorie goal is below the resting rate. A gap that large is best agreed with a doctor or dietitian.</span>';
+    }
+    box.innerHTML = h;
+  }
+  function useCalc() {
+    var c = readCalc(), note = document.getElementById("calc-note");
+    if (!note) return;
+    if (!c.ready) { note.textContent = c.why; note.className = "msg err"; return; }
+    document.getElementById("s-need").value = Math.round(c.maint);
+    ui.touched["s-need"] = true;
+    note.textContent = "Filled in. Tap Save settings to keep it.";
+    note.className = "msg ok";
+  }
+
   /* ---------- storage on this phone ---------- */
   function loadStore() {
     try {
@@ -202,6 +276,7 @@
       if (!s || typeof s !== "object") return;
       store.lifts = Array.isArray(s.lifts) ? s.lifts : [];
       store.body = Array.isArray(s.body) ? s.body : [];
+      store.body.forEach(function (r) { if (r.feel === undefined) r.feel = null; delete r.steps; });
       store.settings = Object.assign(freshSettings(), s.settings || {});
       if (!Array.isArray(store.settings.lifts) || !store.settings.lifts.length) store.settings.lifts = DEFAULT_LIFTS.slice();
       store.sync = Object.assign({ url: "", key: "" }, s.sync || {});
@@ -260,7 +335,7 @@
       var r = rows[i] || [];
       var date = normDate(r[0]);
       if (!date) continue;
-      out.push({ date: date, weight: num(r[1]), cal: num(r[2]), steps: num(r[3]), synced: true, seq: i });
+      out.push({ date: date, weight: num(r[1]), cal: num(r[2]), feel: feelVal(r[3]), synced: true, seq: i });
     }
     return out;
   }
@@ -273,7 +348,9 @@
     if (store.settingsDirty) return;
     var s = store.settings;
     if (map[LABELS.name]) s.name = String(map[LABELS.name]);
-    ["calNeed", "calGoal", "stepGoal", "startWeight"].forEach(function (k) {
+    if (map[LABELS.sex] === "male" || map[LABELS.sex] === "female") s.sex = map[LABELS.sex];
+    if (ACTIVITY.some(function (a) { return a.id === map[LABELS.activity]; })) s.activity = map[LABELS.activity];
+    ["calNeed", "calGoal", "stepGoal", "startWeight", "age", "heightCm"].forEach(function (k) {
       var v = num(map[LABELS[k]]);
       if (v != null) s[k] = v;
     });
@@ -289,7 +366,7 @@
     pend = store.body.filter(function (r) { return !r.synced; });
     for (var j = 0; j < pend.length; j++) {
       var b = pend[j];
-      await api("append", { tab: "Body", row: [b.date, b.weight == null ? "" : b.weight, b.cal == null ? "" : b.cal, b.steps == null ? "" : b.steps] });
+      await api("append", { tab: "Body", row: [b.date, b.weight == null ? "" : b.weight, b.cal == null ? "" : b.cal, b.feel == null ? "" : b.feel] });
       b.synced = true; saveStore();
     }
     if (store.settingsDirty) {
@@ -337,15 +414,15 @@
     var all = store.lifts.filter(function (e) { return e.lift.toLowerCase() === key; });
     var before = all.filter(function (e) { return e.date < t; });
     var today = all.filter(function (e) { return e.date === t; });
-    return { prev: before[before.length - 1] || null, today: today[today.length - 1] || null };
+    return { prev: all[all.length - 1] || null, today: today[today.length - 1] || null };
   }
   function bodyToday() {
-    var t = todayISO(), o = { weight: null, cal: null, steps: null };
+    var t = todayISO(), o = { weight: null, cal: null, feel: null };
     store.body.forEach(function (r) {
       if (r.date !== t) return;
       if (r.weight != null) o.weight = r.weight;
       if (r.cal != null) o.cal = r.cal;
-      if (r.steps != null) o.steps = r.steps;
+      if (r.feel != null) o.feel = r.feel;
     });
     return o;
   }
@@ -378,7 +455,7 @@
     var bt = bodyToday(), lw = latestWeight(), s = store.settings;
     var need = s.calNeed, goal = s.calGoal, stepGoal = s.stepGoal, start = s.startWeight;
 
-    var weight = '<div class="panel"><span class="lab">Body weight</span>';
+    var weight = '<div class="panel"><span class="lab">Current weight</span>';
     if (lw) {
       weight += '<div class="big">' + esc(kg(lw.weight)) + ' <small>kg</small></div>';
       weight += '<p class="sub">' + esc(stLb(lw.weight)) + ", logged " + esc(shortDate(lw.date));
@@ -392,46 +469,46 @@
     }
     weight += "</div>";
 
-    var cal = '<div class="panel"><span class="lab">Calories today</span>';
+    var cal = '<div class="panel"><span class="lab">Target calories</span>';
     if (goal != null) {
-      if (bt.cal != null) {
-        cal += '<div class="big">' + esc(fmtInt(bt.cal)) + ' <small>/ ' + esc(fmtInt(goal)) + ' kcal</small></div>' + bar(bt.cal, goal, "cal");
-        var left = goal - bt.cal;
-        cal += '<p class="sub">' + (left >= 0 ? esc(fmtInt(left)) + " kcal left to your goal." : esc(fmtInt(-left)) + " kcal over your goal.") + "</p>";
-      } else {
-        cal += '<div class="big">&ndash; <small>/ ' + esc(fmtInt(goal)) + ' kcal</small></div><p class="sub">Not logged today.</p>';
+      cal += '<div class="big">' + esc(fmtInt(goal)) + ' <small>kcal a day</small></div>';
+      if (need != null) {
+        var gap = need - goal;
+        cal += '<p class="sub">Maintenance ' + esc(fmtInt(need)) + " kcal, planned " + (gap >= 0 ? "deficit " : "surplus ") + esc(fmtInt(Math.abs(gap))) + " kcal.</p>";
       }
-      if (need != null) cal += '<p class="sub">Daily need ' + esc(fmtInt(need)) + " kcal, planned deficit " + esc(fmtInt(need - goal)) + " kcal.</p>";
+      if (bt.cal != null) {
+        var left = goal - bt.cal;
+        cal += '<p class="sub">Eaten today ' + esc(fmtInt(bt.cal)) + " kcal, " + (left >= 0 ? esc(fmtInt(left)) + " left." : esc(fmtInt(-left)) + " over.") + "</p>";
+      }
     } else {
       cal += '<p class="sub">Set a daily calorie goal in Settings.</p>';
-      if (bt.cal != null) cal += '<div class="big">' + esc(fmtInt(bt.cal)) + ' <small>kcal today</small></div>';
     }
     cal += "</div>";
 
-    var steps = '<div class="panel"><span class="lab">Steps today</span>';
+    var steps = '<div class="panel"><span class="lab">Target steps</span>';
     if (stepGoal != null && stepGoal > 0) {
-      if (bt.steps != null) {
-        steps += '<div class="big">' + esc(fmtInt(bt.steps)) + ' <small>/ ' + esc(fmtInt(stepGoal)) + '</small></div>' + bar(bt.steps, stepGoal, "steps");
-      } else {
-        steps += '<div class="big">&ndash; <small>/ ' + esc(fmtInt(stepGoal)) + '</small></div><p class="sub">Not logged today.</p>';
-      }
+      steps += '<div class="big">' + esc(fmtInt(stepGoal)) + ' <small>steps a day</small></div>';
     } else {
       steps += '<p class="sub">Set a daily step goal in Settings.</p>';
-      if (bt.steps != null) steps += '<div class="big">' + esc(fmtInt(bt.steps)) + ' <small>steps today</small></div>';
     }
     steps += "</div>";
+
+    var cur = ui.feel != null ? ui.feel : bt.feel;
+    var feel = '<div class="field"><span class="lab" id="feel-lab">How I feel</span><div class="feel" role="group" aria-labelledby="feel-lab">' +
+      FEEL.map(function (f, i) {
+        return '<button type="button" data-act="feel" data-v="' + (i + 1) + '" aria-pressed="' + (cur === i + 1 ? "true" : "false") + '">' + esc(f) + "</button>";
+      }).join("") + "</div></div>";
 
     var m = ui.msgs.body || {};
     var form = '<div class="panel"><div class="sec-head"><h3>Log today</h3><span>' + esc(shortDate(todayISO())) + "</span></div>" +
       '<div class="fields">' +
       '<div class="field"><label for="b-w">Weight kg</label><input id="b-w" type="number" inputmode="decimal" step="0.1" min="0" value="' + esc(bt.weight != null ? kg(bt.weight) : "") + '" placeholder="' + esc(lw ? kg(lw.weight) : "") + '"></div>' +
       '<div class="field"><label for="b-c">Calories eaten</label><input id="b-c" type="number" inputmode="numeric" step="1" min="0" value="' + esc(bt.cal != null ? bt.cal : "") + '"></div>' +
-      '<div class="field"><label for="b-s">Steps</label><input id="b-s" type="number" inputmode="numeric" step="1" min="0" value="' + esc(bt.steps != null ? bt.steps : "") + '"></div>' +
-      "</div>" +
+      "</div>" + feel +
       '<button data-act="save-body"' + (ui.busy.body ? " disabled" : "") + ">Save today's numbers</button>" +
       '<p class="msg ' + esc(m.kind || "") + '" role="status">' + esc(m.text || "") + "</p></div>";
 
-    return '<section class="sec"><div class="sec-head"><h2>Today</h2></div><div class="tiles">' + weight + cal + steps + "</div>" + form + "</section>";
+    return '<section class="sec"><div class="sec-head"><h2>Daily target</h2></div><div class="tiles">' + weight + cal + steps + "</div>" + form + "</section>";
   }
 
   function liftCard(name) {
@@ -444,10 +521,10 @@
         '<div class="prevnums"><b>' + esc(kg(prev.weight)) + ' kg</b><span>' +
         prev.reps.map(function (r) { return r == null ? "–" : esc(r); }).join(" &middot; ") + " reps</span></div></div>";
     } else {
-      h += '<div class="prev"><span class="lab">Previous session</span><p class="sub">No earlier session logged yet.</p></div>';
+      h += '<div class="prev"><span class="lab">Previous session</span><p class="sub">No session logged yet.</p></div>';
     }
-    var defW = today ? today.weight : (prev ? prev.weight : "");
-    var defR = function (n) { return today && today.reps[n] != null ? today.reps[n] : ""; };
+    var defW = prev ? prev.weight : "";
+    var defR = function () { return ""; };
     var phR = function (n) { return prev && prev.reps[n] != null ? prev.reps[n] : ""; };
     h += '<div class="entry">' +
       '<div class="field"><label for="w-' + id + '">Weight kg</label><input id="w-' + id + '" type="number" inputmode="decimal" step="0.5" min="0" value="' + esc(defW === "" ? "" : kg(defW)) + '"></div>';
@@ -470,6 +547,12 @@
   function settingsSection() {
     var s = store.settings, sm = ui.msgs.settings || {}, ym = ui.msgs.sync || {};
     var val = function (v) { return esc(v == null ? "" : v); };
+    var sexOpts = [["", "Choose"], ["female", "Female"], ["male", "Male"]].map(function (o) {
+      return '<option value="' + o[0] + '"' + (s.sex === o[0] ? " selected" : "") + ">" + o[1] + "</option>";
+    }).join("");
+    var actOpts = '<option value="">Choose</option>' + ACTIVITY.map(function (a) {
+      return '<option value="' + a.id + '"' + (s.activity === a.id ? " selected" : "") + ">" + esc(a.label) + "</option>";
+    }).join("");
     return '<details class="panel" id="settings"' + (ui.settingsOpen ? " open" : "") + "><summary>Settings</summary>" +
       '<div class="fields">' +
       '<div class="field"><label for="s-name">Name</label><input class="text" id="s-name" type="text" autocomplete="off" value="' + val(s.name) + '"></div>' +
@@ -478,7 +561,18 @@
       '<div class="field"><label for="s-goal">Calorie goal a day</label><input id="s-goal" type="number" inputmode="numeric" min="0" value="' + val(s.calGoal) + '"></div>' +
       '<div class="field"><label for="s-steps">Step goal a day</label><input id="s-steps" type="number" inputmode="numeric" min="0" value="' + val(s.stepGoal) + '"></div>' +
       "</div>" +
-      '<div class="field"><label for="s-lifts">Lifts, one per line</label><textarea id="s-lifts" spellcheck="false">' + esc(s.lifts.join("\n")) + "</textarea></div>" +
+      '<div class="group"><h3>Work out calories needed</h3>' +
+      '<p class="sub">Estimates the calories burned in a day with the Mifflin-St Jeor formula, using the current weight. Fill in the details, then use the result as the calories needed.</p>' +
+      '<div class="fields">' +
+      '<div class="field"><label for="s-sex">Sex used in the formula</label><select id="s-sex">' + sexOpts + "</select></div>" +
+      '<div class="field"><label for="s-age">Age</label><input id="s-age" type="number" inputmode="numeric" min="10" max="100" value="' + val(s.age) + '"></div>' +
+      '<div class="field"><label for="s-height">Height cm</label><input id="s-height" type="number" inputmode="decimal" min="100" max="250" value="' + val(s.heightCm) + '"></div>' +
+      "</div>" +
+      '<div class="field"><label for="s-activity">Activity level</label><select id="s-activity">' + actOpts + "</select></div>" +
+      '<div class="calc" id="calc" aria-live="polite"></div>' +
+      '<button type="button" class="quiet" data-act="use-calc">Use as calories needed</button>' +
+      '<p class="msg" id="calc-note" role="status"></p></div>' +
+      '<div class="group"><div class="field"><label for="s-lifts">Lifts, one per line</label><textarea id="s-lifts" spellcheck="false">' + esc(s.lifts.join("\n")) + "</textarea></div></div>" +
       '<button data-act="save-settings">Save settings</button>' +
       '<p class="msg ' + esc(sm.kind || "") + '" role="status">' + esc(sm.text || "") + "</p>" +
       '<div class="group"><h3>Google Sheet sync</h3>' +
@@ -504,7 +598,7 @@
 
   function render() {
     var snap = {};
-    document.querySelectorAll("#app input, #app textarea").forEach(function (i) {
+    document.querySelectorAll("#app input, #app textarea, #app select").forEach(function (i) {
       if (i.id && ui.touched[i.id]) snap[i.id] = i.value;
     });
     var ae = document.activeElement;
@@ -520,6 +614,7 @@
     }
     ui.renderedDate = todayISO();
     liftNames().forEach(updateGain);
+    updateCalc();
   }
 
   /* ---------- live change vs previous session ---------- */
@@ -559,11 +654,12 @@
       if (prefixes.some(function (p) { return k.indexOf(p) === 0; })) delete ui.touched[k];
     });
   }
-  function afterLocalSave(key) {
-    if (!store.sync.url) { setMsg(key, "Saved on this phone.", "ok"); render(); return; }
-    setMsg(key, "Saved on this phone. Syncing…", "ok"); render();
+  function afterLocalSave(key, extra) {
+    var tail = extra ? " " + extra : "";
+    if (!store.sync.url) { setMsg(key, "Saved on this phone." + tail, "ok"); render(); return; }
+    setMsg(key, "Saved on this phone. Syncing…" + tail, "ok"); render();
     syncNow().then(function (ok) {
-      setMsg(key, ok ? "Saved and synced to your sheet." : "Saved on this phone. It will sync when your sheet is reachable.", ok ? "ok" : "err");
+      setMsg(key, (ok ? "Saved and synced to your sheet." : "Saved on this phone. It will sync when your sheet is reachable.") + tail, ok ? "ok" : "err");
       render();
     });
   }
@@ -575,36 +671,42 @@
     if (w == null || w <= 0 || reps.some(function (r) { return r == null || r < 1 || !Number.isInteger(r); })) {
       setMsg(id, "Enter the weight and whole-number reps for all three sets.", "err"); render(); return;
     }
+    var before = liftInfo(name).prev;
     store.lifts.push({ date: todayISO(), lift: name, weight: w, reps: reps, synced: false, seq: 1000000 + store.uid++ });
     store.lifts.sort(byDate);
     saveStore();
     clearTouched(["w-" + id, "r1-" + id, "r2-" + id, "r3-" + id]);
-    afterLocalSave(id);
+    afterLocalSave(id, gainText(before, w, reps));
   }
 
   function saveBody() {
     var w = num(document.getElementById("b-w").value);
     var c = num(document.getElementById("b-c").value);
-    var s = num(document.getElementById("b-s").value);
-    if (w == null && c == null && s == null) { setMsg("body", "Enter at least one of weight, calories or steps.", "err"); render(); return; }
-    if ((w != null && w <= 0) || (c != null && c < 0) || (s != null && s < 0)) { setMsg("body", "Use positive numbers.", "err"); render(); return; }
-    store.body.push({ date: todayISO(), weight: w, cal: c, steps: s, synced: false, seq: 1000000 + store.uid++ });
+    var f = ui.feel;
+    if (w == null && c == null && f == null) { setMsg("body", "Enter your weight, calories or how you feel.", "err"); render(); return; }
+    if ((w != null && w <= 0) || (c != null && c < 0)) { setMsg("body", "Use positive numbers.", "err"); render(); return; }
+    store.body.push({ date: todayISO(), weight: w, cal: c, feel: f, synced: false, seq: 1000000 + store.uid++ });
     store.body.sort(byDate);
     saveStore();
-    clearTouched(["b-w", "b-c", "b-s"]);
+    clearTouched(["b-w", "b-c"]);
+    ui.feel = null;
     afterLocalSave("body");
   }
 
   function saveSettings() {
     var s = store.settings;
     var v = function (id) { return document.getElementById(id).value; };
-    var checks = { "s-start": "Starting weight", "s-need": "Calories needed", "s-goal": "Calorie goal", "s-steps": "Step goal" };
+    var checks = { "s-start": "Starting weight", "s-need": "Calories needed", "s-goal": "Calorie goal", "s-steps": "Step goal", "s-age": "Age", "s-height": "Height" };
     for (var id in checks) {
       var raw = v(id).trim();
       if (raw !== "" && (num(raw) == null || num(raw) < 0)) { setMsg("settings", checks[id] + " must be a positive number.", "err"); render(); return; }
     }
+    var ageV = num(v("s-age")), heightV = num(v("s-height"));
+    if (ageV != null && (!Number.isInteger(ageV) || ageV < 10 || ageV > 100)) { setMsg("settings", "Enter age as a whole number from 10 to 100.", "err"); render(); return; }
+    if (heightV != null && (heightV < 100 || heightV > 250)) { setMsg("settings", "Enter height in centimetres, between 100 and 250.", "err"); render(); return; }
     s.name = v("s-name").trim().slice(0, 40);
     s.startWeight = num(v("s-start")); s.calNeed = num(v("s-need")); s.calGoal = num(v("s-goal")); s.stepGoal = num(v("s-steps"));
+    s.sex = v("s-sex"); s.age = ageV; s.heightCm = heightV; s.activity = v("s-activity");
     var seen = {}, lifts = [];
     v("s-lifts").split(/\r?\n/).forEach(function (l) {
       l = l.trim().slice(0, 30);
@@ -613,7 +715,7 @@
     s.lifts = lifts.length ? lifts : DEFAULT_LIFTS.slice();
     store.settingsDirty = true;
     saveStore();
-    clearTouched(["s-name", "s-start", "s-need", "s-goal", "s-steps", "s-lifts"]);
+    clearTouched(["s-name", "s-start", "s-need", "s-goal", "s-steps", "s-lifts", "s-sex", "s-age", "s-height", "s-activity"]);
     setMsg("settings", store.sync.url ? "Saved. Syncing…" : "Saved on this phone.", "ok");
     render();
     if (store.sync.url) syncNow().then(function (ok) { setMsg("settings", ok ? "Saved and synced to your sheet." : "Saved on this phone. It will sync when your sheet is reachable.", ok ? "ok" : "err"); render(); });
@@ -647,12 +749,15 @@
     else if (a === "save-body") saveBody();
     else if (a === "save-settings") saveSettings();
     else if (a === "save-sync") saveSync();
+    else if (a === "use-calc") useCalc();
+    else if (a === "feel") { ui.feel = Number(b.getAttribute("data-v")); render(); }
   });
   document.addEventListener("input", function (e) {
     var t = e.target;
     if (t && t.id) ui.touched[t.id] = true;
     var card = t && t.closest ? t.closest(".lift") : null;
     if (card) updateGain(card.getAttribute("data-lift"));
+    if (t && t.closest && t.closest("#settings")) updateCalc();
   });
   document.addEventListener("toggle", function (e) {
     if (e.target && e.target.id === "settings") ui.settingsOpen = e.target.open;
