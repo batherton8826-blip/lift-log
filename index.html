@@ -136,6 +136,9 @@
   .feel button { min-height: 48px; padding: 0 4px; background: var(--surface-2); color: var(--ink); border: 1px solid var(--line); font: 600 0.875rem var(--body); }
   .feel button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
   .calc { background: var(--surface-2); border-radius: 8px; padding: 10px 12px; display: flex; flex-direction: column; gap: 6px; }
+  .keyrow { display: flex; gap: 8px; }
+  .keyrow input { flex: 1 1 auto; min-width: 0; }
+  .keyrow button { flex: 0 0 auto; min-width: 84px; }
   .calc b { font: 700 1.75rem/1 var(--display); font-variant-numeric: tabular-nums; }
 </style>
 </head>
@@ -173,7 +176,7 @@
     return { name: "", calNeed: null, calGoal: null, stepGoal: null, startWeight: null, sex: "", age: null, heightCm: null, activity: "", lifts: DEFAULT_LIFTS.slice() };
   }
   var store = { lifts: [], body: [], settings: freshSettings(), settingsDirty: false, sync: { url: "", key: "" }, uid: 1, lastSync: null };
-  var ui = { touched: {}, msgs: {}, busy: {}, syncing: false, syncError: null, settingsOpen: false, storageWarn: false, renderedDate: "", feel: null };
+  var ui = { touched: {}, msgs: {}, busy: {}, syncing: false, syncError: null, settingsOpen: false, storageWarn: false, renderedDate: "", feel: null, showKey: false };
 
   function $(s) { return document.querySelector(s); }
   function esc(s) {
@@ -578,7 +581,8 @@
       '<div class="group"><h3>Google Sheet sync</h3>' +
       '<p class="sub">Optional. Paste the web app URL and secret key from your Apps Script. Without them, everything is saved on this phone only.</p>' +
       '<div class="field"><label for="sync-url">Web app URL</label><input class="text" id="sync-url" type="url" autocomplete="off" autocapitalize="off" spellcheck="false" value="' + val(store.sync.url) + '" placeholder="https://script.google.com/macros/s/…/exec"></div>' +
-      '<div class="field"><label for="sync-key">Secret key</label><input class="text" id="sync-key" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" value="' + val(store.sync.key) + '"></div>' +
+      '<div class="field"><label for="sync-key">Secret key</label><div class="keyrow"><input class="text" id="sync-key" type="' + (ui.showKey ? "text" : "password") + '" autocomplete="off" autocapitalize="off" spellcheck="false" value="' + val(store.sync.key) + '">' +
+      '<button type="button" class="quiet" id="toggle-key" data-act="toggle-key" aria-controls="sync-key" aria-pressed="' + (ui.showKey ? "true" : "false") + '" aria-label="' + (ui.showKey ? "Hide secret key" : "Show secret key") + '">' + (ui.showKey ? "Hide" : "Show") + "</button></div></div>" +
       '<button class="quiet" data-act="save-sync"' + (ui.syncing ? " disabled" : "") + ">Save and sync</button>" +
       '<p class="msg ' + esc(ym.kind || "") + '" role="status">' + esc(ym.text || "") + "</p></div>" +
       "</details>";
@@ -750,6 +754,7 @@
     else if (a === "save-settings") saveSettings();
     else if (a === "save-sync") saveSync();
     else if (a === "use-calc") useCalc();
+    else if (a === "toggle-key") { ui.showKey = !ui.showKey; render(); }
     else if (a === "feel") { ui.feel = Number(b.getAttribute("data-v")); render(); }
   });
   document.addEventListener("input", function (e) {
