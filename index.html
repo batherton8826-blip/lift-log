@@ -140,6 +140,29 @@
   .keyrow input { flex: 1 1 auto; min-width: 0; }
   .keyrow button { flex: 0 0 auto; min-width: 84px; }
   .calc b { font: 700 1.75rem/1 var(--display); font-variant-numeric: tabular-nums; }
+
+  /* Progress charts: one line chart at a time, drawn as inline SVG (no library). */
+  .picker { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+  .picker::-webkit-scrollbar { display: none; }
+  .picker button { flex: 0 0 auto; min-height: 44px; padding: 0 14px; background: var(--surface-2); color: var(--ink); border: 1px solid var(--line); font: 600 0.9375rem var(--body); }
+  .picker button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+  .readout { display: flex; align-items: center; gap: 10px; min-height: 96px; }
+  .readout .rv { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+  .readout b { font: 700 1.75rem/1 var(--display); font-variant-numeric: tabular-nums; }
+  .readout .step { flex: 0 0 auto; min-width: 44px; min-height: 44px; padding: 0; background: var(--surface-2); color: var(--ink); border: 1px solid var(--line); font-size: 1.25rem; }
+  .readout .step[aria-disabled="true"] { opacity: 0.4; }
+  .chartbox { width: 100%; max-width: 640px; margin: 0 auto; }
+  .chart { width: 100%; height: auto; display: block; touch-action: pan-y; -webkit-user-select: none; user-select: none; }
+  .ch-grid { stroke: var(--line); stroke-width: 1; }
+  .ch-tick { fill: var(--muted); font: 500 12px var(--body); }
+  .ch-line { fill: none; stroke: var(--accent); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+  .ch-dot { fill: var(--accent); stroke: var(--surface); stroke-width: 2; }
+  .ch-cx { stroke: var(--muted); stroke-width: 1; }
+  .tblwrap summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; font: 600 0.9375rem var(--body); color: var(--muted); }
+  .tblscroll { max-height: 260px; overflow: auto; }
+  table.tbl { width: 100%; border-collapse: collapse; font-size: 0.9375rem; font-variant-numeric: tabular-nums; }
+  table.tbl th, table.tbl td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  table.tbl th { color: var(--muted); font-weight: 600; font-size: 0.75rem; letter-spacing: 0.05em; text-transform: uppercase; position: sticky; top: 0; background: var(--surface); }
 </style>
 </head>
 <body>
@@ -176,7 +199,7 @@
     return { name: "", calNeed: null, calGoal: null, stepGoal: null, startWeight: null, sex: "", age: null, heightCm: null, activity: "", lifts: DEFAULT_LIFTS.slice() };
   }
   var store = { lifts: [], body: [], steps: [], settings: freshSettings(), settingsDirty: false, sync: { url: "", key: "" }, uid: 1, lastSync: null };
-  var ui = { touched: {}, msgs: {}, busy: {}, syncing: false, syncError: null, settingsOpen: false, storageWarn: false, renderedDate: "", feel: null, showKey: false };
+  var ui = { touched: {}, msgs: {}, busy: {}, syncing: false, syncError: null, settingsOpen: false, storageWarn: false, renderedDate: "", feel: null, showKey: false, chart: null, metric: "weight", sel: null, tableOpen: false };
 
   function $(s) { return document.querySelector(s); }
   function esc(s) {
@@ -570,6 +593,206 @@
       liftNames().map(liftCard).join("") + "</div></section>";
   }
 
+
+  /* ---------- progress charts ---------- */
+  var CH = { W: 360, H: 220, L: 46, R: 16, T: 14, B: 30 };
+  var METRICS = [
+    { id: "weight", label: "Weight" },
+    { id: "reps", label: "Total reps" },
+    { id: "volume", label: "Volume" }
+  ];
+  var chartPts = [];
+
+  function dayNum(iso) { var p = iso.split("-").map(Number); return Date.UTC(p[0], p[1] - 1, p[2]) / 86400000; }
+  function dayISO(n) { return new Date(Math.round(n) * 86400000).toISOString().slice(0, 10); }
+  function sumReps(reps) {
+    var t = 0, any = false;
+    reps.forEach(function (r) { if (r != null) { t += r; any = true; } });
+    return any ? t : null;
+  }
+  function numText(v) { return Number(v).toLocaleString("en-GB", { maximumFractionDigits: 2 }); }
+  function metricText(v, metric) {
+    if (metric === "reps") return numText(v) + " reps";
+    return numText(v) + " kg";
+  }
+  function metricUnit(metric) { return metric === "reps" ? "reps" : "kg"; }
+
+  function bodyPoints() {
+    var byDay = {}, order = [];
+    store.body.forEach(function (r) {
+      var o = byDay[r.date];
+      if (!o) { o = byDay[r.date] = { date: r.date, weight: null, cal: null, feel: null }; order.push(r.date); }
+      if (r.weight != null) o.weight = r.weight;
+      if (r.cal != null) o.cal = r.cal;
+      if (r.feel != null) o.feel = r.feel;
+    });
+    return order.sort().map(function (d) { return byDay[d]; }).filter(function (o) { return o.weight != null; }).map(function (o) {
+      var bits = [stLb(o.weight)];
+      if (o.cal != null) bits.push(fmtInt(o.cal) + " kcal eaten");
+      if (o.feel != null) bits.push("felt " + FEEL[o.feel - 1].toLowerCase());
+      return { date: o.date, v: o.weight, weight: o.weight, cal: o.cal, feel: o.feel, sub: bits.join(" · ") };
+    });
+  }
+  function liftPoints(name, metric) {
+    var key = name.toLowerCase(), byDay = {}, order = [];
+    store.lifts.forEach(function (e) {
+      if (e.lift.toLowerCase() !== key) return;
+      if (!byDay[e.date]) order.push(e.date);
+      byDay[e.date] = e;
+    });
+    var out = [];
+    order.sort().forEach(function (d) {
+      var e = byDay[d], total = sumReps(e.reps);
+      var vol = total != null ? e.weight * total : null;
+      var v = metric === "reps" ? total : metric === "volume" ? vol : e.weight;
+      if (v == null) return;
+      out.push({
+        date: d, v: v, weight: e.weight, total: total, vol: vol,
+        sub: kg(e.weight) + " kg · " + e.reps.map(function (r) { return r == null ? "–" : r; }).join(" · ") + " reps"
+      });
+    });
+    return out;
+  }
+  function chartSeries(target, metric) {
+    if (target === "body") return { body: true, metric: "weight", heading: "Body weight (kg)", pts: bodyPoints() };
+    var m = METRICS.filter(function (x) { return x.id === metric; })[0] || METRICS[0];
+    var unit = m.id === "reps" ? "all three sets" : m.id === "volume" ? "kg lifted: weight × total reps" : "kg";
+    return { body: false, metric: m.id, heading: target + ": " + m.label.toLowerCase() + " (" + unit + ")", pts: liftPoints(target, m.id) };
+  }
+  function chartTarget() {
+    var names = liftNames(), t = ui.chart;
+    if (t !== "body" && names.indexOf(t) < 0) t = null;
+    if (t == null) {
+      // First time: prefer a lift with a trend, then body weight, then any lift with data.
+      // Once something has data the choice is kept, so the chart doesn't jump when new entries arrive.
+      var multi = names.filter(function (n) { return liftPoints(n, "weight").length >= 2; })[0];
+      var any = names.filter(function (n) { return liftPoints(n, "weight").length >= 1; })[0];
+      t = multi || (bodyPoints().length >= 2 ? "body" : null) || any || (bodyPoints().length ? "body" : "body");
+      var has = t === "body" ? bodyPoints().length : liftPoints(t, "weight").length;
+      if (has) ui.chart = t;
+    }
+    return t;
+  }
+
+  function niceTicks(lo, hi) {
+    if (hi - lo < 1e-9) { var p = Math.max(1, Math.abs(hi) * 0.05); lo -= p; hi += p; }
+    var raw = (hi - lo) / 4, mag = Math.pow(10, Math.floor(Math.log10(raw))), r = raw / mag;
+    var step = (r <= 1 ? 1 : r <= 2 ? 2 : r <= 2.5 ? 2.5 : r <= 5 ? 5 : 10) * mag;
+    var out = [], start = Math.floor(lo / step + 1e-9) * step, end = Math.ceil(hi / step - 1e-9) * step;
+    for (var v = start; v <= end + step / 1e6; v += step) out.push(parseFloat(v.toFixed(10)));
+    return out;
+  }
+
+  function chartSvg(series) {
+    var pts = series.pts, n = pts.length;
+    var ticks = niceTicks(Math.min.apply(null, pts.map(function (p) { return p.v; })), Math.max.apply(null, pts.map(function (p) { return p.v; })));
+    var t0 = ticks[0], t1 = ticks[ticks.length - 1];
+    var x0 = CH.L + 10, x1 = CH.W - CH.R - 10, y0 = CH.T, y1 = CH.H - CH.B;
+    var d0 = dayNum(pts[0].date), d1 = dayNum(pts[n - 1].date), span = d1 - d0;
+    var yOf = function (v) { return y1 - (v - t0) / (t1 - t0) * (y1 - y0); };
+    pts.forEach(function (p) {
+      p.x = span === 0 ? (x0 + x1) / 2 : x0 + (dayNum(p.date) - d0) / span * (x1 - x0);
+      p.y = yOf(p.v);
+      p.main = metricText(p.v, series.metric);
+      p.readout = "<b>" + esc(p.main) + '</b><span class="sub">' + esc(fmtDate(p.date, { weekday: "short", day: "numeric", month: "short", year: "numeric" }) + (p.sub ? " · " + p.sub : "")) + "</span>";
+    });
+    var g = "";
+    ticks.forEach(function (t) {
+      var y = yOf(t);
+      g += '<line class="ch-grid" x1="' + CH.L + '" x2="' + (CH.W - CH.R) + '" y1="' + y.toFixed(1) + '" y2="' + y.toFixed(1) + '"/>' +
+        '<text class="ch-tick" x="' + (CH.L - 8) + '" y="' + (y + 4).toFixed(1) + '" text-anchor="end">' + esc(numText(t)) + "</text>";
+    });
+    var long = span > 330;
+    var lab = function (iso) { return fmtDate(iso, long ? { month: "short", year: "2-digit" } : { day: "numeric", month: "short" }); };
+    var ty = CH.H - 8, xt = function (x, anchor, iso) { return '<text class="ch-tick" x="' + x.toFixed(1) + '" y="' + ty + '" text-anchor="' + anchor + '">' + esc(lab(iso)) + "</text>"; };
+    if (span === 0) g += xt((x0 + x1) / 2, "middle", pts[0].date);
+    else {
+      g += xt(x0, "start", pts[0].date) + xt(x1, "end", pts[n - 1].date);
+      if (span >= 4) g += xt((x0 + x1) / 2, "middle", dayISO(d0 + span / 2));
+    }
+    if (n >= 2) g += '<path class="ch-line" d="' + pts.map(function (p, i) { return (i ? "L" : "M") + p.x.toFixed(1) + " " + p.y.toFixed(1); }).join(" ") + '"/>';
+    pts.forEach(function (p, i) {
+      if (n <= 40 || i === n - 1) g += '<circle class="ch-dot" cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '" r="4"/>';
+    });
+    g += '<line class="ch-cx" id="ch-cx" x1="0" x2="0" y1="' + y0 + '" y2="' + y1 + '"/>' +
+      '<circle class="ch-dot" id="ch-sel" cx="0" cy="0" r="6"/>' +
+      '<rect x="' + CH.L + '" y="0" width="' + (CH.W - CH.L) + '" height="' + CH.H + '" fill="transparent"/>';
+    var desc = series.heading + ", " + n + (n === 1 ? " entry" : " entries") + ", " + fmtDate(pts[0].date, { day: "numeric", month: "long", year: "numeric" }) +
+      (n > 1 ? " to " + fmtDate(pts[n - 1].date, { day: "numeric", month: "long", year: "numeric" }) : "") + ". The same figures are in the table below.";
+    return '<svg class="chart" id="ch-svg" viewBox="0 0 ' + CH.W + " " + CH.H + '" role="img" aria-label="' + esc(desc) + '">' + g + "</svg>";
+  }
+
+  function chartTable(series) {
+    var head = series.body ? ["Date", "Weight kg", "Calories", "Feel"] : ["Date", "Weight kg", "Total reps", "Volume kg"];
+    var rows = series.pts.slice().reverse().map(function (p) {
+      var cells = series.body
+        ? [kg(p.weight), p.cal != null ? fmtInt(p.cal) : "–", p.feel != null ? FEEL[p.feel - 1] : "–"]
+        : [kg(p.weight), p.total != null ? numText(p.total) : "–", p.vol != null ? numText(p.vol) : "–"];
+      return "<tr><td>" + esc(fmtDate(p.date, { day: "numeric", month: "short", year: "numeric" })) + "</td>" + cells.map(function (c) { return "<td>" + esc(c) + "</td>"; }).join("") + "</tr>";
+    }).join("");
+    return '<details class="tblwrap" id="ch-table"' + (ui.tableOpen ? " open" : "") + "><summary>Show as table</summary>" +
+      '<div class="tblscroll"><table class="tbl"><thead><tr>' + head.map(function (c) { return "<th>" + c + "</th>"; }).join("") + "</tr></thead><tbody>" + rows + "</tbody></table></div></details>";
+  }
+
+  function chartSection() {
+    var target = chartTarget(), names = liftNames();
+    var series = chartSeries(target, ui.metric);
+    var h = '<section class="sec" id="progress"><div class="sec-head"><h2>Progress</h2><span>Every session so far</span></div><div class="panel">';
+    h += '<div class="picker" role="group" aria-label="Choose what to chart">' +
+      ["body"].concat(names).map(function (n) {
+        return '<button type="button" id="pick-' + esc(slug(n)) + '" data-act="chart-pick" data-v="' + esc(n) + '" aria-pressed="' + (n === target ? "true" : "false") + '">' + (n === "body" ? "Body weight" : esc(n)) + "</button>";
+      }).join("") + "</div>";
+    if (target !== "body") {
+      h += '<div class="picker" role="group" aria-label="Choose the measure">' + METRICS.map(function (m) {
+        return '<button type="button" id="met-' + m.id + '" data-act="chart-metric" data-v="' + m.id + '" aria-pressed="' + (m.id === series.metric ? "true" : "false") + '">' + m.label + "</button>";
+      }).join("") + "</div>";
+    }
+    h += '<p class="lab">' + esc(series.heading) + "</p>";
+    chartPts = series.pts;
+    if (!series.pts.length) {
+      chartPts = [];
+      return h + '<p class="sub">Nothing to chart yet. Log ' + (series.body ? "your weight" : "a session") + " and it will appear here.</p></div></section>";
+    }
+    var n = series.pts.length, first = series.pts[0], last = series.pts[n - 1];
+    h += '<div class="readout"><button type="button" class="step" id="ch-prev" data-act="chart-step" data-v="-1" aria-label="Previous entry">‹</button>' +
+      '<div class="rv" id="ch-read" aria-live="polite"></div>' +
+      '<button type="button" class="step" id="ch-next" data-act="chart-step" data-v="1" aria-label="Next entry">›</button></div>';
+    h += '<div class="chartbox">' + chartSvg(series) + "</div>";
+    var unit = metricUnit(series.metric), delta = last.v - first.v;
+    var neutral = function (label, v) {
+      return '<span class="chip same"><small>' + label + "</small> " + (v > 0 ? "+" : v < 0 ? "−" : "±") + numText(Math.abs(v)) + " " + unit + "</span>";
+    };
+    h += '<div class="gain">';
+    if (n > 1) h += '<span class="chip same"><small>First</small> ' + esc(metricText(first.v, series.metric)) + "</span>";
+    h += '<span class="chip same"><small>Latest</small> ' + esc(metricText(last.v, series.metric)) + "</span>";
+    if (n > 1) h += series.body ? neutral("Change", delta) : chip("Change", delta, unit);
+    if (series.body && store.settings.startWeight != null) h += neutral("Since start", last.v - store.settings.startWeight);
+    if (n === 1) h += '<span class="sub">The line appears after a second entry.</span>';
+    h += "</div>" + chartTable(series) + "</div></section>";
+    return h;
+  }
+
+  function setSel(i) {
+    if (!chartPts.length) return;
+    i = Math.max(0, Math.min(chartPts.length - 1, i));
+    ui.sel = i === chartPts.length - 1 ? null : i; // null follows the latest entry as new ones arrive
+    var p = chartPts[i], el;
+    if ((el = document.getElementById("ch-read"))) el.innerHTML = p.readout;
+    if ((el = document.getElementById("ch-cx"))) { el.setAttribute("x1", p.x.toFixed(1)); el.setAttribute("x2", p.x.toFixed(1)); }
+    if ((el = document.getElementById("ch-sel"))) { el.setAttribute("cx", p.x.toFixed(1)); el.setAttribute("cy", p.y.toFixed(1)); }
+    if ((el = document.getElementById("ch-prev"))) el.setAttribute("aria-disabled", i === 0 ? "true" : "false");
+    if ((el = document.getElementById("ch-next"))) el.setAttribute("aria-disabled", i === chartPts.length - 1 ? "true" : "false");
+  }
+  function chartPointer(e) {
+    var svg = e.target && e.target.closest ? e.target.closest("#ch-svg") : null;
+    if (!svg || !chartPts.length) return;
+    var r = svg.getBoundingClientRect();
+    if (!r.width) return;
+    var x = (e.clientX - r.left) * (CH.W / r.width), best = 0, bd = Infinity;
+    chartPts.forEach(function (p, i) { var d = Math.abs(p.x - x); if (d < bd) { bd = d; best = i; } });
+    setSel(best);
+  }
+
   function settingsSection() {
     var s = store.settings, sm = ui.msgs.settings || {}, ym = ui.msgs.sync || {};
     var val = function (v) { return esc(v == null ? "" : v); };
@@ -618,7 +841,7 @@
     h += '<p class="status" role="status">' + esc(statusText()) + "</p>";
     if (ui.storageWarn) h += '<div class="banner" role="alert">This browser isn\'t saving data on your phone. Turn off private browsing, or entries will be lost when you close the page.</div>';
     if (store.settings.calGoal == null && !store.sync.url) h += '<div class="banner">Set your goals, and optionally connect a Google Sheet, in Settings at the bottom of the page.</div>';
-    h += bodySection() + liftSection() + settingsSection();
+    h += bodySection() + liftSection() + chartSection() + settingsSection();
     h += '<p class="foot">The date is added automatically from today\'s date on this phone.</p>';
     return h;
   }
@@ -642,6 +865,7 @@
     ui.renderedDate = todayISO();
     liftNames().forEach(updateGain);
     updateCalc();
+    setSel(ui.sel == null ? chartPts.length - 1 : ui.sel);
   }
 
   /* ---------- live change vs previous session ---------- */
@@ -779,7 +1003,12 @@
     else if (a === "use-calc") useCalc();
     else if (a === "toggle-key") { ui.showKey = !ui.showKey; render(); }
     else if (a === "feel") { ui.feel = Number(b.getAttribute("data-v")); render(); }
+    else if (a === "chart-pick") { ui.chart = b.getAttribute("data-v"); ui.sel = null; render(); }
+    else if (a === "chart-metric") { ui.metric = b.getAttribute("data-v"); ui.sel = null; render(); }
+    else if (a === "chart-step") setSel((ui.sel == null ? chartPts.length - 1 : ui.sel) + Number(b.getAttribute("data-v")));
   });
+  document.addEventListener("pointerdown", chartPointer);
+  document.addEventListener("pointermove", chartPointer);
   document.addEventListener("input", function (e) {
     var t = e.target;
     if (t && t.id) ui.touched[t.id] = true;
@@ -789,6 +1018,7 @@
   });
   document.addEventListener("toggle", function (e) {
     if (e.target && e.target.id === "settings") ui.settingsOpen = e.target.open;
+    if (e.target && e.target.id === "ch-table") ui.tableOpen = e.target.open;
   }, true);
   document.addEventListener("visibilitychange", function () {
     if (document.visibilityState !== "visible") return;

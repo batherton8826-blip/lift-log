@@ -62,6 +62,8 @@ How often it updates:
 
 - The secret key is the only thing stopping someone with the web app URL from reading or adding to that sheet. Use a long, private phrase and don't share the URL.
 - If you change the script later, choose **Deploy > Manage deployments**, edit the deployment and set a new version. The web app URL stays the same.
+- The Progress section in the app draws a line chart from every saved session: pick Body weight or a lift, then Weight, Total reps or Volume (weight times total reps). Drag a finger along the chart, or tap the arrow buttons, to see each session. "Show as table" lists the same figures.
+- Chaz's sheet also has an Overview tab at the front with all-time figures (starting, current, lowest and highest weight, and first against latest session for each lift). It is built with formulas in that sheet, so the script does not create it and a new sheet will not have one.
 - The Body tab's fourth column is how you feel, from 1 (Rough) to 5 (Great). Steps are now a daily target in Settings, not something you log.
 - If the phone is offline when you save, the entry stays on the phone and syncs the next time the app can reach the sheet.
 - Clearing Safari's website data removes entries stored only on the phone. Entries already synced stay in the sheet.
