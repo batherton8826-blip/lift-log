@@ -163,6 +163,23 @@
   table.tbl { width: 100%; border-collapse: collapse; font-size: 0.9375rem; font-variant-numeric: tabular-nums; }
   table.tbl th, table.tbl td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); white-space: nowrap; }
   table.tbl th { color: var(--muted); font-weight: 600; font-size: 0.75rem; letter-spacing: 0.05em; text-transform: uppercase; position: sticky; top: 0; background: var(--surface); }
+
+  /* Celebrations: shown inside the app when progress is made. No phone notifications. */
+  .celebrate { position: relative; overflow: hidden; border-radius: 12px; padding: 18px; display: flex; flex-direction: column; gap: 14px; background: var(--up-bg); color: var(--up); border: 1px solid var(--up); }
+  .celebrate.grand { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+  .celebrate > * { position: relative; z-index: 1; }
+  .cel { display: flex; flex-direction: column; gap: 4px; }
+  .cel + .cel { border-top: 1px solid currentColor; padding-top: 14px; }
+  .cel-head { font: 700 2rem/1.05 var(--display); text-transform: uppercase; letter-spacing: 0.02em; text-wrap: balance; }
+  .cel-text { font-size: 1.0625rem; }
+  .cel-when, .cel-more { font-size: 0.8125rem; letter-spacing: 0.05em; text-transform: uppercase; }
+  .celebrate button { align-self: flex-start; background: var(--accent); color: var(--accent-ink); }
+  .celebrate.grand button { background: var(--accent-ink); color: var(--accent); }
+  .confetti { position: absolute; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+  .confetti i { position: absolute; top: -16px; width: 8px; height: 14px; border-radius: 2px; animation: fall 3s ease-in 2 both; }
+  @keyframes fall { 0% { transform: translateY(-20px) rotate(0deg); opacity: 1; } 85% { opacity: 1; } 100% { transform: translateY(340px) rotate(560deg); opacity: 0; } }
+  @media (prefers-reduced-motion: reduce) { .confetti { display: none; } }
+  .bests { display: flex; gap: 6px; flex-wrap: wrap; }
 </style>
 </head>
 <body>
@@ -198,8 +215,8 @@
   function freshSettings() {
     return { name: "", calNeed: null, calGoal: null, stepGoal: null, startWeight: null, sex: "", age: null, heightCm: null, activity: "", lifts: DEFAULT_LIFTS.slice() };
   }
-  var store = { lifts: [], body: [], steps: [], settings: freshSettings(), settingsDirty: false, sync: { url: "", key: "" }, uid: 1, lastSync: null };
-  var ui = { touched: {}, msgs: {}, busy: {}, syncing: false, syncError: null, settingsOpen: false, storageWarn: false, renderedDate: "", feel: null, showKey: false, chart: null, metric: "weight", sel: null, tableOpen: false };
+  var store = { lifts: [], body: [], steps: [], settings: freshSettings(), settingsDirty: false, sync: { url: "", key: "" }, uid: 1, lastSync: null, achv: { seen: {}, base: false, syncBase: false } };
+  var ui = { touched: {}, msgs: {}, busy: {}, syncing: false, syncError: null, settingsOpen: false, storageWarn: false, renderedDate: "", feel: null, showKey: false, chart: null, metric: "weight", sel: null, tableOpen: false, scrollCel: false };
 
   function $(s) { return document.querySelector(s); }
   function esc(s) {
@@ -310,6 +327,8 @@
       store.settingsDirty = !!s.settingsDirty;
       store.uid = s.uid || 1;
       store.lastSync = s.lastSync || null;
+      var av = s.achv || {};
+      store.achv = { seen: Object.assign({}, av.seen || {}), base: !!av.base, syncBase: !!av.syncBase };
     } catch (e) { /* start fresh */ }
   }
   function saveStore() {
@@ -429,6 +448,7 @@
       applySetup(parseSetup(d.setup || []));
       store.steps = parseSteps(d.steps || []);
       store.lastSync = Date.now();
+      if (!store.achv.syncBase) { markAllSeen(); store.achv.syncBase = true; store.achv.base = true; }
       ok = true;
     } catch (e) {
       ui.syncError = syncErrText(e);
@@ -568,7 +588,13 @@
     if (prev) {
       h += '<div class="prev"><span class="lab">Previous session &middot; ' + esc(shortDate(prev.date)) + "</span>" +
         '<div class="prevnums"><b>' + esc(kg(prev.weight)) + ' kg</b><span>' +
-        prev.reps.map(function (r) { return r == null ? "–" : esc(r); }).join(" &middot; ") + " reps</span></div></div>";
+        prev.reps.map(function (r) { return r == null ? "–" : esc(r); }).join(" &middot; ") + " reps</span></div>";
+      var bs = liftBests(name);
+      if (bs && (bs.weight || bs.reps)) {
+        h += '<div class="bests">' + (bs.weight ? '<span class="chip up"><small>Best</small> Heaviest yet, ' + esc(kg(bs.weightVal)) + " kg</span>" : "") +
+          (bs.reps ? '<span class="chip up"><small>Best</small> Most reps yet, ' + esc(bs.total) + "</span>" : "") + "</div>";
+      }
+      h += "</div>";
     } else {
       h += '<div class="prev"><span class="lab">Previous session</span><p class="sub">No session logged yet.</p></div>';
     }
@@ -594,6 +620,137 @@
   }
 
 
+
+  /* ---------- celebrations (inside the app only) ---------- */
+  var GIFT_FROM = "Brad";   // named in the "under a multiple of 10 kg" banner
+  var LB_KCAL = 3500;       // calories in about one pound of body fat
+
+  function dailyCalories() {
+    var by = {}, order = [];
+    store.body.forEach(function (r) {
+      if (r.cal == null) return;
+      if (!(r.date in by)) order.push(r.date);
+      by[r.date] = r.cal;
+    });
+    return order.sort().map(function (d) { return { date: d, cal: by[d] }; });
+  }
+  // Running total of calories under maintenance. Only days under maintenance add to it.
+  function deficitPoints() {
+    var need = store.settings.calNeed, cum = 0;
+    if (need == null || !(need > 0)) return [];
+    return dailyCalories().filter(function (d) { return d.cal > 0; }).map(function (d) {
+      var under = Math.max(0, need - d.cal);
+      cum += under;
+      return { date: d.date, v: cum, cal: d.cal, under: under, sub: fmtInt(d.cal) + " kcal eaten · " + (under > 0 ? fmtInt(under) + " under maintenance" : "over maintenance, not counted") };
+    });
+  }
+
+  function achievements() {
+    var out = [], s = store.settings, today = todayISO();
+    var need = s.calNeed, goal = s.calGoal, start = s.startWeight;
+    var wts = bodyPoints();
+
+    // Every time a logged weight goes under a new multiple of 10 kg (140, 130, 120 ...)
+    var minSoFar = start != null ? start : (wts.length ? wts[0].v : null);
+    wts.forEach(function (p) {
+      if (minSoFar == null || !(p.v < minSoFar)) return;
+      for (var L = Math.floor(p.v / 10) * 10 + 10; L <= minSoFar + 1e-9; L += 10) {
+        out.push({ key: "u:" + L, rank: 0, tier: "big", head: "Big achievement!", date: p.date,
+          text: "Look at you go! Under " + L + "kg — that's a real milestone worth celebrating. " + GIFT_FROM + " says this one deserves a gift, so watch this space!" });
+      }
+      minSoFar = p.v;
+    });
+
+    // Every 5 kg lost since the starting weight (measured at the lowest weight logged)
+    if (start != null && wts.length) {
+      var best = Math.min.apply(null, wts.map(function (p) { return p.v; })), lost = start - best;
+      for (var i = 1; i <= Math.floor(lost / 5 + 1e-9); i++) {
+        out.push({ key: "kg:" + i, rank: 1, tier: "big", head: (i * 5) + " kg lost!", date: null,
+          text: "That's " + numText(parseFloat(lost.toFixed(1))) + " kg down since starting at " + numText(start) + " kg. Brilliant work." });
+      }
+    }
+
+    // Every 3,500 kcal of running deficit: about a pound
+    var dp = deficitPoints();
+    if (dp.length) {
+      var total = dp[dp.length - 1].v;
+      for (var j = 1; j <= Math.floor(total / LB_KCAL); j++) {
+        out.push({ key: "lb:" + j, rank: 2, tier: "big", date: null,
+          head: j === 1 ? "About a pound lost!" : "Another pound gone!",
+          text: j === 1 ? "The running calorie deficit has passed " + fmtInt(LB_KCAL) + " kcal. That's about a pound lost."
+                        : "That's about " + j + " lb lost in total, with " + fmtInt(total) + " kcal under maintenance so far." });
+      }
+    }
+
+    // Calories eaten: within the goal is the big one, under maintenance is a win
+    dailyCalories().forEach(function (d) {
+      if (!(d.cal > 0)) return;
+      var when = d.date === today ? "Today" : shortDate(d.date);
+      if (goal != null && goal > 0 && d.cal <= goal) {
+        out.push({ key: "goal:" + d.date, rank: 3, tier: "big", head: "On target!", when: when, date: d.date,
+          text: fmtInt(d.cal) + " kcal is within the " + fmtInt(goal) + " kcal goal. Well done." });
+      } else if (need != null && need > 0 && d.cal < need) {
+        out.push({ key: "maint:" + d.date, rank: 4, tier: "win", head: "Deficit day", when: when, date: d.date,
+          text: fmtInt(d.cal) + " kcal is " + fmtInt(need - d.cal) + " under the " + fmtInt(need) + " kcal maintenance." });
+      }
+    });
+    return out;
+  }
+  function unseenAchievements() {
+    return achievements().filter(function (a) { return !store.achv.seen[a.key]; }).sort(function (x, y) {
+      return x.rank - y.rank || (y.date || "").localeCompare(x.date || "");
+    });
+  }
+  function markAllSeen() {
+    achievements().forEach(function (a) { store.achv.seen[a.key] = true; });
+  }
+  // History that already exists when a phone first starts using this is not announced as new.
+  function achvBaseline() {
+    var a = store.achv;
+    if (a.base) return;
+    if (store.sync.url && !store.lastSync) return;
+    markAllSeen(); a.base = true; if (store.sync.url) a.syncBase = true;
+    saveStore();
+  }
+  function confettiHtml() {
+    var cols = ["#f5b700", "#e4572e", "#2f9be8", "#2fbf71", "#c05cf0"], h = '<div class="confetti" aria-hidden="true">';
+    for (var i = 0; i < 26; i++) {
+      h += '<i style="left:' + ((i * 37 + 7) % 100) + "%;background:" + cols[i % 5] + ";animation-delay:" + ((i % 8) * 0.2).toFixed(2) + "s;animation-duration:" + (2.4 + (i % 5) * 0.35).toFixed(2) + 's"></i>';
+    }
+    return h + "</div>";
+  }
+  function celebrateSection() {
+    var items = unseenAchievements();
+    if (!items.length) return "";
+    var shown = items.slice(0, 3), big = shown.some(function (i) { return i.tier === "big"; });
+    var h = '<section class="celebrate' + (big ? " grand" : "") + '" id="celebrate" role="status" aria-live="polite">' + (big ? confettiHtml() : "");
+    shown.forEach(function (i) {
+      h += '<div class="cel"><p class="cel-head">' + esc(i.head) + '</p><p class="cel-text">' + esc(i.text) + "</p>" + (i.when ? '<p class="cel-when">' + esc(i.when) + "</p>" : "") + "</div>";
+    });
+    if (items.length > shown.length) h += '<p class="cel-more">+' + (items.length - shown.length) + " more " + (items.length - shown.length === 1 ? "win" : "wins") + "</p>";
+    return h + '<button type="button" data-act="dismiss-celebrate">Thanks</button></section>';
+  }
+
+  // Quiet everyday bests, shown on a lift card when the latest session beat every earlier one
+  function liftBests(name) {
+    var key = name.toLowerCase(), by = {}, order = [];
+    store.lifts.forEach(function (e) {
+      if (e.lift.toLowerCase() !== key) return;
+      if (!(e.date in by)) order.push(e.date);
+      by[e.date] = e;
+    });
+    order.sort();
+    if (order.length < 2) return null;
+    var last = by[order[order.length - 1]], maxW = -Infinity, maxR = -Infinity;
+    order.slice(0, -1).forEach(function (d) {
+      var e = by[d], t = sumReps(e.reps);
+      maxW = Math.max(maxW, e.weight);
+      if (t != null) maxR = Math.max(maxR, t);
+    });
+    var tot = sumReps(last.reps);
+    return { weight: last.weight > maxW, weightVal: last.weight, reps: tot != null && maxR > -Infinity && tot > maxR, total: tot };
+  }
+
   /* ---------- progress charts ---------- */
   var CH = { W: 360, H: 220, L: 46, R: 16, T: 14, B: 30 };
   var METRICS = [
@@ -613,9 +770,10 @@
   function numText(v) { return Number(v).toLocaleString("en-GB", { maximumFractionDigits: 2 }); }
   function metricText(v, metric) {
     if (metric === "reps") return numText(v) + " reps";
+    if (metric === "kcal") return numText(v) + " kcal";
     return numText(v) + " kg";
   }
-  function metricUnit(metric) { return metric === "reps" ? "reps" : "kg"; }
+  function metricUnit(metric) { return metric === "reps" ? "reps" : metric === "kcal" ? "kcal" : "kg"; }
 
   function bodyPoints() {
     var byDay = {}, order = [];
@@ -654,6 +812,7 @@
     return out;
   }
   function chartSeries(target, metric) {
+    if (target === "deficit") return { body: false, deficit: true, metric: "kcal", heading: "Calories under maintenance, running total (kcal)", pts: deficitPoints() };
     if (target === "body") return { body: true, metric: "weight", heading: "Body weight (kg)", pts: bodyPoints() };
     var m = METRICS.filter(function (x) { return x.id === metric; })[0] || METRICS[0];
     var unit = m.id === "reps" ? "all three sets" : m.id === "volume" ? "kg lifted: weight × total reps" : "kg";
@@ -661,7 +820,7 @@
   }
   function chartTarget() {
     var names = liftNames(), t = ui.chart;
-    if (t !== "body" && names.indexOf(t) < 0) t = null;
+    if (t !== "body" && t !== "deficit" && names.indexOf(t) < 0) t = null;
     if (t == null) {
       // First time: prefer a lift with a trend, then body weight, then any lift with data.
       // Once something has data the choice is kept, so the chart doesn't jump when new entries arrive.
@@ -723,11 +882,13 @@
   }
 
   function chartTable(series) {
-    var head = series.body ? ["Date", "Weight kg", "Calories", "Feel"] : ["Date", "Weight kg", "Total reps", "Volume kg"];
+    var head = series.deficit ? ["Date", "Calories eaten", "Under maintenance", "Running total"] : series.body ? ["Date", "Weight kg", "Calories", "Feel"] : ["Date", "Weight kg", "Total reps", "Volume kg"];
     var rows = series.pts.slice().reverse().map(function (p) {
-      var cells = series.body
-        ? [kg(p.weight), p.cal != null ? fmtInt(p.cal) : "–", p.feel != null ? FEEL[p.feel - 1] : "–"]
-        : [kg(p.weight), p.total != null ? numText(p.total) : "–", p.vol != null ? numText(p.vol) : "–"];
+      var cells = series.deficit
+        ? [fmtInt(p.cal), fmtInt(p.under), fmtInt(p.v)]
+        : series.body
+          ? [kg(p.weight), p.cal != null ? fmtInt(p.cal) : "–", p.feel != null ? FEEL[p.feel - 1] : "–"]
+          : [kg(p.weight), p.total != null ? numText(p.total) : "–", p.vol != null ? numText(p.vol) : "–"];
       return "<tr><td>" + esc(fmtDate(p.date, { day: "numeric", month: "short", year: "numeric" })) + "</td>" + cells.map(function (c) { return "<td>" + esc(c) + "</td>"; }).join("") + "</tr>";
     }).join("");
     return '<details class="tblwrap" id="ch-table"' + (ui.tableOpen ? " open" : "") + "><summary>Show as table</summary>" +
@@ -736,13 +897,13 @@
 
   function chartSection() {
     var target = chartTarget(), names = liftNames();
-    var series = chartSeries(target, ui.metric);
+    var series = chartSeries(target, ui.metric), special = target === "body" || target === "deficit";
     var h = '<section class="sec" id="progress"><div class="sec-head"><h2>Progress</h2><span>Every session so far</span></div><div class="panel">';
-    h += '<div class="picker" role="group" aria-label="Choose what to chart">' +
-      ["body"].concat(names).map(function (n) {
-        return '<button type="button" id="pick-' + esc(slug(n)) + '" data-act="chart-pick" data-v="' + esc(n) + '" aria-pressed="' + (n === target ? "true" : "false") + '">' + (n === "body" ? "Body weight" : esc(n)) + "</button>";
-      }).join("") + "</div>";
-    if (target !== "body") {
+    var opts = [["body", "Body weight"], ["deficit", "Calorie deficit"]].concat(names.map(function (n) { return [n, n]; }));
+    h += '<div class="picker" role="group" aria-label="Choose what to chart">' + opts.map(function (o) {
+      return '<button type="button" id="pick-' + esc(slug(o[0])) + '" data-act="chart-pick" data-v="' + esc(o[0]) + '" aria-pressed="' + (o[0] === target ? "true" : "false") + '">' + esc(o[1]) + "</button>";
+    }).join("") + "</div>";
+    if (!special) {
       h += '<div class="picker" role="group" aria-label="Choose the measure">' + METRICS.map(function (m) {
         return '<button type="button" id="met-' + m.id + '" data-act="chart-metric" data-v="' + m.id + '" aria-pressed="' + (m.id === series.metric ? "true" : "false") + '">' + m.label + "</button>";
       }).join("") + "</div>";
@@ -751,7 +912,10 @@
     chartPts = series.pts;
     if (!series.pts.length) {
       chartPts = [];
-      return h + '<p class="sub">Nothing to chart yet. Log ' + (series.body ? "your weight" : "a session") + " and it will appear here.</p></div></section>";
+      var empty = series.deficit
+        ? (store.settings.calNeed == null ? "Add the calories needed a day (maintenance) in Settings, then log your calories eaten. The running total appears here." : "Nothing to chart yet. Log your calories eaten and it will appear here.")
+        : "Nothing to chart yet. Log " + (series.body ? "your weight" : "a session") + " and it will appear here.";
+      return h + '<p class="sub">' + esc(empty) + "</p></div></section>";
     }
     var n = series.pts.length, first = series.pts[0], last = series.pts[n - 1];
     h += '<div class="readout"><button type="button" class="step" id="ch-prev" data-act="chart-step" data-v="-1" aria-label="Previous entry">‹</button>' +
@@ -763,11 +927,17 @@
       return '<span class="chip same"><small>' + label + "</small> " + (v > 0 ? "+" : v < 0 ? "−" : "±") + numText(Math.abs(v)) + " " + unit + "</span>";
     };
     h += '<div class="gain">';
-    if (n > 1) h += '<span class="chip same"><small>First</small> ' + esc(metricText(first.v, series.metric)) + "</span>";
-    h += '<span class="chip same"><small>Latest</small> ' + esc(metricText(last.v, series.metric)) + "</span>";
-    if (n > 1) h += series.body ? neutral("Change", delta) : chip("Change", delta, unit);
-    if (series.body && store.settings.startWeight != null) h += neutral("Since start", last.v - store.settings.startWeight);
-    if (n === 1) h += '<span class="sub">The line appears after a second entry.</span>';
+    if (series.deficit) {
+      h += '<span class="chip same"><small>Total</small> ' + fmtInt(last.v) + ' kcal</span>' +
+        '<span class="chip up"><small>About</small> ' + numText(Math.round(last.v / LB_KCAL * 10) / 10) + ' lb</span>' +
+        '<span class="chip same"><small>Next lb in</small> ' + fmtInt(LB_KCAL - (last.v % LB_KCAL)) + " kcal</span>";
+    } else {
+      if (n > 1) h += '<span class="chip same"><small>First</small> ' + esc(metricText(first.v, series.metric)) + "</span>";
+      h += '<span class="chip same"><small>Latest</small> ' + esc(metricText(last.v, series.metric)) + "</span>";
+      if (n > 1) h += series.body ? neutral("Change", delta) : chip("Change", delta, unit);
+      if (series.body && store.settings.startWeight != null) h += neutral("Since start", last.v - store.settings.startWeight);
+      if (n === 1) h += '<span class="sub">The line appears after a second entry.</span>';
+    }
     h += "</div>" + chartTable(series) + "</div></section>";
     return h;
   }
@@ -841,7 +1011,7 @@
     h += '<p class="status" role="status">' + esc(statusText()) + "</p>";
     if (ui.storageWarn) h += '<div class="banner" role="alert">This browser isn\'t saving data on your phone. Turn off private browsing, or entries will be lost when you close the page.</div>';
     if (store.settings.calGoal == null && !store.sync.url) h += '<div class="banner">Set your goals, and optionally connect a Google Sheet, in Settings at the bottom of the page.</div>';
-    h += bodySection() + liftSection() + chartSection() + settingsSection();
+    h += celebrateSection() + bodySection() + liftSection() + chartSection() + settingsSection();
     h += '<p class="foot">The date is added automatically from today\'s date on this phone.</p>';
     return h;
   }
@@ -853,6 +1023,7 @@
     });
     var ae = document.activeElement;
     var focusId = ae && ae.id && ae.closest && ae.closest("#app") ? ae.id : null;
+    achvBaseline();
     $("#app").innerHTML = html();
     Object.keys(snap).forEach(function (id) {
       var el = document.getElementById(id);
@@ -866,6 +1037,11 @@
     liftNames().forEach(updateGain);
     updateCalc();
     setSel(ui.sel == null ? chartPts.length - 1 : ui.sel);
+    if (ui.scrollCel) {
+      ui.scrollCel = false;
+      var cel = document.getElementById("celebrate");
+      if (cel && cel.scrollIntoView) cel.scrollIntoView({ block: "start", behavior: window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+    }
   }
 
   /* ---------- live change vs previous session ---------- */
@@ -926,6 +1102,7 @@
     store.lifts.push({ date: todayISO(), lift: name, weight: w, reps: reps, synced: false, seq: 1000000 + store.uid++ });
     store.lifts.sort(byDate);
     saveStore();
+    ui.scrollCel = true;
     clearTouched(["w-" + id, "r1-" + id, "r2-" + id, "r3-" + id]);
     afterLocalSave(id, gainText(before, w, reps));
   }
@@ -939,6 +1116,7 @@
     store.body.push({ date: todayISO(), weight: w, cal: c, feel: f, synced: false, seq: 1000000 + store.uid++ });
     store.body.sort(byDate);
     saveStore();
+    ui.scrollCel = true;
     clearTouched(["b-w", "b-c"]);
     ui.feel = null;
     afterLocalSave("body");
@@ -1003,6 +1181,7 @@
     else if (a === "use-calc") useCalc();
     else if (a === "toggle-key") { ui.showKey = !ui.showKey; render(); }
     else if (a === "feel") { ui.feel = Number(b.getAttribute("data-v")); render(); }
+    else if (a === "dismiss-celebrate") { markAllSeen(); saveStore(); render(); }
     else if (a === "chart-pick") { ui.chart = b.getAttribute("data-v"); ui.sel = null; render(); }
     else if (a === "chart-metric") { ui.metric = b.getAttribute("data-v"); ui.sel = null; render(); }
     else if (a === "chart-step") setSel((ui.sel == null ? chartPts.length - 1 : ui.sel) + Number(b.getAttribute("data-v")));
