@@ -114,7 +114,7 @@
   .box b { font: 700 1.375rem/1.05 var(--display); font-variant-numeric: tabular-nums; }
   .box span.v { font: 600 1.0625rem var(--display); color: var(--muted); font-variant-numeric: tabular-nums; }
   .box.goal span.v { color: var(--ink); }
-  .entry { display: grid; grid-template-columns: 1.35fr 1fr 1fr 1fr; gap: 8px; }
+  .entry { display: grid; grid-template-columns: 1.35fr 1fr 1fr 1fr; gap: 8px; align-items: end; }
   .entry.three { grid-template-columns: 1fr 1fr 1fr; }
   .card-done { opacity: 0.92; }
 
@@ -199,8 +199,10 @@
   var STORE_KEY = "gym-v1";
   var KG_PER_LB = 0.45359237;
   var SESSIONS = [["1", "Session one"], ["2", "Session two"]];
+  var PLAN_KEYS = ["W", "WX", "1", "2"]; // W: warm-up every session, WX: warm-up, choose one
+  function isWarm(k) { return k === "W" || k === "WX"; }
   var AREAS = ["Legs", "Back", "Chest", "Shoulders", "Arms", "Core", "Cardio"];
-  var EQUIP = ["Machine", "Cable", "Dumbbell", "Bodyweight", "Cardio machine"];
+  var EQUIP = ["Machine", "Cable", "Dumbbell", "Kettlebell", "Bodyweight", "Cardio machine"];
   var PER = [["", "Total"], ["each hand", "Each hand"], ["each arm", "Each arm"], ["each side", "Each side"]];
   var ACTIVITY = [
     { id: "sedentary", f: 1.2, label: "Little or no exercise" },
@@ -243,6 +245,9 @@
     { id: "rdl", n: "Dumbbell Romanian deadlift", a: "Legs", e: "Dumbbell", t: "reps", p: "each hand", inc: 2.5,
       how: ["Stand holding dumbbells in front of your thighs, knees slightly bent.", "Push your hips back and slide the weights down the front of your legs, keeping your back flat.", "Stop when you feel a stretch in the back of your thighs, then squeeze your bottom to stand."],
       tips: ["Keep the weights close to your legs.", "Your back stays flat; it's a hip movement, not a back bend."] },
+    { id: "kb-rdl", n: "Kettlebell Romanian deadlift", a: "Legs", e: "Kettlebell", t: "reps", inc: 2,
+      how: ["Stand with feet hip-width apart, holding the kettlebell handle with both hands in front of your thighs.", "With a slight bend in your knees, push your hips back and slide the kettlebell down the front of your legs, keeping your back flat.", "Stop when you feel a stretch in the back of your thighs, then squeeze your bottom and stand tall."],
+      tips: ["Keep the kettlebell close to your legs.", "It's a bend at the hips, not a squat; your back stays flat."] },
     { id: "glute-bridge", n: "Glute bridge", a: "Legs", e: "Bodyweight", t: "reps", nw: true, next: "hip-thrust",
       how: ["Lie on your back with knees bent and feet flat, hip-width apart.", "Push through your heels to lift your hips until you're in a straight line from shoulders to knees.", "Pause and squeeze, then lower slowly."],
       tips: ["Squeeze your bottom at the top rather than arching your back.", "Keep your ribs down."] },
@@ -364,17 +369,19 @@
   CATALOGUE.forEach(function (c) { CAT[c.id] = c; });
 
   var DEFAULT_PLAN = {
-    "1": [["rope-pull", 30], ["lateral-raise", 2.5], ["front-raise", 2.5], ["chest-press-machine", 0, "Seat 5, handles 3"], ["lat-pulldown", 27.5], ["calf-raise", 7.5]],
+    "W": [["rope-pull", 30]],
+    "WX": [["step-up", 5, "", "wu-step-up"], ["kb-rdl", 8]],
+    "1": [["lateral-raise", 2.5], ["front-raise", 2.5], ["chest-press-machine", 0, "Seat 5, handles 3"], ["lat-pulldown", 27.5], ["calf-raise", 7.5]],
     "2": [["triceps-rope", 11.25], ["shoulder-press-machine", 12.5, "Seat 5, narrow grip"], ["step-up", 5], ["single-arm-cable-row", 7.5], ["pec-fly-machine", 20, "Seat 4"], ["pallof-press", 13.75]]
   };
 
-  function fromCat(id, start, note) {
+  function fromCat(id, start, note, uid) {
     var c = CAT[id];
-    return { id: c.id, cat: c.id, name: c.n, type: c.t, per: c.p || "", start: start != null ? start : (c.t === "time" ? 30 : 0), inc: c.inc || 0, note: note || "", equip: c.e, noW: !!c.nw, how: "" };
+    return { id: uid || c.id, cat: c.id, name: c.n + (uid && uid.indexOf("wu-") === 0 ? " (warm-up)" : ""), type: c.t, per: c.p || "", start: start != null ? start : (c.t === "time" ? 30 : 0), inc: c.inc || 0, note: note || "", equip: c.e, noW: !!c.nw, how: "" };
   }
   function freshPlan() {
     var p = {};
-    Object.keys(DEFAULT_PLAN).forEach(function (s) { p[s] = DEFAULT_PLAN[s].map(function (x) { return fromCat(x[0], x[1], x[2]); }); });
+    Object.keys(DEFAULT_PLAN).forEach(function (s) { p[s] = DEFAULT_PLAN[s].map(function (x) { return fromCat(x[0], x[1], x[2], x[3]); }); });
     return p;
   }
   function freshSettings() {
@@ -408,7 +415,7 @@
   function byDate(a, b) { return a.date < b.date ? -1 : a.date > b.date ? 1 : a.seq - b.seq; }
   function time(ms) { return new Date(ms).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }); }
   function sum(a) { var t = 0, any = false; a.forEach(function (v) { if (v != null) { t += v; any = true; } }); return any ? t : null; }
-  function sessionName(s) { var x = SESSIONS.filter(function (p) { return p[0] === s; })[0]; return x ? x[1] : "Session " + s; }
+  function sessionName(s) { if (s === "W") return "the warm-up"; if (s === "WX") return "the warm-up choices"; var x = SESSIONS.filter(function (p) { return p[0] === s; })[0]; return x ? x[1] : "Session " + s; }
   function unitOf(ex) { return ex.type === "time" ? "secs" : "reps"; }
   function weightLabel(ex) { return ex.per === "each hand" ? "kg each hand" : "kg"; }
 
@@ -420,7 +427,14 @@
       var s = JSON.parse(raw);
       if (!s || typeof s !== "object") return;
       if (s.plan && typeof s.plan === "object") store.plan = s.plan;
-      SESSIONS.forEach(function (p) { if (!Array.isArray(store.plan[p[0]])) store.plan[p[0]] = []; });
+      if (!Array.isArray(store.plan.W)) {
+        // Older saved plans had no warm-up: add it and take the rope pull out of session one.
+        var fp = freshPlan();
+        store.plan.W = fp.W; store.plan.WX = fp.WX;
+        store.plan["1"] = (store.plan["1"] || []).filter(function (e) { return e.id !== "rope-pull"; });
+        s.planDirty = true;
+      }
+      PLAN_KEYS.forEach(function (k) { if (!Array.isArray(store.plan[k])) store.plan[k] = []; });
       store.logs = Array.isArray(s.logs) ? s.logs : [];
       store.body = Array.isArray(s.body) ? s.body : [];
       store.settings = Object.assign(freshSettings(), s.settings || {});
@@ -467,9 +481,9 @@
   }
   function planRows() {
     var rows = [];
-    SESSIONS.forEach(function (p) {
-      store.plan[p[0]].forEach(function (ex, i) {
-        rows.push([p[0], i + 1, ex.id, ex.name, ex.cat || "", ex.type, ex.per || "", ex.start == null ? "" : ex.start, ex.inc || 0, ex.note || "", ex.equip || "", ex.noW ? "yes" : "", ex.how || ""]);
+    PLAN_KEYS.forEach(function (k) {
+      store.plan[k].forEach(function (ex, i) {
+        rows.push([k, i + 1, ex.id, ex.name, ex.cat || "", ex.type, ex.per || "", ex.start == null ? "" : ex.start, ex.inc || 0, ex.note || "", ex.equip || "", ex.noW ? "yes" : "", ex.how || ""]);
       });
     });
     return rows;
@@ -513,7 +527,7 @@
   }
   function parsePlan(rows) {
     var p = {}, any = false;
-    SESSIONS.forEach(function (s) { p[s[0]] = []; });
+    PLAN_KEYS.forEach(function (k) { p[k] = []; });
     rows.slice(1).map(function (r) { return r || []; }).filter(function (r) { return r[2] && p[String(r[0])]; })
       .sort(function (a, b) { return (num(a[1]) || 0) - (num(b[1]) || 0); })
       .forEach(function (r) {
@@ -542,7 +556,12 @@
       store.logs = parseLog(d.log || []).concat(store.logs.filter(function (r) { return !r.synced; })).sort(byDate);
       store.body = parseBody(d.body || []).concat(store.body.filter(function (r) { return !r.synced; })).sort(byDate);
       var sp = parsePlan(d.plan || []);
-      if (sp && !store.planDirty) store.plan = sp;
+      if (sp && !store.planDirty) {
+        if (!sp.W.length && !sp.WX.length && (store.plan.W.length || store.plan.WX.length)) {
+          sp.W = store.plan.W; sp.WX = store.plan.WX; store.plan = sp;
+          await api("plan", { rows: planRows() });
+        } else store.plan = sp;
+      }
       else if (!sp) { await api("plan", { rows: planRows() }); store.planDirty = false; }
       if (!store.settingsDirty) {
         var hadSetup = (d.setup || []).length > 1;
@@ -559,12 +578,12 @@
   /* ---------- derived data ---------- */
   function planExercises() {
     var seen = {}, out = [];
-    SESSIONS.forEach(function (p) { store.plan[p[0]].forEach(function (ex) { if (!seen[ex.id]) { seen[ex.id] = true; out.push(ex); } }); });
+    PLAN_KEYS.forEach(function (k) { store.plan[k].forEach(function (ex) { if (!seen[ex.id]) { seen[ex.id] = true; out.push(ex); } }); });
     return out;
   }
   function findEx(id) {
     var hit = null;
-    SESSIONS.forEach(function (p) { store.plan[p[0]].forEach(function (ex) { if (ex.id === id) hit = ex; }); });
+    PLAN_KEYS.forEach(function (k) { store.plan[k].forEach(function (ex) { if (ex.id === id) hit = ex; }); });
     return hit;
   }
   function logsFor(id) { return store.logs.filter(function (r) { return r.exId === id; }).sort(byDate); }
@@ -577,8 +596,12 @@
     if (last.date === today) return last.session; // still mid-session today
     return SESSIONS[(i + 1) % SESSIONS.length][0];
   }
-  function target(ex) {
+  function target(ex, warm) {
     var L = store.settings.low, H = store.settings.high, last = lastLog(ex.id);
+    if (warm) {
+      var dflt = ex.type === "time" ? (ex.start || 30) : 10;
+      return { weight: ex.noW ? null : (last ? last.weight : (ex.start || 0)), sets: last ? last.sets : [dflt, dflt, dflt], hint: ex.type === "time" ? "Warm-up: a steady pace to get warm." : "Warm-up: keep it easy and controlled, 1 to 2 sets is plenty." };
+    }
     if (ex.type === "time") {
       if (!last) { var s0 = ex.start || 30; return { weight: ex.noW ? null : 0, sets: [s0, s0, s0], hint: "Aim for " + s0 + " seconds on each set." }; }
       return { weight: ex.noW ? null : last.weight, sets: last.sets.map(function (v) { return v == null ? null : v + 5; }), hint: "Try 5 seconds more on each set." };
@@ -637,8 +660,8 @@
   function setsText(sets, unit) { return sets.map(function (v) { return v == null ? "–" : nt(v); }).join(" · ") + " " + unit; }
   function exKey(s, ex) { return s + "-" + slug(ex.id); }
 
-  function exCard(ex, s) {
-    var k = exKey(s, ex), last = lastLog(ex.id), tg = target(ex), today = todayISO(), m = ui.msgs[k] || {};
+  function exCard(ex, s, sess) {
+    var warm = isWarm(s), k = exKey(s, ex), last = lastLog(ex.id), tg = target(ex, warm), today = todayISO(), m = ui.msgs[k] || {};
     var unit = unitOf(ex), wl = weightLabel(ex);
     var h = '<article class="panel ex' + (last && last.date === today ? " card-done" : "") + '" data-ex="' + esc(ex.id) + '">';
     h += '<div class="ex-head"><h3>' + esc(ex.name) + "</h3>" + (last && last.date === today ? '<span class="pill">Done today</span>' : "") +
@@ -664,7 +687,7 @@
       h += '<div class="field"><label for="s' + (i + 1) + "-" + k + '">Set ' + (i + 1) + (ex.type === "time" ? " secs" : "") + '</label><input id="s' + (i + 1) + "-" + k + '" type="number" inputmode="numeric" step="1" min="0" placeholder="' + esc(ph(i)) + '"></div>';
     }
     h += "</div>";
-    h += '<button data-act="save-ex" data-s="' + s + '" data-v="' + esc(ex.id) + '"' + (ui.busy[k] ? " disabled" : "") + ">Save " + esc(ex.name) + "</button>";
+    h += '<button data-act="save-ex" data-s="' + s + '" data-sess="' + esc(sess || s) + '" data-v="' + esc(ex.id) + '"' + (ui.busy[k] ? " disabled" : "") + ">Save " + esc(ex.name) + "</button>";
     h += '<p class="msg ' + esc(m.kind || "") + '" role="status">' + esc(m.text || "") + "</p>";
     return h + "</article>";
   }
@@ -687,6 +710,19 @@
       return '<button type="button" data-act="session" data-v="' + p[0] + '" aria-pressed="' + (p[0] === s ? "true" : "false") + '">' + p[1] + (p[0] === nx ? "<small>Next up</small>" : "<small>&nbsp;</small>") + "</button>";
     }).join("") + "</div>";
     h += suggestCard(s, suggestion(s, false), "workout");
+    var wa = store.plan.W || [], wx = store.plan.WX || [];
+    if (wa.length || wx.length) {
+      h += '<div class="sec-head"><h2>Warm-up</h2><span>Every session</span></div>';
+      h += wa.map(function (ex) { return exCard(ex, "W", s); }).join("");
+      if (wx.length) {
+        var pick = wx.filter(function (ex) { return ex.id === store.settings.warmChoice; })[0] || wx[0];
+        if (wx.length > 1) h += '<div class="panel"><span class="lab">Then choose one</span><div class="chips" role="group" aria-label="Warm-up choice">' + wx.map(function (ex) {
+          return '<button type="button" data-act="warm-choice" data-v="' + esc(ex.id) + '" aria-pressed="' + (ex === pick ? "true" : "false") + '">' + esc(ex.name.replace(/ \(warm-up\)$/, "")) + "</button>";
+        }).join("") + "</div></div>";
+        h += exCard(pick, "WX", s);
+      }
+      h += '<div class="sec-head"><h2>Main session</h2><span>' + esc(sessionName(s)) + "</span></div>";
+    }
     var exs = store.plan[s] || [];
     var doneAll = exs.length && exs.every(function (ex) { var l = lastLog(ex.id); return l && l.date === today; });
     if (doneAll) h += '<div class="done-banner" role="status">Session done. Brilliant work! Next time it\'s ' + esc(sessionName(SESSIONS[(SESSIONS.map(function (p) { return p[0]; }).indexOf(s) + 1) % SESSIONS.length][0])) + ".</div>";
@@ -894,7 +930,7 @@
   function catalogueHtml(s) {
     var area = ui.area, list = CATALOGUE.filter(function (c) { return area === "All" || c.a === area; });
     var inS = {};
-    (store.plan[s] || []).forEach(function (ex) { inS[ex.id] = 1; });
+    (store.plan[s] || []).forEach(function (ex) { inS[ex.cat || ex.id] = 1; });
     var h = '<div class="group" id="catalogue"><div class="sec-head"><h3>Exercise catalogue</h3><button type="button" class="quiet small" data-act="add-close">Close</button></div>';
     h += '<div class="chips" role="group" aria-label="Body area">' + ["All"].concat(AREAS).map(function (a) {
       return '<button type="button" data-act="area" data-v="' + a + '" aria-pressed="' + (a === area ? "true" : "false") + '">' + a + "</button>";
@@ -922,6 +958,15 @@
       '<div class="field" style="flex:1 1 100px"><label for="p-low">From</label><input id="p-low" type="number" inputmode="numeric" min="1" max="50" value="' + st.low + '"></div>' +
       '<div class="field" style="flex:1 1 100px"><label for="p-high">To</label><input id="p-high" type="number" inputmode="numeric" min="1" max="50" value="' + st.high + '"></div>' +
       '<button data-act="save-range" style="flex:0 0 auto">Save</button></div><p class="msg ' + esc(mp.kind || "") + '" role="status">' + esc(mp.text || "") + "</p></div>";
+    [["W", "Every session"], ["WX", "Choose one each time"]].forEach(function (p, n) {
+      var s = p[0], exs = store.plan[s] || [];
+      h += (n === 0 ? '<div class="panel"><h3>Warm-up</h3>' : "") + '<div class="' + (n ? "group" : "") + '"><div class="sec-head"><span class="lab">' + p[1] + "</span></div>";
+      h += '<ul class="plist">' + exs.map(function (ex, i) { return planItem(s, ex, i, exs.length); }).join("") + "</ul>";
+      if (!exs.length) h += '<p class="sub">None.</p>';
+      h += '<div class="row" style="margin-top:8px"><button class="quiet" data-act="add-open" data-s="' + s + '">Add exercise</button></div>';
+      if (ui.adding === s) h += catalogueHtml(s);
+      h += "</div>" + (n === 1 ? "</div>" : "");
+    });
     SESSIONS.forEach(function (p) {
       var s = p[0], exs = store.plan[s] || [];
       h += '<div class="panel"><div class="sec-head"><h3>' + p[1] + "</h3><span>" + exs.length + " exercises</span></div>";
@@ -1039,7 +1084,7 @@
     }
     return out;
   }
-  function saveEx(s, id) {
+  function saveEx(s, id, sess) {
     var ex = (store.plan[s] || []).filter(function (e) { return e.id === id; })[0];
     if (!ex) return;
     var k = exKey(s, ex);
@@ -1049,15 +1094,16 @@
     if (!sets.some(function (v) { return v != null; })) { setMsg(k, "Enter the " + (ex.type === "time" ? "seconds" : "reps") + " for at least one set.", "err"); render(); return; }
     if (sets.some(function (v) { return v != null && (v <= 0 || (ex.type === "reps" && !Number.isInteger(v))); })) { setMsg(k, ex.type === "time" ? "Use whole seconds above 0." : "Reps must be whole numbers above 0.", "err"); render(); return; }
     var all = logsFor(ex.id), prev = all[all.length - 1] || null;
-    var rec = { date: todayISO(), session: s, exId: ex.id, name: ex.name, type: ex.type, weight: ex.noW ? null : w, sets: sets, synced: false, seq: 1000000 + store.uid++ };
-    var wd = wellDone(prev, all, rec, ex);
+    var warm = isWarm(s);
+    var rec = { date: todayISO(), session: warm ? (sess || nextSession()) : s, exId: ex.id, name: ex.name, type: ex.type, weight: ex.noW ? null : w, sets: sets, synced: false, seq: 1000000 + store.uid++ };
+    var wd = warm ? { kind: "ok", text: "Warm-up done. On to the main session!", pb: null } : wellDone(prev, all, rec, ex);
     store.logs.push(rec); store.logs.sort(byDate);
     if (!store.settings.planStart) { store.settings.planStart = todayISO(); store.settingsDirty = true; }
     saveStore();
     clearTouched(["w-" + k, "s1-" + k, "s2-" + k, "s3-" + k]);
     setMsg(k, wd.text, wd.kind);
     if (wd.pb) ui.pb = wd.pb;
-    ui.session = s;
+    ui.session = rec.session;
     afterLocalSave(k, wd.text);
   }
   function saveBody() {
@@ -1143,7 +1189,8 @@
     var a = b.getAttribute("data-act"), v = b.getAttribute("data-v"), s = b.getAttribute("data-s"), i = Number(b.getAttribute("data-i"));
     if (a === "tab") { ui.tab = v; ui.sel = null; window.scrollTo && window.scrollTo(0, 0); render(); }
     else if (a === "session") { ui.session = v; render(); }
-    else if (a === "save-ex") saveEx(s, v);
+    else if (a === "save-ex") saveEx(s, v, b.getAttribute("data-sess"));
+    else if (a === "warm-choice") { store.settings.warmChoice = v; saveStore(); render(); }
     else if (a === "info") { ui.info = { id: v }; render(); }
     else if (a === "info-cat") { ui.info = { cat: v }; render(); }
     else if (a === "info-close") { ui.info = null; render(); }
@@ -1181,8 +1228,9 @@
     else if (a === "add-close") { ui.adding = null; render(); }
     else if (a === "area") { ui.area = v; render(); }
     else if (a === "add-cat") {
-      if ((store.plan[s] || []).some(function (x) { return x.id === v; })) return;
-      store.plan[s].push(fromCat(v));
+      var nid = isWarm(s) && v !== "rope-pull" ? "wu-" + v : v;
+      if ((store.plan[s] || []).some(function (x) { return x.id === nid; })) return;
+      store.plan[s].push(fromCat(v, null, "", nid));
       planChanged("plan", CAT[v].n + " added to " + sessionName(s) + ". Enter the weight the first time you do it.");
     }
     else if (a === "add-custom") {
