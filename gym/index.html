@@ -1,0 +1,1240 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Gym">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#eef1f0" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0e1413" media="(prefers-color-scheme: dark)">
+<title>Gym</title>
+<link rel="apple-touch-icon" href="data:image/png;base64,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">
+<link rel="icon" href="data:image/png;base64,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">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@600;700&display=swap">
+<style>
+  /* One phone-width column. Four tabs: Workout, Progress, Me, Plan. */
+  :root {
+    --bg: #eef1f0; --surface: #ffffff; --surface-2: #f4f7f6; --ink: #121a19; --muted: #56625f; --line: #d3dbd8;
+    --accent: #0f766e; --accent-ink: #ffffff; --accent-soft: #d9f1ee;
+    --up: #116b34; --up-bg: #e1f3e6; --down: #b0281c; --down-bg: #fbe5e2; --same: #4a545b; --same-bg: #e7eae8;
+    --warn-bg: #fff3d6; --warn-ink: #6b4a00;
+    --display: "Barlow Condensed", "Arial Narrow", Arial, sans-serif;
+    --body: "Barlow", "Helvetica Neue", Arial, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0e1413; --surface: #161e1d; --surface-2: #1d2726; --ink: #e9f0ee; --muted: #9aa9a5; --line: #2a3634;
+      --accent: #5fd4c4; --accent-ink: #062320; --accent-soft: #143430;
+      --up: #5fe08d; --up-bg: #15301f; --down: #ff9a8b; --down-bg: #3a1c19; --same: #b4bec4; --same-bg: #262f34;
+      --warn-bg: #3a2f10; --warn-ink: #f3d58a;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0e1413; --surface: #161e1d; --surface-2: #1d2726; --ink: #e9f0ee; --muted: #9aa9a5; --line: #2a3634;
+    --accent: #5fd4c4; --accent-ink: #062320; --accent-soft: #143430;
+    --up: #5fe08d; --up-bg: #15301f; --down: #ff9a8b; --down-bg: #3a1c19; --same: #b4bec4; --same-bg: #262f34;
+    --warn-bg: #3a2f10; --warn-ink: #f3d58a;
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.45 var(--body);
+    padding-top: max(20px, env(safe-area-inset-top, 0px));
+    padding-bottom: max(96px, calc(env(safe-area-inset-bottom, 0px) + 80px));
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+  .wrap { max-width: 760px; margin: 0 auto; display: flex; flex-direction: column; gap: 18px; }
+  h1, h2, h3, p { margin: 0; }
+  .eyebrow { color: var(--muted); font-size: 0.875rem; letter-spacing: 0.04em; text-transform: uppercase; }
+  h1 { font: 700 2.25rem/1.05 var(--display); text-transform: uppercase; letter-spacing: 0.01em; }
+  h2 { font: 700 1.5rem/1.1 var(--display); text-transform: uppercase; letter-spacing: 0.03em; }
+  h3 { font: 700 1.375rem/1.05 var(--display); text-transform: uppercase; letter-spacing: 0.03em; }
+  .status { color: var(--muted); font-size: 0.875rem; margin-top: -6px; }
+  .banner { background: var(--warn-bg); color: var(--warn-ink); border-radius: 8px; padding: 12px 14px; display: flex; gap: 10px; align-items: flex-start; justify-content: space-between; }
+  .banner button { min-height: 36px; padding: 0 12px; background: transparent; color: inherit; border: 1px solid currentColor; }
+  .sec { display: flex; flex-direction: column; gap: 12px; }
+  .sec-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+  .sec-head span { color: var(--muted); font-size: 0.875rem; }
+  .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+  .lab { color: var(--muted); font-size: 0.8125rem; letter-spacing: 0.05em; text-transform: uppercase; }
+  .sub { color: var(--muted); font-size: 0.875rem; }
+  .num { font: 700 2rem/1 var(--display); font-variant-numeric: tabular-nums; }
+  .num small { font: 600 1rem/1 var(--body); color: var(--muted); }
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap: 12px; }
+
+  /* tabs */
+  .tabs { position: sticky; top: 0; z-index: 5; display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; padding: 6px; margin: 0 -4px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; }
+  .tabs button { min-height: 44px; padding: 0 4px; background: transparent; color: var(--ink); border: 0; font: 600 0.9375rem var(--body); }
+  .tabs button[aria-current="page"] { background: var(--accent); color: var(--accent-ink); }
+
+  /* controls */
+  .fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 130px), 1fr)); gap: 10px; }
+  .field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  .field label { color: var(--muted); font-size: 0.75rem; letter-spacing: 0.05em; text-transform: uppercase; }
+  input, select, textarea {
+    width: 100%; min-width: 0; padding: 0 10px; background: var(--surface-2); color: var(--ink);
+    border: 1px solid var(--line); border-radius: 8px; font: 600 1.25rem var(--display); font-variant-numeric: tabular-nums;
+  }
+  input, select { height: 48px; }
+  input.text, select, textarea { font: 500 1rem var(--body); }
+  textarea { padding: 10px; min-height: 90px; resize: vertical; line-height: 1.4; }
+  input::placeholder, textarea::placeholder { color: var(--muted); opacity: 0.75; font-weight: 500; }
+  input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-visible, summary:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+  button { min-height: 48px; padding: 0 18px; border-radius: 8px; border: 0; cursor: pointer; background: var(--accent); color: var(--accent-ink); font: 600 1rem var(--body); }
+  button.quiet { background: var(--surface-2); color: var(--ink); border: 1px solid var(--line); }
+  button.small { min-height: 40px; padding: 0 12px; font-size: 0.9375rem; }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .seg { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .seg button { background: var(--surface); color: var(--ink); border: 1px solid var(--line); display: flex; flex-direction: column; justify-content: center; line-height: 1.15; padding: 6px 10px; }
+  .seg button small { font-size: 0.75rem; letter-spacing: 0.05em; text-transform: uppercase; opacity: 0.85; }
+  .seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+  .msg { font-size: 0.9375rem; min-height: 1.2em; }
+  .msg.ok { color: var(--up); }
+  .msg.err { color: var(--down); }
+  .msg.well { background: var(--up-bg); color: var(--up); border-radius: 8px; padding: 10px 12px; font-weight: 600; }
+
+  /* exercise card */
+  .ex-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .ex-head h3 { flex: 1 1 auto; min-width: 0; }
+  .info { flex: 0 0 auto; width: 44px; min-height: 44px; padding: 0; border-radius: 999px; background: var(--accent-soft); color: var(--accent); font: 700 1.25rem/1 Georgia, "Times New Roman", serif; font-style: italic; }
+  .pill { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; padding: 4px 8px; border-radius: 999px; background: var(--up-bg); color: var(--up); white-space: nowrap; }
+  .meta { display: flex; gap: 6px; flex-wrap: wrap; }
+  .tag { font-size: 0.8125rem; padding: 3px 8px; border-radius: 999px; background: var(--surface-2); border: 1px solid var(--line); color: var(--muted); }
+  .tag.note { color: var(--ink); font-weight: 600; }
+  .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .box { background: var(--surface-2); border-radius: 8px; padding: 10px 12px; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  .box.goal { background: var(--accent-soft); }
+  .box b { font: 700 1.375rem/1.05 var(--display); font-variant-numeric: tabular-nums; }
+  .box span.v { font: 600 1.0625rem var(--display); color: var(--muted); font-variant-numeric: tabular-nums; }
+  .box.goal span.v { color: var(--ink); }
+  .entry { display: grid; grid-template-columns: 1.35fr 1fr 1fr 1fr; gap: 8px; }
+  .entry.three { grid-template-columns: 1fr 1fr 1fr; }
+  .card-done { opacity: 0.92; }
+
+  /* suggestion + celebration */
+  .suggest { border: 2px solid var(--accent); }
+  .suggest ul { margin: 0; padding-left: 1.1em; display: flex; flex-direction: column; gap: 6px; }
+  .done-banner { background: var(--up-bg); color: var(--up); border-radius: 10px; padding: 14px; font-weight: 600; }
+  .overlay { position: fixed; inset: 0; z-index: 20; background: rgba(0,0,0,0.45); display: flex; align-items: flex-end; justify-content: center; padding: 16px; padding-bottom: max(16px, env(safe-area-inset-bottom, 0px)); }
+  .sheet { position: relative; overflow: hidden; width: 100%; max-width: 560px; max-height: 85vh; overflow-y: auto; background: var(--surface); color: var(--ink); border-radius: 14px; padding: 18px; display: flex; flex-direction: column; gap: 12px; }
+  .sheet ol, .sheet ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap: 6px; }
+  .sheet .sheet-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+  .cel { background: var(--accent); color: var(--accent-ink); text-align: left; }
+  .cel > * { position: relative; z-index: 1; }
+  .cel .cel-head { font: 700 2.25rem/1.05 var(--display); text-transform: uppercase; }
+  .cel button { background: var(--accent-ink); color: var(--accent); align-self: flex-start; }
+  .confetti { position: absolute; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+  .confetti i { position: absolute; top: -16px; width: 8px; height: 14px; border-radius: 2px; animation: fall 3s ease-in 2 both; }
+  @keyframes fall { 0% { transform: translateY(-20px) rotate(0deg); opacity: 1; } 85% { opacity: 1; } 100% { transform: translateY(320px) rotate(560deg); opacity: 0; } }
+  @media (prefers-reduced-motion: reduce) { .confetti { display: none; } }
+
+  /* rest timer */
+  .restbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 10; background: var(--surface); border-top: 1px solid var(--line); padding: 10px 16px; padding-bottom: max(10px, env(safe-area-inset-bottom, 0px)); }
+  .restbar .inner { max-width: 760px; margin: 0 auto; display: flex; gap: 8px; align-items: center; }
+  .restbar .rlabel { flex: 1 1 auto; font: 700 1.25rem/1 var(--display); text-transform: uppercase; font-variant-numeric: tabular-nums; }
+  .restbar button { min-height: 44px; padding: 0 12px; }
+
+  /* plan */
+  .plist { display: flex; flex-direction: column; gap: 8px; margin: 0; padding: 0; list-style: none; }
+  .pitem { background: var(--surface-2); border-radius: 8px; padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; }
+  .pitem .ptop { display: flex; gap: 8px; align-items: center; }
+  .pitem .pname { flex: 1 1 auto; min-width: 0; font-weight: 600; }
+  .pitem .tools { display: flex; gap: 6px; flex-wrap: wrap; }
+  .pitem .tools button { min-height: 40px; padding: 0 12px; }
+  .chips { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+  .chips::-webkit-scrollbar { display: none; }
+  .chips button { flex: 0 0 auto; min-height: 40px; padding: 0 12px; background: var(--surface-2); color: var(--ink); border: 1px solid var(--line); font: 600 0.9375rem var(--body); }
+  .chips button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+  .cat { display: flex; flex-direction: column; gap: 6px; }
+  .catrow { display: flex; gap: 8px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); }
+  .catrow .cname { flex: 1 1 auto; min-width: 0; }
+  .catrow .cname b { display: block; font-weight: 600; }
+  .catrow .info { width: 40px; min-height: 40px; }
+  .group { display: flex; flex-direction: column; gap: 10px; border-top: 1px solid var(--line); padding-top: 12px; }
+  .calc { background: var(--surface-2); border-radius: 8px; padding: 10px 12px; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 140px), 1fr)); gap: 10px; }
+  .calc b { font: 700 1.625rem/1 var(--display); font-variant-numeric: tabular-nums; display: block; }
+  .keyrow { display: flex; gap: 8px; }
+  .keyrow input { flex: 1 1 auto; }
+  .keyrow button { flex: 0 0 auto; min-width: 84px; }
+
+  /* charts */
+  .readout { display: flex; align-items: center; gap: 10px; min-height: 84px; }
+  .readout .rv { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+  .readout .rv b { font: 700 1.75rem/1 var(--display); font-variant-numeric: tabular-nums; }
+  .readout .step { flex: 0 0 auto; min-width: 44px; min-height: 44px; padding: 0; background: var(--surface-2); color: var(--ink); border: 1px solid var(--line); font-size: 1.25rem; }
+  .readout .step[aria-disabled="true"] { opacity: 0.4; }
+  .chart { width: 100%; max-width: 640px; height: auto; display: block; margin: 0 auto; touch-action: pan-y; -webkit-user-select: none; user-select: none; }
+  .ch-grid { stroke: var(--line); stroke-width: 1; }
+  .ch-tick { fill: var(--muted); font: 500 12px var(--body); }
+  .ch-line { fill: none; stroke: var(--accent); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+  .ch-dot { fill: var(--accent); stroke: var(--surface); stroke-width: 2; }
+  .ch-cx { stroke: var(--muted); stroke-width: 1; }
+  .chip { display: inline-flex; gap: 6px; align-items: baseline; padding: 4px 9px; border-radius: 999px; font: 600 0.9375rem var(--body); font-variant-numeric: tabular-nums; }
+  .chip small { font-size: 0.6875rem; letter-spacing: 0.05em; text-transform: uppercase; opacity: 0.85; }
+  .chip.up { background: var(--up-bg); color: var(--up); }
+  .chip.down { background: var(--down-bg); color: var(--down); }
+  .chip.same { background: var(--same-bg); color: var(--same); }
+  table.tbl { width: 100%; border-collapse: collapse; font-size: 0.9375rem; font-variant-numeric: tabular-nums; }
+  table.tbl th, table.tbl td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); }
+  table.tbl th { color: var(--muted); font-weight: 600; font-size: 0.75rem; letter-spacing: 0.05em; text-transform: uppercase; }
+  .tblscroll { max-height: 280px; overflow: auto; }
+  details summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; font: 600 0.9375rem var(--body); color: var(--muted); }
+  .foot { color: var(--muted); font-size: 0.8125rem; }
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<div id="layer"></div>
+<script>
+(function () {
+  "use strict";
+
+  var STORE_KEY = "gym-v1";
+  var KG_PER_LB = 0.45359237;
+  var SESSIONS = [["1", "Session one"], ["2", "Session two"]];
+  var AREAS = ["Legs", "Back", "Chest", "Shoulders", "Arms", "Core", "Cardio"];
+  var EQUIP = ["Machine", "Cable", "Dumbbell", "Bodyweight", "Cardio machine"];
+  var PER = [["", "Total"], ["each hand", "Each hand"], ["each arm", "Each arm"], ["each side", "Each side"]];
+  var ACTIVITY = [
+    { id: "sedentary", f: 1.2, label: "Little or no exercise" },
+    { id: "light", f: 1.375, label: "Light: exercise 1–3 days a week" },
+    { id: "moderate", f: 1.55, label: "Moderate: exercise 3–5 days a week" },
+    { id: "very", f: 1.725, label: "Very active: 6–7 days a week" }
+  ];
+  var GOALS = [
+    { id: "0", d: 0, label: "Stay the same weight" },
+    { id: "250", d: 250, label: "Lose slowly (about 0.25 kg a week)" },
+    { id: "500", d: 500, label: "Lose steadily (about 0.5 kg a week)" }
+  ];
+  var LABELS = { name: "Name", sex: "Sex", age: "Age", heightCm: "Height (cm)", activity: "Activity", goal: "Goal (kcal under maintenance)", low: "Rep range low", high: "Rep range high", planStart: "Plan started", dismissUntil: "Next plan dismissed until" };
+
+  /* ---------- exercise catalogue ----------
+     t: "reps" or "time". p: what the weight/reps are per. inc: weight step in kg. nw: no weight. next: suggested swap. */
+  var CATALOGUE = [
+    { id: "rope-pull", n: "Rope pull", a: "Cardio", e: "Cardio machine", t: "time", nw: true, next: "rowing-machine",
+      how: ["Stand facing the rope machine with your feet hip-width apart and knees soft.", "Hold the rope with one hand above the other and pull it down hand over hand in a steady rhythm.", "Keep your chest up and your stomach braced for the whole time."],
+      tips: ["Breathe steadily; don't hold your breath.", "Keep a pace you can hold for the full time, then push in the last 10 seconds."] },
+    { id: "rowing-machine", n: "Rowing machine", a: "Cardio", e: "Cardio machine", t: "time", nw: true,
+      how: ["Strap your feet in, sit tall and hold the handle with straight arms.", "Push with your legs first, then lean back slightly and pull the handle to your lower ribs.", "Return in reverse: arms forward, lean forward, then bend your knees."],
+      tips: ["Your legs do most of the work.", "Keep your back straight and shoulders relaxed."] },
+    { id: "farmers-carry", n: "Farmer's carry", a: "Cardio", e: "Dumbbell", t: "time", p: "each hand", inc: 2.5,
+      how: ["Pick up a dumbbell in each hand, bending your knees, not your back.", "Stand tall with shoulders down and walk with small, steady steps.", "Put the weights down carefully when the time is up."],
+      tips: ["Squeeze the handles and keep your stomach braced.", "Don't let your shoulders creep up to your ears."] },
+
+    { id: "leg-press", n: "Leg press", a: "Legs", e: "Machine", t: "reps", inc: 5, next: "goblet-squat",
+      how: ["Sit with your back flat against the pad and feet hip-width apart on the platform.", "Release the safety handles and bend your knees to lower the platform until your knees are about at a right angle.", "Push through your whole foot to straighten your legs, without locking your knees."],
+      tips: ["Keep your lower back pressed into the pad.", "Knees point the same way as your toes."] },
+    { id: "goblet-squat", n: "Goblet squat", a: "Legs", e: "Dumbbell", t: "reps", inc: 2.5, next: "reverse-lunge",
+      how: ["Hold one dumbbell upright against your chest with both hands.", "Stand with feet just wider than hips, toes turned out a little.", "Sit your hips back and down with your chest up, then push through your heels to stand."],
+      tips: ["Go only as low as you can keep your chest up and heels down.", "Knees follow your toes."] },
+    { id: "step-up", n: "Step-up", a: "Legs", e: "Dumbbell", t: "reps", p: "each hand", inc: 2.5, next: "reverse-lunge",
+      how: ["Stand facing a step or box with a dumbbell in each hand.", "Put your whole foot on the step and push through that heel to stand up tall on it.", "Step back down slowly. Do all the reps on one leg, then swap, or alternate legs."],
+      tips: ["Use a step where your knee is no higher than your hip.", "Let the top leg do the work; don't push off the back foot."] },
+    { id: "reverse-lunge", n: "Reverse lunge", a: "Legs", e: "Dumbbell", t: "reps", p: "each hand", inc: 2.5,
+      how: ["Stand tall with a dumbbell in each hand.", "Step one foot back and lower your back knee towards the floor.", "Push through your front heel to step back up. Swap legs each rep or after a set."],
+      tips: ["Front knee stays in line with your toes.", "Try it without weights first, holding something for balance."] },
+    { id: "rdl", n: "Dumbbell Romanian deadlift", a: "Legs", e: "Dumbbell", t: "reps", p: "each hand", inc: 2.5,
+      how: ["Stand holding dumbbells in front of your thighs, knees slightly bent.", "Push your hips back and slide the weights down the front of your legs, keeping your back flat.", "Stop when you feel a stretch in the back of your thighs, then squeeze your bottom to stand."],
+      tips: ["Keep the weights close to your legs.", "Your back stays flat; it's a hip movement, not a back bend."] },
+    { id: "glute-bridge", n: "Glute bridge", a: "Legs", e: "Bodyweight", t: "reps", nw: true, next: "hip-thrust",
+      how: ["Lie on your back with knees bent and feet flat, hip-width apart.", "Push through your heels to lift your hips until you're in a straight line from shoulders to knees.", "Pause and squeeze, then lower slowly."],
+      tips: ["Squeeze your bottom at the top rather than arching your back.", "Keep your ribs down."] },
+    { id: "hip-thrust", n: "Dumbbell hip thrust", a: "Legs", e: "Dumbbell", t: "reps", inc: 2.5,
+      how: ["Sit on the floor with your upper back against a bench and a dumbbell resting on your hips.", "Push through your heels to lift your hips until your body is flat from shoulders to knees.", "Pause, then lower slowly."],
+      tips: ["Hold the dumbbell steady with both hands.", "Chin slightly tucked; look forward, not up."] },
+    { id: "leg-extension", n: "Leg extension", a: "Legs", e: "Machine", t: "reps", inc: 2.5,
+      how: ["Sit back with the pad on the front of your lower shins and your knees at the edge of the seat.", "Straighten your legs, pause at the top.", "Lower slowly."],
+      tips: ["Line your knee up with the machine's pivot point.", "No swinging; control the way down."] },
+    { id: "leg-curl", n: "Seated leg curl", a: "Legs", e: "Machine", t: "reps", inc: 2.5,
+      how: ["Sit with the pad behind your lower calves and the thigh pad snug.", "Bend your knees to pull the pad down and back.", "Return slowly."],
+      tips: ["Keep your back against the seat.", "Squeeze at the bottom of the movement."] },
+    { id: "hip-abduction", n: "Hip abduction machine", a: "Legs", e: "Machine", t: "reps", inc: 2.5,
+      how: ["Sit with the pads on the outside of your knees.", "Push your knees outwards as far as is comfortable.", "Return slowly."],
+      tips: ["Sit tall and hold the handles.", "Control the way back in."] },
+    { id: "hip-adduction", n: "Hip adduction machine", a: "Legs", e: "Machine", t: "reps", inc: 2.5,
+      how: ["Sit with the pads on the inside of your knees, legs apart.", "Squeeze your knees together.", "Return slowly."],
+      tips: ["Start with a comfortable width.", "Keep the movement smooth."] },
+    { id: "calf-raise", n: "Calf raise", a: "Legs", e: "Dumbbell", t: "reps", p: "each hand", inc: 2.5,
+      how: ["Stand tall with a dumbbell in each hand (or on the edge of a step for more range).", "Rise up onto your toes as high as you can and pause.", "Lower your heels slowly."],
+      tips: ["The slow lowering is the important part.", "Keep your knees straight but not locked."] },
+    { id: "cable-kickback", n: "Cable glute kickback", a: "Legs", e: "Cable", t: "reps", p: "each side", inc: 2.5,
+      how: ["Attach the ankle strap to a low pulley and face the machine, holding it for support.", "Keeping your leg nearly straight, push it back behind you.", "Squeeze your bottom, then return slowly."],
+      tips: ["Don't arch your lower back.", "Small, controlled movement."] },
+
+    { id: "lat-pulldown", n: "Lat pull-down", a: "Back", e: "Machine", t: "reps", inc: 2.5, next: "close-grip-pulldown",
+      how: ["Adjust the thigh pad so your legs are held in, and grip the bar a little wider than your shoulders.", "Lean back slightly and pull the bar to the top of your chest, elbows down and back.", "Let it return slowly until your arms are straight."],
+      tips: ["Pull to the front, never behind your neck.", "Don't swing your body to move the weight."] },
+    { id: "close-grip-pulldown", n: "Close-grip pull-down", a: "Back", e: "Cable", t: "reps", inc: 2.5,
+      how: ["Attach the V-handle, sit with thighs under the pad and palms facing each other.", "Pull the handle to the top of your chest, elbows close to your sides.", "Return slowly."],
+      tips: ["Squeeze your shoulder blades down and back.", "Sit tall; avoid leaning far back."] },
+    { id: "seated-cable-row", n: "Seated cable row", a: "Back", e: "Cable", t: "reps", inc: 2.5, next: "single-arm-db-row",
+      how: ["Sit with feet on the platform, knees soft, holding the handle with straight arms.", "Sit tall and pull the handle to your lower ribs, squeezing your shoulder blades together.", "Return slowly."],
+      tips: ["Keep your shoulders down.", "Don't rock backwards to move the weight."] },
+    { id: "single-arm-cable-row", n: "Single-arm cable row", a: "Back", e: "Cable", t: "reps", p: "each arm", inc: 2.5, next: "seated-cable-row",
+      how: ["Set the pulley at about waist height and hold the handle in one hand, standing with a staggered stance.", "Pull your elbow back past your body and squeeze your shoulder blade.", "Return slowly, letting the shoulder reach forward a little. Do all reps, then swap arms."],
+      tips: ["Keep your hips facing forward; don't twist.", "Brace your stomach."] },
+    { id: "single-arm-db-row", n: "Single-arm dumbbell row", a: "Back", e: "Dumbbell", t: "reps", p: "each arm", inc: 2.5,
+      how: ["Put one hand and knee on a bench, back flat, dumbbell in the other hand.", "Pull the dumbbell up towards your hip, elbow close to your body.", "Lower slowly. Do all reps, then swap sides."],
+      tips: ["Keep your back flat and still.", "Lead with the elbow, not the hand."] },
+    { id: "face-pull", n: "Face pull", a: "Back", e: "Cable", t: "reps", inc: 2.5,
+      how: ["Set a rope on a pulley at about head height and hold the ends, palms facing in.", "Pull the rope towards your face, hands moving apart, elbows high.", "Return slowly."],
+      tips: ["Light weight, slow and controlled.", "Great for posture and shoulder health."] },
+    { id: "straight-arm-pulldown", n: "Straight-arm pull-down", a: "Back", e: "Cable", t: "reps", inc: 2.5,
+      how: ["Stand facing a high pulley holding a bar or rope with arms nearly straight.", "Hinge forward slightly and pull the bar down to your thighs in an arc.", "Return slowly."],
+      tips: ["Arms stay almost straight throughout.", "Feel it in the sides of your back."] },
+
+    { id: "chest-press-machine", n: "Machine chest press", a: "Chest", e: "Machine", t: "reps", inc: 2.5, next: "db-bench-press",
+      how: ["Adjust the seat so the handles are level with the middle of your chest.", "Push the handles forward until your arms are almost straight.", "Return slowly until you feel a light stretch."],
+      tips: ["Keep your shoulders back against the pad.", "Don't lock your elbows."] },
+    { id: "pec-fly-machine", n: "Machine pec fly", a: "Chest", e: "Machine", t: "reps", inc: 2.5, next: "incline-db-press",
+      how: ["Set the seat so the handles are at chest height and sit tall.", "With a slight bend in your elbows, bring the handles together in a wide arc.", "Squeeze, then return slowly."],
+      tips: ["Elbows stay slightly bent the whole time.", "Don't let your arms go back further than your body."] },
+    { id: "db-bench-press", n: "Dumbbell bench press", a: "Chest", e: "Dumbbell", t: "reps", p: "each hand", inc: 2.5, next: "incline-db-press",
+      how: ["Lie on a bench with a dumbbell in each hand at chest level and feet flat.", "Press the weights up until your arms are almost straight.", "Lower slowly back to chest level."],
+      tips: ["Keep your wrists straight.", "Elbows at about 45 degrees from your body, not flared out."] },
+    { id: "incline-db-press", n: "Incline dumbbell press", a: "Chest", e: "Dumbbell", t: "reps", p: "each hand", inc: 2.5,
+      how: ["Set the bench to a low incline and lie back with a dumbbell in each hand at shoulder level.", "Press up until your arms are almost straight.", "Lower slowly."],
+      tips: ["Keep your back on the bench.", "Control the lowering."] },
+    { id: "incline-pushup", n: "Incline push-up", a: "Chest", e: "Bodyweight", t: "reps", nw: true,
+      how: ["Put your hands on a bench or raised surface, a little wider than your shoulders.", "Keep your body in a straight line and lower your chest towards the edge.", "Push away until your arms are straight."],
+      tips: ["A higher surface is easier; lower it as you get stronger.", "Don't let your hips sag."] },
+
+    { id: "shoulder-press-machine", n: "Machine shoulder press", a: "Shoulders", e: "Machine", t: "reps", inc: 2.5, next: "db-shoulder-press",
+      how: ["Adjust the seat so the handles are at shoulder height.", "Press up until your arms are almost straight.", "Lower slowly back to shoulder height."],
+      tips: ["Keep your back against the pad.", "Don't shrug your shoulders up."] },
+    { id: "db-shoulder-press", n: "Seated dumbbell shoulder press", a: "Shoulders", e: "Dumbbell", t: "reps", p: "each hand", inc: 2.5,
+      how: ["Sit on a bench with back support, a dumbbell in each hand at shoulder height.", "Press up until your arms are almost straight.", "Lower slowly."],
+      tips: ["Keep your back against the bench.", "Don't bang the weights together at the top."] },
+    { id: "lateral-raise", n: "Lateral raise", a: "Shoulders", e: "Dumbbell", t: "reps", p: "each hand", inc: 1, next: "cable-lateral-raise",
+      how: ["Stand tall with dumbbells by your sides and a slight bend in your elbows.", "Raise your arms out to the sides up to shoulder height.", "Lower slowly."],
+      tips: ["Light weight; no swinging.", "Lead with your elbows."] },
+    { id: "front-raise", n: "Front raise", a: "Shoulders", e: "Dumbbell", t: "reps", p: "each hand", inc: 1, next: "rear-delt-fly",
+      how: ["Stand tall with dumbbells in front of your thighs, palms facing you.", "Raise your arms straight in front up to shoulder height.", "Lower slowly. You can alternate arms."],
+      tips: ["Keep your body still; don't lean back.", "Stop at shoulder height."] },
+    { id: "cable-lateral-raise", n: "Cable lateral raise", a: "Shoulders", e: "Cable", t: "reps", p: "each arm", inc: 1.25,
+      how: ["Stand side-on to a low pulley and hold the handle in your far hand.", "Raise your arm out to the side up to shoulder height.", "Lower slowly. Do all reps, then swap."],
+      tips: ["Light weight, smooth movement.", "Keep your body still."] },
+    { id: "rear-delt-fly", n: "Rear delt fly machine", a: "Shoulders", e: "Machine", t: "reps", inc: 2.5,
+      how: ["Sit facing the pad with the handles at shoulder height.", "Open your arms out wide in an arc, squeezing your shoulder blades.", "Return slowly."],
+      tips: ["Keep a slight bend in your elbows.", "Good for posture."] },
+
+    { id: "triceps-rope", n: "Triceps extension (rope)", a: "Arms", e: "Cable", t: "reps", inc: 1.25, next: "overhead-triceps",
+      how: ["Attach the rope to a high pulley and stand tall, elbows tucked at your sides.", "Push the rope down until your arms are straight, spreading the ends apart at the bottom.", "Let it rise slowly until your elbows are at about a right angle."],
+      tips: ["Elbows stay pinned to your sides.", "Don't lean over the weight."] },
+    { id: "overhead-triceps", n: "Overhead triceps extension", a: "Arms", e: "Dumbbell", t: "reps", inc: 2.5,
+      how: ["Sit tall holding one dumbbell overhead with both hands.", "Bend your elbows to lower it behind your head.", "Straighten your arms to lift it back up."],
+      tips: ["Keep your elbows pointing forward, close to your head.", "Brace your stomach so your back doesn't arch."] },
+    { id: "db-curl", n: "Dumbbell biceps curl", a: "Arms", e: "Dumbbell", t: "reps", p: "each hand", inc: 1, next: "hammer-curl",
+      how: ["Stand with a dumbbell in each hand, palms facing forward.", "Curl the weights up, keeping your elbows by your sides.", "Lower slowly."],
+      tips: ["No swinging.", "Lower for about two seconds."] },
+    { id: "hammer-curl", n: "Hammer curl", a: "Arms", e: "Dumbbell", t: "reps", p: "each hand", inc: 1,
+      how: ["Hold dumbbells with palms facing in towards your body.", "Curl up keeping your elbows by your sides.", "Lower slowly."],
+      tips: ["Thumbs stay on top.", "Keep your wrists straight."] },
+    { id: "cable-curl", n: "Cable biceps curl", a: "Arms", e: "Cable", t: "reps", inc: 1.25,
+      how: ["Attach a bar or rope to a low pulley and stand facing it.", "Curl the handle up, elbows by your sides.", "Lower slowly."],
+      tips: ["Stand tall; don't lean back.", "Keep tension at the bottom."] },
+
+    { id: "pallof-press", n: "Pallof press", a: "Core", e: "Cable", t: "reps", p: "each side", inc: 1.25, next: "cable-woodchop",
+      how: ["Set the pulley at chest height and stand side-on, holding the handle at your chest with both hands.", "Step away until you feel tension, then press your hands straight out in front.", "Hold for two seconds without letting the cable pull you round, then bring your hands back. Do all reps, then face the other way."],
+      tips: ["Hips and shoulders stay facing forward.", "Brace your stomach as if about to be prodded."] },
+    { id: "cable-woodchop", n: "Cable woodchop", a: "Core", e: "Cable", t: "reps", p: "each side", inc: 1.25,
+      how: ["Set the pulley high and stand side-on, holding the handle with both hands.", "Pull it down and across your body to the opposite hip, turning through your middle.", "Return slowly. Do all reps, then swap sides."],
+      tips: ["Let your back foot pivot.", "Arms stay fairly straight; the turn comes from your trunk."] },
+    { id: "plank", n: "Plank", a: "Core", e: "Bodyweight", t: "time", nw: true, next: "side-plank",
+      how: ["Rest on your forearms with elbows under your shoulders.", "Lift your body so it's straight from head to heels (or knees, for an easier version).", "Hold, breathing steadily."],
+      tips: ["Don't let your hips sag or pike up.", "Squeeze your bottom to keep straight."] },
+    { id: "side-plank", n: "Side plank", a: "Core", e: "Bodyweight", t: "time", p: "each side", nw: true,
+      how: ["Lie on your side with your elbow under your shoulder.", "Lift your hips so your body is straight (bend your knees for an easier version).", "Hold, then swap sides."],
+      tips: ["Push the floor away with your forearm.", "Keep your hips stacked."] },
+    { id: "dead-bug", n: "Dead bug", a: "Core", e: "Bodyweight", t: "reps", p: "each side", nw: true,
+      how: ["Lie on your back with arms pointing up and knees bent at a right angle above your hips.", "Slowly lower the opposite arm and leg towards the floor, keeping your lower back pressed down.", "Return and swap sides."],
+      tips: ["Go slowly; quality matters more than reach.", "Breathe out as you lower."] },
+    { id: "bird-dog", n: "Bird dog", a: "Core", e: "Bodyweight", t: "reps", p: "each side", nw: true,
+      how: ["Start on hands and knees, hands under shoulders, knees under hips.", "Reach one arm forward and the opposite leg back until both are straight.", "Pause, return and swap sides."],
+      tips: ["Keep your back flat; imagine a glass of water on it.", "Move slowly."] }
+  ];
+  var CAT = {};
+  CATALOGUE.forEach(function (c) { CAT[c.id] = c; });
+
+  var DEFAULT_PLAN = {
+    "1": [["rope-pull", 30], ["lateral-raise", 2.5], ["front-raise", 2.5], ["chest-press-machine", 0, "Seat 5, handles 3"], ["lat-pulldown", 27.5], ["calf-raise", 7.5]],
+    "2": [["triceps-rope", 11.25], ["shoulder-press-machine", 12.5, "Seat 5, narrow grip"], ["step-up", 5], ["single-arm-cable-row", 7.5], ["pec-fly-machine", 20, "Seat 4"], ["pallof-press", 13.75]]
+  };
+
+  function fromCat(id, start, note) {
+    var c = CAT[id];
+    return { id: c.id, cat: c.id, name: c.n, type: c.t, per: c.p || "", start: start != null ? start : (c.t === "time" ? 30 : 0), inc: c.inc || 0, note: note || "", equip: c.e, noW: !!c.nw, how: "" };
+  }
+  function freshPlan() {
+    var p = {};
+    Object.keys(DEFAULT_PLAN).forEach(function (s) { p[s] = DEFAULT_PLAN[s].map(function (x) { return fromCat(x[0], x[1], x[2]); }); });
+    return p;
+  }
+  function freshSettings() {
+    return { name: "", sex: "", age: null, heightCm: null, activity: "", goal: "250", low: 8, high: 12, planStart: "", dismissUntil: "" };
+  }
+
+  var store = { plan: freshPlan(), logs: [], body: [], settings: freshSettings(), planDirty: false, settingsDirty: false, sync: { url: "", key: "" }, uid: 1, lastSync: null };
+  var ui = { tab: "workout", session: null, msgs: {}, touched: {}, busy: {}, syncing: false, syncError: null, info: null, pb: null, rest: null, editing: null, removing: null, adding: null, area: "All", showKey: false, chart: null, metric: "weight", sel: null, forceSuggest: null, installHidden: false, storageWarn: false, renderedDate: "", sessionDone: null };
+
+  /* ---------- helpers ---------- */
+  function $(s) { return document.querySelector(s); }
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  function pad(n) { return String(n).padStart(2, "0"); }
+  function todayISO() { var d = new Date(); return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()); }
+  function fmtDate(iso, o) { var p = iso.split("-").map(Number); return new Date(Date.UTC(p[0], p[1] - 1, p[2])).toLocaleDateString("en-GB", Object.assign({ timeZone: "UTC" }, o)); }
+  function shortDate(iso) { return fmtDate(iso, { weekday: "short", day: "numeric", month: "short" }); }
+  function dayNum(iso) { var p = iso.split("-").map(Number); return Date.UTC(p[0], p[1] - 1, p[2]) / 86400000; }
+  function dayISO(n) { return new Date(Math.round(n) * 86400000).toISOString().slice(0, 10); }
+  function addDays(iso, n) { return dayISO(dayNum(iso) + n); }
+  function num(x) { if (x == null || x === "") return null; var n = parseFloat(String(x).replace(/,/g, "")); return Number.isFinite(n) ? n : null; }
+  function nt(v) { return Number(v).toLocaleString("en-GB", { maximumFractionDigits: 2 }); }
+  function fmtInt(n) { return Math.round(n).toLocaleString("en-GB"); }
+  function slug(s) { return String(s).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "x"; }
+  function normDate(x) {
+    var s = String(x == null ? "" : x).replace(/^'/, "").trim(), m = /^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(s);
+    if (m) return m[1] + "-" + pad(m[2]) + "-" + pad(m[3]);
+    m = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(s);
+    return m ? m[3] + "-" + pad(m[2]) + "-" + pad(m[1]) : null;
+  }
+  function stLb(k) { var lb = Math.round(k / KG_PER_LB); return Math.floor(lb / 14) + " st " + (lb % 14) + " lb"; }
+  function byDate(a, b) { return a.date < b.date ? -1 : a.date > b.date ? 1 : a.seq - b.seq; }
+  function time(ms) { return new Date(ms).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }); }
+  function sum(a) { var t = 0, any = false; a.forEach(function (v) { if (v != null) { t += v; any = true; } }); return any ? t : null; }
+  function sessionName(s) { var x = SESSIONS.filter(function (p) { return p[0] === s; })[0]; return x ? x[1] : "Session " + s; }
+  function unitOf(ex) { return ex.type === "time" ? "secs" : "reps"; }
+  function weightLabel(ex) { return ex.per === "each hand" ? "kg each hand" : "kg"; }
+
+  /* ---------- storage ---------- */
+  function loadStore() {
+    try {
+      var raw = localStorage.getItem(STORE_KEY);
+      if (!raw) return;
+      var s = JSON.parse(raw);
+      if (!s || typeof s !== "object") return;
+      if (s.plan && typeof s.plan === "object") store.plan = s.plan;
+      SESSIONS.forEach(function (p) { if (!Array.isArray(store.plan[p[0]])) store.plan[p[0]] = []; });
+      store.logs = Array.isArray(s.logs) ? s.logs : [];
+      store.body = Array.isArray(s.body) ? s.body : [];
+      store.settings = Object.assign(freshSettings(), s.settings || {});
+      store.planDirty = !!s.planDirty; store.settingsDirty = !!s.settingsDirty;
+      store.sync = Object.assign({ url: "", key: "" }, s.sync || {});
+      store.uid = s.uid || 1; store.lastSync = s.lastSync || null;
+    } catch (e) { /* start fresh */ }
+  }
+  function saveStore() {
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(store)); ui.storageWarn = false; }
+    catch (e) { ui.storageWarn = true; }
+  }
+  // A set-up link carries the sheet connection after #c= so the person doesn't type anything.
+  function readSetupLink() {
+    var h = location.hash || "";
+    if (h.indexOf("#c=") !== 0 || store.sync.url) return false;
+    try {
+      var b = h.slice(3).replace(/-/g, "+").replace(/_/g, "/");
+      while (b.length % 4) b += "=";
+      var o = JSON.parse(decodeURIComponent(escape(atob(b))));
+      if (!o || !/^https:\/\/script\.google\.com\//.test(o.u || "") || !o.k) return false;
+      store.sync = { url: o.u, key: String(o.k) };
+      saveStore();
+      return true;
+    } catch (e) { return false; }
+  }
+
+  /* ---------- sync with the Google Sheet ---------- */
+  async function api(action, payload) {
+    var ctrl = typeof AbortController !== "undefined" ? new AbortController() : null;
+    var timer = ctrl ? setTimeout(function () { ctrl.abort(); }, 25000) : null;
+    try {
+      var res = await fetch(store.sync.url, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(Object.assign({ key: store.sync.key, action: action }, payload || {})), redirect: "follow", signal: ctrl ? ctrl.signal : undefined });
+      var data = await res.json();
+      if (!data.ok) throw new Error(data.error || "error");
+      return data;
+    } finally { if (timer) clearTimeout(timer); }
+  }
+  function syncErrText(e) {
+    var m = String((e && e.message) || e || "");
+    if (/wrong key/.test(m)) return "The secret key doesn't match the one in the script.";
+    if (/abort/i.test(m)) return "The sheet took too long to answer.";
+    return "Couldn't reach the sheet. Check your connection.";
+  }
+  function planRows() {
+    var rows = [];
+    SESSIONS.forEach(function (p) {
+      store.plan[p[0]].forEach(function (ex, i) {
+        rows.push([p[0], i + 1, ex.id, ex.name, ex.cat || "", ex.type, ex.per || "", ex.start == null ? "" : ex.start, ex.inc || 0, ex.note || "", ex.equip || "", ex.noW ? "yes" : "", ex.how || ""]);
+      });
+    });
+    return rows;
+  }
+  function settingValues() {
+    var s = store.settings, o = {};
+    Object.keys(LABELS).forEach(function (k) { o[LABELS[k]] = s[k] == null ? "" : s[k]; });
+    return o;
+  }
+  async function flush() {
+    var pend = store.logs.filter(function (r) { return !r.synced; });
+    for (var i = 0; i < pend.length; i++) {
+      var r = pend[i];
+      await api("append", { tab: "Log", row: [r.date, r.session, r.exId, r.name, r.type, r.weight == null ? "" : r.weight].concat(r.sets.map(function (v) { return v == null ? "" : v; })) });
+      r.synced = true; saveStore();
+    }
+    pend = store.body.filter(function (r) { return !r.synced; });
+    for (var j = 0; j < pend.length; j++) {
+      await api("append", { tab: "Body", row: [pend[j].date, pend[j].weight] });
+      pend[j].synced = true; saveStore();
+    }
+    if (store.planDirty) { await api("plan", { rows: planRows() }); store.planDirty = false; saveStore(); }
+    if (store.settingsDirty) { await api("setup", { values: settingValues() }); store.settingsDirty = false; saveStore(); }
+  }
+  function parseLog(rows) {
+    var out = [];
+    for (var i = 1; i < rows.length; i++) {
+      var r = rows[i] || [], date = normDate(r[0]);
+      if (!date || !r[2]) continue;
+      out.push({ date: date, session: String(r[1] || ""), exId: String(r[2]), name: String(r[3] || r[2]), type: r[4] === "time" ? "time" : "reps", weight: num(r[5]), sets: [num(r[6]), num(r[7]), num(r[8])], synced: true, seq: i });
+    }
+    return out;
+  }
+  function parseBody(rows) {
+    var out = [];
+    for (var i = 1; i < rows.length; i++) {
+      var r = rows[i] || [], date = normDate(r[0]), w = num(r[1]);
+      if (date && w != null) out.push({ date: date, weight: w, synced: true, seq: i });
+    }
+    return out;
+  }
+  function parsePlan(rows) {
+    var p = {}, any = false;
+    SESSIONS.forEach(function (s) { p[s[0]] = []; });
+    rows.slice(1).map(function (r) { return r || []; }).filter(function (r) { return r[2] && p[String(r[0])]; })
+      .sort(function (a, b) { return (num(a[1]) || 0) - (num(b[1]) || 0); })
+      .forEach(function (r) {
+        any = true;
+        p[String(r[0])].push({ id: String(r[2]), name: String(r[3] || r[2]), cat: CAT[r[4]] ? String(r[4]) : "", type: r[5] === "time" ? "time" : "reps", per: String(r[6] || ""), start: num(r[7]), inc: num(r[8]) || 0, note: String(r[9] || ""), equip: String(r[10] || ""), noW: String(r[11]) === "yes", how: String(r[12] || "") });
+      });
+    return any ? p : null;
+  }
+  function applySetup(rows) {
+    var map = {}, s = store.settings;
+    rows.forEach(function (r) { if (r && r[0]) map[r[0]] = r[1]; });
+    Object.keys(LABELS).forEach(function (k) {
+      if (!(LABELS[k] in map)) return;
+      var v = map[LABELS[k]];
+      if (["age", "heightCm", "low", "high"].indexOf(k) >= 0) { v = num(v); if (v == null && (k === "low" || k === "high")) return; }
+      s[k] = v == null ? (["age", "heightCm"].indexOf(k) >= 0 ? null : "") : v;
+    });
+  }
+  async function syncNow() {
+    if (!store.sync.url || ui.syncing) return false;
+    ui.syncing = true; ui.syncError = null; render();
+    var ok = false;
+    try {
+      await flush();
+      var d = await api("read", {});
+      store.logs = parseLog(d.log || []).concat(store.logs.filter(function (r) { return !r.synced; })).sort(byDate);
+      store.body = parseBody(d.body || []).concat(store.body.filter(function (r) { return !r.synced; })).sort(byDate);
+      var sp = parsePlan(d.plan || []);
+      if (sp && !store.planDirty) store.plan = sp;
+      else if (!sp) { await api("plan", { rows: planRows() }); store.planDirty = false; }
+      if (!store.settingsDirty) {
+        var hadSetup = (d.setup || []).length > 1;
+        if (hadSetup) applySetup(d.setup || []);
+        else await api("setup", { values: settingValues() });
+      }
+      store.lastSync = Date.now();
+      ok = true;
+    } catch (e) { ui.syncError = syncErrText(e); }
+    ui.syncing = false; saveStore(); render();
+    return ok;
+  }
+
+  /* ---------- derived data ---------- */
+  function planExercises() {
+    var seen = {}, out = [];
+    SESSIONS.forEach(function (p) { store.plan[p[0]].forEach(function (ex) { if (!seen[ex.id]) { seen[ex.id] = true; out.push(ex); } }); });
+    return out;
+  }
+  function findEx(id) {
+    var hit = null;
+    SESSIONS.forEach(function (p) { store.plan[p[0]].forEach(function (ex) { if (ex.id === id) hit = ex; }); });
+    return hit;
+  }
+  function logsFor(id) { return store.logs.filter(function (r) { return r.exId === id; }).sort(byDate); }
+  function lastLog(id) { var l = logsFor(id); return l[l.length - 1] || null; }
+  function nextSession() {
+    var all = store.logs.slice().sort(byDate), last = all[all.length - 1];
+    if (!last) return SESSIONS[0][0];
+    var i = SESSIONS.map(function (p) { return p[0]; }).indexOf(last.session);
+    var today = todayISO();
+    if (last.date === today) return last.session; // still mid-session today
+    return SESSIONS[(i + 1) % SESSIONS.length][0];
+  }
+  function target(ex) {
+    var L = store.settings.low, H = store.settings.high, last = lastLog(ex.id);
+    if (ex.type === "time") {
+      if (!last) { var s0 = ex.start || 30; return { weight: ex.noW ? null : 0, sets: [s0, s0, s0], hint: "Aim for " + s0 + " seconds on each set." }; }
+      return { weight: ex.noW ? null : last.weight, sets: last.sets.map(function (v) { return v == null ? null : v + 5; }), hint: "Try 5 seconds more on each set." };
+    }
+    if (!last) {
+      return { weight: ex.noW ? null : (ex.start || 0), range: true, sets: [], hint: ex.noW || ex.start > 0 ? "Aim for " + L + " to " + H + " reps on each set." : "Pick a weight you can lift " + L + " to " + H + " times, then enter it." };
+    }
+    var top = last.sets.every(function (r) { return r != null && r >= H; });
+    if (top && !ex.noW) return { weight: (last.weight || 0) + (ex.inc || 0), sets: [L, L, L], up: true, hint: "You did " + H + " on every set, so the weight goes up a step. Aim for at least " + L + " reps." };
+    return { weight: ex.noW ? null : last.weight, sets: last.sets.map(function (r) { return r == null ? L : Math.min(top ? r + 1 : H, r + 1); }), hint: top ? "Try one more rep on each set." : "Aim for one more rep on sets under " + H + "." };
+  }
+  function isReady(ex) {
+    var last = lastLog(ex.id);
+    if (!last) return false;
+    if (ex.type === "time") return last.sets.every(function (v) { return v != null && v >= 60; });
+    return last.sets.every(function (r) { return r != null && r >= store.settings.high; });
+  }
+  function inPlan(id) { return !!findEx(id); }
+  function suggestion(s, force) {
+    var st = store.settings, today = todayISO();
+    if (!force && st.dismissUntil && st.dismissUntil > today) return null;
+    var exs = store.plan[s] || [];
+    if (!exs.length) return null;
+    var ready = exs.filter(isReady);
+    var start = st.planStart || today;
+    var since = store.logs.filter(function (r) { return r.session === s && r.date >= start; }).map(function (r) { return r.date; });
+    var visits = Object.keys(since.reduce(function (o, d) { o[d] = 1; return o; }, {})).length;
+    var due = ready.length >= Math.ceil(exs.length / 2) || (dayNum(today) - dayNum(start) >= 56 && visits >= 4);
+    if (!due && !force) return null;
+    var pool = ready.length ? ready.concat(exs.filter(function (e) { return ready.indexOf(e) < 0; })) : exs;
+    var taken = {}, swaps = [];
+    pool.forEach(function (ex) {
+      if (swaps.length >= 3) return;
+      var c = CAT[ex.cat], to = c && c.next ? CAT[c.next] : null;
+      if (!to || inPlan(to.id) || taken[to.id]) return;
+      taken[to.id] = true;
+      swaps.push({ from: ex, to: to, ready: ready.indexOf(ex) >= 0 });
+    });
+    if (!swaps.length) return force ? { swaps: [], none: true } : null;
+    return { swaps: swaps, readyCount: ready.length, total: exs.length, due: due };
+  }
+
+  /* ---------- rendering ---------- */
+  function statusText() {
+    if (!store.sync.url) return "Saved on this phone only.";
+    if (ui.syncing) return "Syncing…";
+    if (ui.syncError) return "Not synced. " + ui.syncError;
+    if (store.lastSync) return "Synced at " + time(store.lastSync) + ".";
+    return "Connected. Not synced yet.";
+  }
+  function tabsHtml() {
+    return '<nav class="tabs" aria-label="Sections">' + [["workout", "Workout"], ["progress", "Progress"], ["me", "Me"], ["plan", "Plan"]].map(function (t) {
+      return '<button type="button" data-act="tab" data-v="' + t[0] + '"' + (ui.tab === t[0] ? ' aria-current="page"' : "") + ">" + t[1] + "</button>";
+    }).join("") + "</nav>";
+  }
+  function setsText(sets, unit) { return sets.map(function (v) { return v == null ? "–" : nt(v); }).join(" · ") + " " + unit; }
+  function exKey(s, ex) { return s + "-" + slug(ex.id); }
+
+  function exCard(ex, s) {
+    var k = exKey(s, ex), last = lastLog(ex.id), tg = target(ex), today = todayISO(), m = ui.msgs[k] || {};
+    var unit = unitOf(ex), wl = weightLabel(ex);
+    var h = '<article class="panel ex' + (last && last.date === today ? " card-done" : "") + '" data-ex="' + esc(ex.id) + '">';
+    h += '<div class="ex-head"><h3>' + esc(ex.name) + "</h3>" + (last && last.date === today ? '<span class="pill">Done today</span>' : "") +
+      '<button type="button" class="info" data-act="info" data-v="' + esc(ex.id) + '" aria-label="How to do ' + esc(ex.name) + '">i</button></div>';
+    var tags = [];
+    if (ex.note) tags.push('<span class="tag note">' + esc(ex.note) + "</span>");
+    if (ex.equip) tags.push('<span class="tag">' + esc(ex.equip) + "</span>");
+    if (ex.per === "each arm" || ex.per === "each side") tags.push('<span class="tag">' + (ex.type === "time" ? "Time" : "Reps") + " " + esc(ex.per) + "</span>");
+    if (ex.per === "each hand") tags.push('<span class="tag">Weight in each hand</span>');
+    if (tags.length) h += '<div class="meta">' + tags.join("") + "</div>";
+    var w = function (v) { return ex.noW || v == null ? "" : "<b>" + nt(v) + " " + esc(wl) + "</b>"; };
+    var lastBox = last
+      ? '<div class="box"><span class="lab">Last time · ' + esc(last.date === today ? "today" : shortDate(last.date)) + "</span>" + w(last.weight) + '<span class="v">' + esc(setsText(last.sets, unit)) + "</span></div>"
+      : '<div class="box"><span class="lab">Last time</span><span class="sub">Not done yet.</span></div>';
+    var goalTxt = tg.range ? store.settings.low + "–" + store.settings.high + " " + unit + " each set" : setsText(tg.sets, unit);
+    var goalBox = '<div class="box goal"><span class="lab">Target</span>' + (ex.noW ? "" : (tg.weight > 0 ? "<b>" + nt(tg.weight) + " " + esc(wl) + "</b>" : "<b>Choose</b>")) + '<span class="v">' + esc(goalTxt) + "</span></div>";
+    h += '<div class="pair">' + lastBox + goalBox + "</div>";
+    h += '<p class="sub">' + esc(tg.hint) + "</p>";
+    var ph = function (i) { return tg.range ? store.settings.low + "–" + store.settings.high : (tg.sets[i] == null ? "" : tg.sets[i]); };
+    h += '<div class="entry' + (ex.noW ? " three" : "") + '">';
+    if (!ex.noW) h += '<div class="field"><label for="w-' + k + '">' + esc(wl) + '</label><input id="w-' + k + '" type="number" inputmode="decimal" step="0.25" min="0" value="' + (tg.weight > 0 ? esc(nt(tg.weight).replace(/,/g, "")) : "") + '"></div>';
+    for (var i = 0; i < 3; i++) {
+      h += '<div class="field"><label for="s' + (i + 1) + "-" + k + '">Set ' + (i + 1) + (ex.type === "time" ? " secs" : "") + '</label><input id="s' + (i + 1) + "-" + k + '" type="number" inputmode="numeric" step="1" min="0" placeholder="' + esc(ph(i)) + '"></div>';
+    }
+    h += "</div>";
+    h += '<button data-act="save-ex" data-s="' + s + '" data-v="' + esc(ex.id) + '"' + (ui.busy[k] ? " disabled" : "") + ">Save " + esc(ex.name) + "</button>";
+    h += '<p class="msg ' + esc(m.kind || "") + '" role="status">' + esc(m.text || "") + "</p>";
+    return h + "</article>";
+  }
+
+  function suggestCard(s, sug, place) {
+    if (!sug) return "";
+    if (sug.none) return '<div class="panel"><p class="sub">No swaps to suggest right now. Every exercise in this session either has no next step in the catalogue or its next step is already in the plan.</p></div>';
+    var why = sug.due ? (sug.readyCount ? "You've reached the top of the rep range on " + sug.readyCount + " of " + sug.total + " exercises." : "You've been on this plan for a while.") : "Here's a fresh version of this session.";
+    var h = '<div class="panel suggest"><h3>' + (sug.due ? "Ready for your next plan" : "Suggested next plan") + "</h3><p>" + esc(why) + " Try these swaps in " + esc(sessionName(s)) + ":</p><ul>";
+    sug.swaps.forEach(function (w) {
+      h += "<li><b>" + esc(w.from.name) + "</b> → <b>" + esc(w.to.n) + '</b> <button type="button" class="info" style="width:32px;min-height:32px;font-size:1rem" data-act="info-cat" data-v="' + esc(w.to.id) + '" aria-label="How to do ' + esc(w.to.n) + '">i</button></li>';
+    });
+    h += '</ul><p class="sub">History for the old exercises stays in Progress.</p><div class="row"><button data-act="apply-plan" data-s="' + s + '">Use this plan</button><button class="quiet" data-act="dismiss-plan" data-s="' + s + '" data-place="' + place + '">Not now</button></div></div>';
+    return h;
+  }
+
+  function workoutTab() {
+    var s = ui.session || nextSession(), nx = nextSession(), today = todayISO();
+    var h = '<div class="seg" role="group" aria-label="Session">' + SESSIONS.map(function (p) {
+      return '<button type="button" data-act="session" data-v="' + p[0] + '" aria-pressed="' + (p[0] === s ? "true" : "false") + '">' + p[1] + (p[0] === nx ? "<small>Next up</small>" : "<small>&nbsp;</small>") + "</button>";
+    }).join("") + "</div>";
+    h += suggestCard(s, suggestion(s, false), "workout");
+    var exs = store.plan[s] || [];
+    var doneAll = exs.length && exs.every(function (ex) { var l = lastLog(ex.id); return l && l.date === today; });
+    if (doneAll) h += '<div class="done-banner" role="status">Session done. Brilliant work! Next time it\'s ' + esc(sessionName(SESSIONS[(SESSIONS.map(function (p) { return p[0]; }).indexOf(s) + 1) % SESSIONS.length][0])) + ".</div>";
+    h += '<p class="sub">Aim: 3 sets of ' + store.settings.low + " to " + store.settings.high + " reps. You should feel a bit tired towards the end of each set. Rest 1 to 2 minutes between sets.</p>";
+    if (!exs.length) h += '<div class="panel"><p class="sub">No exercises in this session yet. Add some in Plan.</p></div>';
+    h += exs.map(function (ex) { return exCard(ex, s); }).join("");
+    return h;
+  }
+
+  /* ---------- progress ---------- */
+  var CH = { W: 360, H: 220, L: 46, R: 16, T: 14, B: 30 };
+  var chartPts = [];
+  function niceTicks(lo, hi) {
+    if (hi - lo < 1e-9) { var p = Math.max(1, Math.abs(hi) * 0.05); lo -= p; hi += p; }
+    var raw = (hi - lo) / 4, mag = Math.pow(10, Math.floor(Math.log10(raw))), r = raw / mag;
+    var step = (r <= 1 ? 1 : r <= 2 ? 2 : r <= 2.5 ? 2.5 : r <= 5 ? 5 : 10) * mag;
+    var out = [], a = Math.floor(lo / step + 1e-9) * step, b = Math.ceil(hi / step - 1e-9) * step;
+    for (var v = a; v <= b + step / 1e6; v += step) out.push(parseFloat(v.toFixed(10)));
+    return out;
+  }
+  function chartSvg(pts, label) {
+    var n = pts.length, vals = pts.map(function (p) { return p.v; });
+    var ticks = niceTicks(Math.min.apply(null, vals), Math.max.apply(null, vals)), t0 = ticks[0], t1 = ticks[ticks.length - 1];
+    var x0 = CH.L + 10, x1 = CH.W - CH.R - 10, y0 = CH.T, y1 = CH.H - CH.B;
+    var d0 = dayNum(pts[0].date), d1 = dayNum(pts[n - 1].date), span = d1 - d0;
+    var yOf = function (v) { return y1 - (v - t0) / (t1 - t0) * (y1 - y0); };
+    pts.forEach(function (p) { p.x = span === 0 ? (x0 + x1) / 2 : x0 + (dayNum(p.date) - d0) / span * (x1 - x0); p.y = yOf(p.v); });
+    var g = "";
+    ticks.forEach(function (t) {
+      var y = yOf(t).toFixed(1);
+      g += '<line class="ch-grid" x1="' + CH.L + '" x2="' + (CH.W - CH.R) + '" y1="' + y + '" y2="' + y + '"/><text class="ch-tick" x="' + (CH.L - 8) + '" y="' + (Number(y) + 4) + '" text-anchor="end">' + esc(nt(t)) + "</text>";
+    });
+    var lab = function (iso) { return fmtDate(iso, span > 330 ? { month: "short", year: "2-digit" } : { day: "numeric", month: "short" }); };
+    var xt = function (x, anc, iso) { return '<text class="ch-tick" x="' + x.toFixed(1) + '" y="' + (CH.H - 8) + '" text-anchor="' + anc + '">' + esc(lab(iso)) + "</text>"; };
+    if (span === 0) g += xt((x0 + x1) / 2, "middle", pts[0].date);
+    else { g += xt(x0, "start", pts[0].date) + xt(x1, "end", pts[n - 1].date); if (span >= 4) g += xt((x0 + x1) / 2, "middle", dayISO(d0 + span / 2)); }
+    if (n >= 2) g += '<path class="ch-line" d="' + pts.map(function (p, i) { return (i ? "L" : "M") + p.x.toFixed(1) + " " + p.y.toFixed(1); }).join(" ") + '"/>';
+    pts.forEach(function (p, i) { if (n <= 40 || i === n - 1) g += '<circle class="ch-dot" cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '" r="4"/>'; });
+    g += '<line class="ch-cx" id="ch-cx" x1="0" x2="0" y1="' + y0 + '" y2="' + y1 + '"/><circle class="ch-dot" id="ch-sel" cx="0" cy="0" r="6"/><rect x="' + CH.L + '" y="0" width="' + (CH.W - CH.L) + '" height="' + CH.H + '" fill="transparent"/>';
+    return '<svg class="chart" id="ch-svg" viewBox="0 0 ' + CH.W + " " + CH.H + '" role="img" aria-label="' + esc(label + ", " + n + (n === 1 ? " entry" : " entries") + ". The same figures are in the table below.") + '">' + g + "</svg>";
+  }
+  function setSel(i) {
+    if (!chartPts.length) return;
+    i = Math.max(0, Math.min(chartPts.length - 1, i));
+    ui.sel = i === chartPts.length - 1 ? null : i;
+    var p = chartPts[i], el;
+    if ((el = $("#ch-read"))) el.innerHTML = "<b>" + esc(p.main) + '</b><span class="sub">' + esc(fmtDate(p.date, { weekday: "short", day: "numeric", month: "short", year: "numeric" }) + (p.sub ? " · " + p.sub : "")) + "</span>";
+    if ((el = $("#ch-cx"))) { el.setAttribute("x1", p.x.toFixed(1)); el.setAttribute("x2", p.x.toFixed(1)); }
+    if ((el = $("#ch-sel"))) { el.setAttribute("cx", p.x.toFixed(1)); el.setAttribute("cy", p.y.toFixed(1)); }
+    if ((el = $("#ch-prev"))) el.setAttribute("aria-disabled", i === 0 ? "true" : "false");
+    if ((el = $("#ch-next"))) el.setAttribute("aria-disabled", i === chartPts.length - 1 ? "true" : "false");
+  }
+  function chartPointer(e) {
+    var svg = e.target && e.target.closest ? e.target.closest("#ch-svg") : null;
+    if (!svg || !chartPts.length) return;
+    var r = svg.getBoundingClientRect();
+    if (!r.width) return;
+    var x = (e.clientX - r.left) * (CH.W / r.width), best = 0, bd = Infinity;
+    chartPts.forEach(function (p, i) { var d = Math.abs(p.x - x); if (d < bd) { bd = d; best = i; } });
+    setSel(best);
+  }
+  function bodyPoints() {
+    var by = {};
+    store.body.slice().sort(byDate).forEach(function (r) { by[r.date] = r.weight; });
+    return Object.keys(by).sort().map(function (d) { return { date: d, v: by[d], main: nt(by[d]) + " kg", sub: stLb(by[d]) }; });
+  }
+  function exPoints(id, metric) {
+    var by = {};
+    logsFor(id).forEach(function (r) { by[r.date] = r; });
+    return Object.keys(by).sort().map(function (d) {
+      var r = by[d], tot = sum(r.sets), u = r.type === "time" ? "secs" : "reps";
+      var v = metric === "weight" ? r.weight : tot;
+      if (v == null) return null;
+      return { date: d, v: v, main: metric === "weight" ? nt(v) + " kg" : nt(v) + " " + u + " in total", sub: (r.weight ? nt(r.weight) + " kg · " : "") + setsText(r.sets, u), r: r };
+    }).filter(Boolean);
+  }
+  function progressTargets() {
+    var list = [["body", "Body weight"]], seen = { body: 1 };
+    planExercises().forEach(function (ex) { if (!seen[ex.id]) { seen[ex.id] = 1; list.push([ex.id, ex.name]); } });
+    store.logs.forEach(function (r) { if (!seen[r.exId]) { seen[r.exId] = 1; list.push([r.exId, r.name]); } });
+    return list;
+  }
+  function progressTab() {
+    var targets = progressTargets(), t = ui.chart && targets.some(function (x) { return x[0] === ui.chart; }) ? ui.chart : (planExercises().filter(function (ex) { return logsFor(ex.id).length; })[0] || { id: "body" }).id;
+    var h = '<section class="sec"><div class="panel"><div class="chips" role="group" aria-label="Choose what to chart">' + targets.map(function (x) {
+      return '<button type="button" id="pick-' + esc(slug(x[0])) + '" data-act="chart" data-v="' + esc(x[0]) + '" aria-pressed="' + (x[0] === t ? "true" : "false") + '">' + esc(x[1]) + "</button>";
+    }).join("") + "</div>";
+    var pts, label, unit = "kg", isBody = t === "body", ex = findEx(t), anyLog = lastLog(t);
+    var type = ex ? ex.type : anyLog ? anyLog.type : "reps", noW = ex ? ex.noW : (anyLog ? !anyLog.weight : false);
+    var metric = isBody ? "weight" : (noW ? "total" : ui.metric);
+    if (!isBody && !noW) {
+      h += '<div class="chips" role="group" aria-label="Measure">' + [["weight", "Weight"], ["total", type === "time" ? "Total time" : "Total reps"]].map(function (m) {
+        return '<button type="button" id="met-' + m[0] + '" data-act="metric" data-v="' + m[0] + '" aria-pressed="' + (m[0] === metric ? "true" : "false") + '">' + m[1] + "</button>";
+      }).join("") + "</div>";
+    }
+    if (isBody) { pts = bodyPoints(); label = "Body weight (kg)"; }
+    else { pts = exPoints(t, metric); unit = metric === "weight" ? "kg" : (type === "time" ? "secs" : "reps"); label = (targets.filter(function (x) { return x[0] === t; })[0] || ["", ""])[1] + (metric === "weight" ? ": weight (kg)" : type === "time" ? ": total time (secs, all sets)" : ": total reps (all sets)"); }
+    h += '<p class="lab">' + esc(label) + "</p>";
+    chartPts = pts;
+    if (!pts.length) {
+      chartPts = [];
+      h += '<p class="sub">Nothing to chart yet. ' + (isBody ? "Log your weight in Me." : "Save this exercise in Workout and it will appear here.") + "</p></div>";
+    } else {
+      var first = pts[0], last = pts[pts.length - 1], dv = last.v - first.v;
+      h += '<div class="readout"><button type="button" class="step" id="ch-prev" data-act="chart-step" data-v="-1" aria-label="Previous entry">‹</button><div class="rv" id="ch-read" aria-live="polite"></div><button type="button" class="step" id="ch-next" data-act="chart-step" data-v="1" aria-label="Next entry">›</button></div>';
+      h += chartSvg(pts, label);
+      h += '<div class="row">';
+      if (pts.length > 1) h += '<span class="chip same"><small>First</small> ' + nt(first.v) + " " + unit + "</span>";
+      h += '<span class="chip same"><small>Latest</small> ' + nt(last.v) + " " + unit + "</span>";
+      if (pts.length > 1) h += '<span class="chip ' + (isBody ? "same" : dv > 0 ? "up" : dv < 0 ? "down" : "same") + '"><small>Change</small> ' + (dv > 0 ? "+" : dv < 0 ? "−" : "±") + nt(Math.abs(dv)) + " " + unit + "</span>";
+      if (pts.length === 1) h += '<span class="sub">The line appears after a second entry.</span>';
+      h += "</div>";
+      h += "<details" + (ui.tableOpen ? " open" : "") + ' id="ch-table"><summary>Show as table</summary><div class="tblscroll"><table class="tbl"><thead><tr><th>Date</th><th>' + esc(isBody ? "Weight kg" : metric === "weight" ? "Weight kg" : "Total") + "</th>" + (isBody ? "<th>Stone</th>" : "<th>Sets</th>") + "</tr></thead><tbody>" +
+        pts.slice().reverse().map(function (p) { return "<tr><td>" + esc(fmtDate(p.date, { day: "numeric", month: "short", year: "numeric" })) + "</td><td>" + esc(nt(p.v)) + "</td><td>" + esc(p.sub) + "</td></tr>"; }).join("") + "</tbody></table></div></details></div>";
+    }
+    var dates = {};
+    store.logs.forEach(function (r) { dates[r.date] = 1; });
+    var nDates = Object.keys(dates).length;
+    var rows = planExercises().map(function (ex) {
+      var l = logsFor(ex.id);
+      if (!l.length) return "";
+      var maxW = Math.max.apply(null, l.map(function (r) { return r.weight || 0; }));
+      var maxT = Math.max.apply(null, l.map(function (r) { return sum(r.sets) || 0; }));
+      return "<tr><td>" + esc(ex.name) + "</td><td>" + (ex.noW ? "–" : esc(nt(maxW)) + " kg") + "</td><td>" + esc(nt(maxT)) + " " + unitOf(ex) + "</td><td>" + l.length + "</td></tr>";
+    }).join("");
+    h += '<div class="panel"><div class="sec-head"><h3>Your bests</h3><span>' + nDates + (nDates === 1 ? " session" : " sessions") + " so far</span></div>" +
+      (rows ? '<table class="tbl"><thead><tr><th>Exercise</th><th>Heaviest</th><th>Most in a session</th><th>Times</th></tr></thead><tbody>' + rows + "</tbody></table>" : '<p class="sub">Your best lifts will show here once you start saving exercises.</p>') + "</div></section>";
+    return h;
+  }
+
+  /* ---------- me ---------- */
+  function latestWeight() { var b = store.body.slice().sort(byDate); return b.length ? b[b.length - 1] : null; }
+  function readCalc(src) {
+    var s = src || store.settings, lw = latestWeight();
+    var age = num(s.age), ht = num(s.heightCm), act = ACTIVITY.filter(function (a) { return a.id === s.activity; })[0];
+    var goal = GOALS.filter(function (g) { return g.id === String(s.goal); })[0] || GOALS[0];
+    if (!lw) return { why: "Log your weight above first." };
+    if (!s.sex || !age || !ht || !act) return { why: "Fill in sex, age, height and activity to see your numbers." };
+    var bmr = 10 * lw.weight + 6.25 * ht - 5 * age + (s.sex === "male" ? 5 : -161);
+    var maint = bmr * act.f, tgt = maint - goal.d;
+    return { ok: true, bmr: bmr, maint: maint, target: tgt, low: tgt < bmr, w: lw.weight };
+  }
+  function calcHtml(c) {
+    if (!c.ok) return '<p class="sub">' + esc(c.why) + "</p>";
+    return '<div class="calc"><div><span class="lab">BMR</span><b>' + fmtInt(c.bmr) + ' kcal</b><span class="sub">Burned at rest</span></div><div><span class="lab">Maintenance</span><b>' + fmtInt(c.maint) + ' kcal</b><span class="sub">To stay the same</span></div><div><span class="lab">Target</span><b>' + fmtInt(c.target) + ' kcal</b><span class="sub">A day, for your goal</span></div></div>' +
+      '<p class="sub">Estimates from the Mifflin-St Jeor formula using ' + nt(c.w) + " kg." + (c.low ? " The target is below your BMR, so it's worth checking with a GP or dietitian first." : "") + "</p>";
+  }
+  function meTab() {
+    var s = store.settings, lw = latestWeight(), b = store.body.slice().sort(byDate), first = b[0], mb = ui.msgs.body || {}, ms = ui.msgs.settings || {}, my = ui.msgs.sync || {};
+    var val = function (v) { return esc(v == null ? "" : v); };
+    var h = '<section class="sec"><div class="panel"><h3>Body weight</h3>';
+    h += lw ? '<div><span class="num">' + nt(lw.weight) + ' <small>kg</small></span></div><p class="sub">' + esc(stLb(lw.weight)) + ", logged " + esc(shortDate(lw.date)) + (first && first !== lw ? ". " + (lw.weight < first.weight ? "Down " : lw.weight > first.weight ? "Up " : "No change ") + (lw.weight !== first.weight ? nt(Math.abs(lw.weight - first.weight)) + " kg " : "") + "since " + esc(shortDate(first.date)) + "." : ".") + "</p>"
+      : '<p class="sub">No weight logged yet.</p>';
+    h += '<div class="row" style="align-items:flex-end"><div class="field" style="flex:1 1 140px"><label for="b-w">Today\'s weight kg</label><input id="b-w" type="number" inputmode="decimal" step="0.1" min="0"></div><button data-act="save-body" style="flex:0 0 auto">Save weight</button></div>';
+    h += '<p class="msg ' + esc(mb.kind || "") + '" role="status">' + esc(mb.text || "") + "</p></div>";
+
+    var sexOpts = [["", "Choose"], ["female", "Female"], ["male", "Male"]].map(function (o) { return '<option value="' + o[0] + '"' + (s.sex === o[0] ? " selected" : "") + ">" + o[1] + "</option>"; }).join("");
+    var actOpts = '<option value="">Choose</option>' + ACTIVITY.map(function (a) { return '<option value="' + a.id + '"' + (s.activity === a.id ? " selected" : "") + ">" + esc(a.label) + "</option>"; }).join("");
+    var goalOpts = GOALS.map(function (g) { return '<option value="' + g.id + '"' + (String(s.goal) === g.id ? " selected" : "") + ">" + esc(g.label) + "</option>"; }).join("");
+    h += '<div class="panel" id="calories"><h3>BMR and target calories</h3><div class="fields">' +
+      '<div class="field"><label for="m-name">Name</label><input class="text" id="m-name" type="text" autocomplete="off" value="' + val(s.name) + '"></div>' +
+      '<div class="field"><label for="m-sex">Sex (for the formula)</label><select id="m-sex">' + sexOpts + "</select></div>" +
+      '<div class="field"><label for="m-age">Age</label><input id="m-age" type="number" inputmode="numeric" min="16" max="100" value="' + val(s.age) + '"></div>' +
+      '<div class="field"><label for="m-height">Height cm</label><input id="m-height" type="number" inputmode="decimal" min="120" max="220" value="' + val(s.heightCm) + '"></div></div>' +
+      '<div class="field"><label for="m-activity">Activity level</label><select id="m-activity">' + actOpts + "</select></div>" +
+      '<div class="field"><label for="m-goal">Goal</label><select id="m-goal">' + goalOpts + "</select></div>" +
+      '<div id="calc">' + calcHtml(readCalc()) + "</div>" +
+      '<button data-act="save-settings">Save details</button><p class="msg ' + esc(ms.kind || "") + '" role="status">' + esc(ms.text || "") + "</p></div>";
+
+    h += '<details class="panel" id="syncbox"' + (ui.syncOpen ? " open" : "") + '><summary>Google Sheet connection</summary>' +
+      '<p class="sub">' + esc(store.sync.url ? "Connected. Entries are saved to the Google Sheet as well as this phone." : "Not connected. Entries are saved on this phone only.") + "</p>" +
+      '<div class="field"><label for="sync-url">Web app URL</label><input class="text" id="sync-url" type="url" autocomplete="off" autocapitalize="off" spellcheck="false" value="' + val(store.sync.url) + '" placeholder="https://script.google.com/macros/s/…/exec"></div>' +
+      '<div class="field"><label for="sync-key">Secret key</label><div class="keyrow"><input class="text" id="sync-key" type="' + (ui.showKey ? "text" : "password") + '" autocomplete="off" autocapitalize="off" spellcheck="false" value="' + val(store.sync.key) + '"><button type="button" class="quiet" data-act="toggle-key" aria-pressed="' + (ui.showKey ? "true" : "false") + '">' + (ui.showKey ? "Hide" : "Show") + "</button></div></div>" +
+      '<button class="quiet" data-act="save-sync"' + (ui.syncing ? " disabled" : "") + '>Save and sync</button><p class="msg ' + esc(my.kind || "") + '" role="status">' + esc(my.text || "") + "</p></details></section>";
+    return h;
+  }
+
+  /* ---------- plan ---------- */
+  function planItem(s, ex, i, n) {
+    var key = s + ":" + i, h = '<li class="pitem">';
+    h += '<div class="ptop"><span class="pname">' + esc(ex.name) + '</span><button type="button" class="info" style="width:40px;min-height:40px" data-act="info" data-v="' + esc(ex.id) + '" aria-label="How to do ' + esc(ex.name) + '">i</button></div>';
+    var bits = [ex.equip, ex.type === "time" ? "Timed" : "", ex.per ? (ex.per === "each hand" ? "weight in each hand" : ex.per) : "", ex.note].filter(Boolean);
+    if (bits.length) h += '<span class="sub">' + esc(bits.join(" · ")) + "</span>";
+    if (ui.removing === key) {
+      h += '<p>Remove ' + esc(ex.name) + " from " + esc(sessionName(s)) + '? Its history stays in Progress.</p><div class="tools"><button data-act="remove-yes" data-s="' + s + '" data-i="' + i + '">Remove</button><button class="quiet" data-act="remove-no">Keep</button></div>';
+    } else if (ui.editing === key) {
+      var perOpts = PER.map(function (p) { return '<option value="' + p[0] + '"' + (ex.per === p[0] ? " selected" : "") + ">" + p[1] + "</option>"; }).join("");
+      h += '<div class="fields">' +
+        '<div class="field"><label for="e-name">Name</label><input class="text" id="e-name" value="' + esc(ex.name) + '"></div>' +
+        '<div class="field"><label for="e-note">Settings note</label><input class="text" id="e-note" placeholder="e.g. Seat 5" value="' + esc(ex.note) + '"></div>' +
+        '<div class="field"><label for="e-per">Weight/reps are</label><select id="e-per">' + perOpts + "</select></div>" +
+        '<div class="field"><label for="e-type">Measured in</label><select id="e-type"><option value="reps"' + (ex.type === "reps" ? " selected" : "") + '>Reps</option><option value="time"' + (ex.type === "time" ? " selected" : "") + ">Seconds</option></select></div>" +
+        (ex.noW ? "" : '<div class="field"><label for="e-inc">Weight step kg</label><input id="e-inc" type="number" inputmode="decimal" step="0.25" min="0" value="' + esc(ex.inc) + '"></div>') +
+        "</div>" +
+        '<div class="tools"><button data-act="edit-save" data-s="' + s + '" data-i="' + i + '">Save</button><button class="quiet" data-act="edit-cancel">Cancel</button></div>';
+    } else {
+      h += '<div class="tools">' +
+        '<button class="quiet" data-act="move" data-s="' + s + '" data-i="' + i + '" data-d="-1"' + (i === 0 ? " disabled" : "") + ' aria-label="Move ' + esc(ex.name) + ' up">↑</button>' +
+        '<button class="quiet" data-act="move" data-s="' + s + '" data-i="' + i + '" data-d="1"' + (i === n - 1 ? " disabled" : "") + ' aria-label="Move ' + esc(ex.name) + ' down">↓</button>' +
+        '<button class="quiet" data-act="edit" data-s="' + s + '" data-i="' + i + '">Edit</button>' +
+        '<button class="quiet" data-act="remove" data-s="' + s + '" data-i="' + i + '">Remove</button></div>';
+    }
+    return h + "</li>";
+  }
+  function catalogueHtml(s) {
+    var area = ui.area, list = CATALOGUE.filter(function (c) { return area === "All" || c.a === area; });
+    var inS = {};
+    (store.plan[s] || []).forEach(function (ex) { inS[ex.id] = 1; });
+    var h = '<div class="group" id="catalogue"><div class="sec-head"><h3>Exercise catalogue</h3><button type="button" class="quiet small" data-act="add-close">Close</button></div>';
+    h += '<div class="chips" role="group" aria-label="Body area">' + ["All"].concat(AREAS).map(function (a) {
+      return '<button type="button" data-act="area" data-v="' + a + '" aria-pressed="' + (a === area ? "true" : "false") + '">' + a + "</button>";
+    }).join("") + "</div><div class=\"cat\">";
+    h += list.map(function (c) {
+      return '<div class="catrow"><div class="cname"><b>' + esc(c.n) + '</b><span class="sub">' + esc(c.e + (c.t === "time" ? " · timed" : "") + (c.p ? " · " + c.p : "")) + '</span></div><button type="button" class="info" data-act="info-cat" data-v="' + c.id + '" aria-label="How to do ' + esc(c.n) + '">i</button>' +
+        (inS[c.id] ? '<span class="tag">Added</span>' : '<button class="small" data-act="add-cat" data-s="' + s + '" data-v="' + c.id + '">Add</button>') + "</div>";
+    }).join("") + "</div>";
+    var equipOpts = EQUIP.map(function (e) { return "<option>" + e + "</option>"; }).join("");
+    var perOpts = PER.map(function (p) { return '<option value="' + p[0] + '">' + p[1] + "</option>"; }).join("");
+    var mc = ui.msgs.custom || {};
+    h += '<div class="group"><h3>Add your own</h3><div class="fields">' +
+      '<div class="field"><label for="c-name">Name</label><input class="text" id="c-name" autocomplete="off"></div>' +
+      '<div class="field"><label for="c-equip">Equipment</label><select id="c-equip">' + equipOpts + "</select></div>" +
+      '<div class="field"><label for="c-type">Measured in</label><select id="c-type"><option value="reps">Reps</option><option value="time">Seconds</option></select></div>' +
+      '<div class="field"><label for="c-per">Weight/reps are</label><select id="c-per">' + perOpts + "</select></div>" +
+      '<div class="field"><label for="c-start">Starting weight kg</label><input id="c-start" type="number" inputmode="decimal" step="0.25" min="0" placeholder="0 if none"></div></div>' +
+      '<div class="field"><label for="c-how">How to do it (optional)</label><textarea id="c-how" placeholder="Steps or tips from the instructor"></textarea></div>' +
+      '<button data-act="add-custom" data-s="' + s + '">Add to ' + esc(sessionName(s)) + '</button><p class="msg ' + esc(mc.kind || "") + '" role="status">' + esc(mc.text || "") + "</p></div></div>";
+    return h;
+  }
+  function planTab() {
+    var st = store.settings, mp = ui.msgs.plan || {};
+    var h = '<section class="sec"><div class="panel"><h3>Rep range</h3><p class="sub">Targets aim for this range. When every set reaches the top, the weight goes up a step.</p><div class="row" style="align-items:flex-end">' +
+      '<div class="field" style="flex:1 1 100px"><label for="p-low">From</label><input id="p-low" type="number" inputmode="numeric" min="1" max="50" value="' + st.low + '"></div>' +
+      '<div class="field" style="flex:1 1 100px"><label for="p-high">To</label><input id="p-high" type="number" inputmode="numeric" min="1" max="50" value="' + st.high + '"></div>' +
+      '<button data-act="save-range" style="flex:0 0 auto">Save</button></div><p class="msg ' + esc(mp.kind || "") + '" role="status">' + esc(mp.text || "") + "</p></div>";
+    SESSIONS.forEach(function (p) {
+      var s = p[0], exs = store.plan[s] || [];
+      h += '<div class="panel"><div class="sec-head"><h3>' + p[1] + "</h3><span>" + exs.length + " exercises</span></div>";
+      h += '<ul class="plist">' + exs.map(function (ex, i) { return planItem(s, ex, i, exs.length); }).join("") + "</ul>";
+      if (!exs.length) h += '<p class="sub">No exercises yet.</p>';
+      h += '<div class="row"><button class="quiet" data-act="add-open" data-s="' + s + '">Add exercise</button><button class="quiet" data-act="suggest" data-s="' + s + '">Suggest a next plan</button></div>';
+      if (ui.forceSuggest === s) h += suggestCard(s, suggestion(s, true), "plan");
+      if (ui.adding === s) h += catalogueHtml(s);
+      h += "</div>";
+    });
+    return h + '<p class="foot">Removing an exercise doesn\'t delete its history. It stays in Progress and the sheet.</p></section>';
+  }
+
+  /* ---------- overlays ---------- */
+  function infoHtml() {
+    if (!ui.info) return "";
+    var ex = ui.info.cat ? null : findEx(ui.info.id), c = CAT[ui.info.cat || (ex && ex.cat)] || null;
+    var name = ex ? ex.name : c ? c.n : "", h = '<div class="overlay" data-act="info-close"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="info-title" data-stop="1">';
+    h += '<div class="sheet-head"><h3 id="info-title">' + esc(name) + '</h3><button type="button" class="quiet small" data-act="info-close" id="info-close">Close</button></div>';
+    if (c) h += '<span class="sub">' + esc(c.e + " · " + c.a + (c.p ? " · " + c.p : "")) + "</span>";
+    if (ex && ex.note) h += '<p><b>Your settings:</b> ' + esc(ex.note) + "</p>";
+    if (c) {
+      h += '<span class="lab">How to do it</span><ol>' + c.how.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "</ol>";
+      h += '<span class="lab">Tips</span><ul>' + c.tips.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "</ul>";
+    }
+    if (ex && ex.how) h += '<span class="lab">Your notes</span><p>' + esc(ex.how) + "</p>";
+    if (!c && !(ex && ex.how)) h += '<p class="sub">No instructions saved for this one. You can add some by adding it again with notes, or ask a gym instructor.</p>';
+    h += '<p class="foot">Move slowly and with control. Stop if anything hurts, and ask a gym instructor if you\'re unsure.</p>';
+    return h + "</div></div>";
+  }
+  function confettiHtml() {
+    var cols = ["#f5b700", "#e4572e", "#2f9be8", "#2fbf71", "#c05cf0"], h = '<div class="confetti" aria-hidden="true">';
+    for (var i = 0; i < 26; i++) h += '<i style="left:' + ((i * 37 + 7) % 100) + "%;background:" + cols[i % 5] + ";animation-delay:" + ((i % 8) * 0.2).toFixed(2) + "s;animation-duration:" + (2.4 + (i % 5) * 0.35).toFixed(2) + 's"></i>';
+    return h + "</div>";
+  }
+  function pbHtml() {
+    if (!ui.pb) return "";
+    return '<div class="overlay"><div class="sheet cel" role="alertdialog" aria-modal="true" aria-labelledby="pb-title">' + confettiHtml() +
+      '<p class="cel-head" id="pb-title">' + esc(ui.pb.title) + "</p><p>" + esc(ui.pb.text) + '</p><button type="button" data-act="pb-close" id="pb-close">Brilliant!</button></div></div>';
+  }
+  function restHtml() {
+    if (ui.tab !== "workout") return "";
+    var r = ui.rest, inner;
+    if (r && r.end) inner = '<span class="rlabel" id="rest-text" role="timer" aria-live="off">Rest ' + restText() + '</span><button type="button" class="quiet" data-act="rest-stop">Stop</button>';
+    else inner = '<span class="rlabel" id="rest-text">' + (r && r.done ? "Rest over. Next set!" : "Rest timer") + "</span>" + [[60, "1 min"], [90, "1½"], [120, "2 min"]].map(function (x) { return '<button type="button" class="quiet" data-act="rest" data-v="' + x[0] + '">' + x[1] + "</button>"; }).join("");
+    return '<div class="restbar"><div class="inner">' + inner + "</div></div>";
+  }
+  function restText() {
+    var left = Math.max(0, Math.ceil((ui.rest.end - Date.now()) / 1000));
+    return Math.floor(left / 60) + ":" + pad(left % 60);
+  }
+
+  function html() {
+    var s = store.settings;
+    var h = '<header><p class="eyebrow">' + esc(fmtDate(todayISO(), { weekday: "long", day: "numeric", month: "long" })) + "</p><h1>" + (s.name ? esc(s.name) + "'s gym" : "Gym") + "</h1></header>";
+    h += '<p class="status" role="status">' + esc(statusText()) + "</p>";
+    if (ui.storageWarn) h += '<div class="banner" role="alert">This browser isn\'t saving data. Turn off private browsing, or entries will be lost.</div>';
+    var standalone = (window.navigator && window.navigator.standalone) || (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches);
+    if (!standalone && !ui.installHidden) h += '<div class="banner"><span>To use this like an app: tap the Share button, then <b>Add to Home Screen</b>.</span><button type="button" data-act="install-hide">OK</button></div>';
+    h += tabsHtml();
+    if (ui.tab === "workout") h += workoutTab();
+    else if (ui.tab === "progress") h += progressTab();
+    else if (ui.tab === "me") h += meTab();
+    else h += planTab();
+    return h;
+  }
+  function render() {
+    var snap = {};
+    document.querySelectorAll("#app input, #app textarea, #app select").forEach(function (i) { if (i.id && ui.touched[i.id]) snap[i.id] = i.value; });
+    var ae = document.activeElement, focusId = ae && ae.id && ae.closest && ae.closest("#app") ? ae.id : null;
+    $("#app").innerHTML = html();
+    $("#layer").innerHTML = infoHtml() + pbHtml() + restHtml();
+    Object.keys(snap).forEach(function (id) { var el = document.getElementById(id); if (el) el.value = snap[id]; });
+    if (focusId) { var f = document.getElementById(focusId); if (f && f.focus) f.focus(); }
+    if (ui.pb) { var b = $("#pb-close"); if (b && b.focus) b.focus(); }
+    else if (ui.info) { var c = $("#info-close"); if (c && c.focus) c.focus(); }
+    ui.renderedDate = todayISO();
+    if (ui.tab === "progress") setSel(ui.sel == null ? chartPts.length - 1 : ui.sel);
+  }
+
+  /* ---------- actions ---------- */
+  function setMsg(k, text, kind) { ui.msgs[k] = { text: text, kind: kind || "" }; }
+  function clearTouched(ids) { ids.forEach(function (id) { delete ui.touched[id]; }); }
+  function afterLocalSave(k, extra) {
+    var tail = extra || "";
+    if (!store.sync.url) { if (!tail) setMsg(k, "Saved on this phone.", "ok"); render(); return; }
+    if (!tail) setMsg(k, "Saved. Syncing…", "ok");
+    render();
+    syncNow().then(function (ok) {
+      var m = ui.msgs[k] || {};
+      if (!tail) setMsg(k, ok ? "Saved and synced." : "Saved on this phone. It will sync when the sheet is reachable.", ok ? "ok" : "err");
+      else if (!ok) setMsg(k, m.text + " (Saved on this phone; it will sync later.)", m.kind);
+      render();
+    });
+  }
+  function wellDone(prev, all, rec, ex) {
+    var unit = rec.type === "time" ? "seconds" : "reps", H = store.settings.high;
+    var tot = sum(rec.sets) || 0, out = { kind: "ok", text: "", pb: null };
+    if (!prev) {
+      out.text = "First one logged. This is your starting point!";
+      out.kind = "well";
+    } else {
+      var pt = sum(prev.sets) || 0, dw = (rec.weight || 0) - (prev.weight || 0);
+      if (!ex.noW && dw > 0) { out.kind = "well"; out.text = "Well done! Up " + nt(dw) + " kg from last time."; }
+      else if (dw === 0 && tot > pt) { out.kind = "well"; out.text = "Well done! " + nt(tot - pt) + " more " + (tot - pt === 1 ? unit.replace(/s$/, "") : unit) + " than last time."; }
+      else if (dw < 0) out.text = "Saved. A lighter day is fine; keep the form good.";
+      else out.text = "Saved. Same as last time; aim for one more next time.";
+      var maxW = Math.max.apply(null, all.map(function (r) { return r.weight || 0; }));
+      var maxT = Math.max.apply(null, all.map(function (r) { return sum(r.sets) || 0; }));
+      if (!ex.noW && (rec.weight || 0) > maxW) out.pb = { title: "New personal best!", text: "Heaviest " + ex.name + " yet: " + nt(rec.weight) + " " + weightLabel(ex) + "." };
+      else if ((ex.noW || ex.type === "time") && tot > maxT) out.pb = { title: "New personal best!", text: "Your best " + ex.name + " yet: " + nt(tot) + " " + unit + " in total." };
+    }
+    if (rec.type === "reps" && !ex.noW && rec.sets.every(function (r) { return r != null && r >= H; })) {
+      out.text += " You did " + H + " on every set, so next time the target goes up to " + nt((rec.weight || 0) + (ex.inc || 0)) + " kg.";
+    }
+    return out;
+  }
+  function saveEx(s, id) {
+    var ex = (store.plan[s] || []).filter(function (e) { return e.id === id; })[0];
+    if (!ex) return;
+    var k = exKey(s, ex);
+    var w = ex.noW ? 0 : num((document.getElementById("w-" + k) || {}).value);
+    var sets = [1, 2, 3].map(function (n) { return num((document.getElementById("s" + n + "-" + k) || {}).value); });
+    if (!ex.noW && (w == null || w < 0)) { setMsg(k, "Enter the weight you used (0 if none).", "err"); render(); return; }
+    if (!sets.some(function (v) { return v != null; })) { setMsg(k, "Enter the " + (ex.type === "time" ? "seconds" : "reps") + " for at least one set.", "err"); render(); return; }
+    if (sets.some(function (v) { return v != null && (v <= 0 || (ex.type === "reps" && !Number.isInteger(v))); })) { setMsg(k, ex.type === "time" ? "Use whole seconds above 0." : "Reps must be whole numbers above 0.", "err"); render(); return; }
+    var all = logsFor(ex.id), prev = all[all.length - 1] || null;
+    var rec = { date: todayISO(), session: s, exId: ex.id, name: ex.name, type: ex.type, weight: ex.noW ? null : w, sets: sets, synced: false, seq: 1000000 + store.uid++ };
+    var wd = wellDone(prev, all, rec, ex);
+    store.logs.push(rec); store.logs.sort(byDate);
+    if (!store.settings.planStart) { store.settings.planStart = todayISO(); store.settingsDirty = true; }
+    saveStore();
+    clearTouched(["w-" + k, "s1-" + k, "s2-" + k, "s3-" + k]);
+    setMsg(k, wd.text, wd.kind);
+    if (wd.pb) ui.pb = wd.pb;
+    ui.session = s;
+    afterLocalSave(k, wd.text);
+  }
+  function saveBody() {
+    var w = num(($("#b-w") || {}).value);
+    if (w == null || w <= 0 || w > 400) { setMsg("body", "Enter your weight in kg.", "err"); render(); return; }
+    var prev = latestWeight();
+    store.body.push({ date: todayISO(), weight: w, synced: false, seq: 1000000 + store.uid++ });
+    store.body.sort(byDate); saveStore(); clearTouched(["b-w"]);
+    var t = prev && w < prev.weight ? "Well done! Down " + nt(prev.weight - w) + " kg since " + shortDate(prev.date) + "." : "Saved.";
+    setMsg("body", t, prev && w < prev.weight ? "well" : "ok");
+    afterLocalSave("body", t);
+  }
+  function readMeForm() {
+    var g = function (id) { var el = document.getElementById(id); return el ? el.value : ""; };
+    return { name: g("m-name").trim(), sex: g("m-sex"), age: num(g("m-age")), heightCm: num(g("m-height")), activity: g("m-activity"), goal: g("m-goal") || "0" };
+  }
+  function updateCalc() {
+    var box = $("#calc");
+    if (box && $("#m-sex")) box.innerHTML = calcHtml(readCalc(Object.assign({}, store.settings, readMeForm())));
+  }
+  function saveSettings() {
+    Object.assign(store.settings, readMeForm());
+    store.settingsDirty = true; saveStore();
+    clearTouched(["m-name", "m-sex", "m-age", "m-height", "m-activity", "m-goal"]);
+    afterLocalSave("settings");
+  }
+  function saveSync() {
+    var url = ($("#sync-url").value || "").trim(), key = ($("#sync-key").value || "").trim();
+    if (url && !/^https:\/\/script\.google\.com\/.+\/exec$/.test(url)) { setMsg("sync", "That URL doesn't look right. It should start with https://script.google.com/ and end with /exec.", "err"); render(); return; }
+    store.sync = { url: url, key: key }; saveStore(); clearTouched(["sync-url", "sync-key"]);
+    if (!url) { setMsg("sync", "Disconnected. Entries are saved on this phone only.", "ok"); render(); return; }
+    setMsg("sync", "Syncing…", "ok"); render();
+    syncNow().then(function (ok) { setMsg("sync", ok ? "Connected and synced." : ui.syncError || "Couldn't sync.", ok ? "ok" : "err"); render(); });
+  }
+  function planChanged(msgKey, text) {
+    store.planDirty = true; saveStore();
+    if (msgKey) setMsg(msgKey, text, "ok");
+    render();
+    if (store.sync.url) syncNow();
+  }
+  function applyPlan(s) {
+    var sug = suggestion(s, true);
+    if (!sug || !sug.swaps) return;
+    sug.swaps.forEach(function (w) {
+      var list = store.plan[s], i = list.indexOf(w.from);
+      if (i >= 0) list[i] = fromCat(w.to.id, w.to.t === "time" ? 30 : 0);
+    });
+    store.settings.planStart = todayISO(); store.settings.dismissUntil = ""; store.settingsDirty = true;
+    ui.forceSuggest = null;
+    planChanged("plan", "New plan saved for " + sessionName(s) + ".");
+  }
+
+  /* ---------- rest timer ---------- */
+  var restTimer = null, audioCtx = null;
+  function beep() {
+    try {
+      if (!audioCtx) return;
+      var o = audioCtx.createOscillator(), g = audioCtx.createGain();
+      o.frequency.value = 880; g.gain.value = 0.15; o.connect(g); g.connect(audioCtx.destination);
+      o.start(); o.stop(audioCtx.currentTime + 0.4);
+    } catch (e) { /* no sound */ }
+    try { if (navigator.vibrate) navigator.vibrate([200, 100, 200]); } catch (e) { /* none */ }
+  }
+  function startRest(secs) {
+    try { if (!audioCtx && (window.AudioContext || window.webkitAudioContext)) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { audioCtx = null; }
+    ui.rest = { end: Date.now() + secs * 1000 };
+    if (restTimer) clearInterval(restTimer);
+    restTimer = setInterval(tickRest, 250);
+    render();
+  }
+  function tickRest() {
+    if (!ui.rest || !ui.rest.end) { clearInterval(restTimer); restTimer = null; return; }
+    if (Date.now() >= ui.rest.end) { clearInterval(restTimer); restTimer = null; ui.rest = { done: true }; beep(); render(); return; }
+    var el = $("#rest-text");
+    if (el) el.textContent = "Rest " + restText();
+  }
+
+  /* ---------- events ---------- */
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest ? e.target.closest("[data-act]") : null;
+    if (!b || b.disabled) return;
+    if (b.classList.contains("overlay") && e.target !== b) return; // clicks inside the info sheet
+    var a = b.getAttribute("data-act"), v = b.getAttribute("data-v"), s = b.getAttribute("data-s"), i = Number(b.getAttribute("data-i"));
+    if (a === "tab") { ui.tab = v; ui.sel = null; window.scrollTo && window.scrollTo(0, 0); render(); }
+    else if (a === "session") { ui.session = v; render(); }
+    else if (a === "save-ex") saveEx(s, v);
+    else if (a === "info") { ui.info = { id: v }; render(); }
+    else if (a === "info-cat") { ui.info = { cat: v }; render(); }
+    else if (a === "info-close") { ui.info = null; render(); }
+    else if (a === "pb-close") { ui.pb = null; render(); }
+    else if (a === "rest") startRest(Number(v));
+    else if (a === "rest-stop") { ui.rest = null; if (restTimer) clearInterval(restTimer); render(); }
+    else if (a === "save-body") saveBody();
+    else if (a === "save-settings") saveSettings();
+    else if (a === "save-sync") saveSync();
+    else if (a === "toggle-key") { ui.showKey = !ui.showKey; render(); }
+    else if (a === "install-hide") { ui.installHidden = true; render(); }
+    else if (a === "chart") { ui.chart = v; ui.sel = null; render(); }
+    else if (a === "metric") { ui.metric = v; ui.sel = null; render(); }
+    else if (a === "chart-step") setSel((ui.sel == null ? chartPts.length - 1 : ui.sel) + Number(v));
+    else if (a === "move") {
+      var list = store.plan[s], j = i + Number(b.getAttribute("data-d"));
+      if (j < 0 || j >= list.length) return;
+      var t = list[i]; list[i] = list[j]; list[j] = t;
+      planChanged();
+    }
+    else if (a === "edit") { ui.editing = s + ":" + i; ui.removing = null; render(); }
+    else if (a === "edit-cancel") { ui.editing = null; render(); }
+    else if (a === "edit-save") {
+      var ex = store.plan[s][i], nm = ($("#e-name").value || "").trim();
+      if (nm) ex.name = nm;
+      ex.note = ($("#e-note").value || "").trim(); ex.per = $("#e-per").value; ex.type = $("#e-type").value === "time" ? "time" : "reps";
+      if ($("#e-inc")) { var inc = num($("#e-inc").value); if (inc != null && inc >= 0) ex.inc = inc; }
+      ui.editing = null; clearTouched(["e-name", "e-note", "e-per", "e-type", "e-inc"]);
+      planChanged("plan", ex.name + " updated.");
+    }
+    else if (a === "remove") { ui.removing = s + ":" + i; ui.editing = null; render(); }
+    else if (a === "remove-no") { ui.removing = null; render(); }
+    else if (a === "remove-yes") { var gone = store.plan[s].splice(i, 1)[0]; ui.removing = null; planChanged("plan", (gone ? gone.name : "Exercise") + " removed from " + sessionName(s) + "."); }
+    else if (a === "add-open") { ui.adding = ui.adding === s ? null : s; ui.forceSuggest = null; render(); }
+    else if (a === "add-close") { ui.adding = null; render(); }
+    else if (a === "area") { ui.area = v; render(); }
+    else if (a === "add-cat") {
+      if ((store.plan[s] || []).some(function (x) { return x.id === v; })) return;
+      store.plan[s].push(fromCat(v));
+      planChanged("plan", CAT[v].n + " added to " + sessionName(s) + ". Enter the weight the first time you do it.");
+    }
+    else if (a === "add-custom") {
+      var name = ($("#c-name").value || "").trim();
+      if (!name) { setMsg("custom", "Give the exercise a name.", "err"); render(); return; }
+      var eq = $("#c-equip").value, typ = $("#c-type").value === "time" ? "time" : "reps";
+      var st = num($("#c-start").value);
+      store.plan[s].push({ id: "my-" + slug(name) + "-" + Date.now().toString(36).slice(-4), cat: "", name: name, type: typ, per: $("#c-per").value, start: typ === "time" ? 30 : (st || 0), inc: eq === "Dumbbell" ? 2.5 : 2.5, note: "", equip: eq, noW: eq === "Bodyweight" || eq === "Cardio machine", how: ($("#c-how").value || "").trim() });
+      clearTouched(["c-name", "c-equip", "c-type", "c-per", "c-start", "c-how"]);
+      setMsg("custom", name + " added to " + sessionName(s) + ".", "ok");
+      planChanged();
+    }
+    else if (a === "save-range") {
+      var lo = num($("#p-low").value), hi = num($("#p-high").value);
+      if (!lo || !hi || lo < 1 || hi < lo || hi > 50) { setMsg("plan", "Use whole numbers, with From no bigger than To.", "err"); render(); return; }
+      store.settings.low = Math.round(lo); store.settings.high = Math.round(hi); store.settingsDirty = true; saveStore();
+      clearTouched(["p-low", "p-high"]); setMsg("plan", "Rep range saved.", "ok"); render(); if (store.sync.url) syncNow();
+    }
+    else if (a === "suggest") { ui.forceSuggest = ui.forceSuggest === s ? null : s; ui.adding = null; render(); }
+    else if (a === "apply-plan") applyPlan(s);
+    else if (a === "dismiss-plan") {
+      if (b.getAttribute("data-place") === "plan") { ui.forceSuggest = null; render(); return; }
+      store.settings.dismissUntil = addDays(todayISO(), 14); store.settingsDirty = true; saveStore(); render(); if (store.sync.url) syncNow();
+    }
+  });
+  document.addEventListener("input", function (e) {
+    var t = e.target;
+    if (t && t.id) ui.touched[t.id] = true;
+    if (t && t.closest && t.closest("#calories")) updateCalc();
+  });
+  document.addEventListener("change", function (e) { var t = e.target; if (t && t.id) ui.touched[t.id] = true; if (t && t.closest && t.closest("#calories")) updateCalc(); });
+  document.addEventListener("toggle", function (e) {
+    if (e.target && e.target.id === "syncbox") ui.syncOpen = e.target.open;
+    if (e.target && e.target.id === "ch-table") ui.tableOpen = e.target.open;
+  }, true);
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && (ui.info || ui.pb)) { ui.info = null; ui.pb = null; render(); } });
+  document.addEventListener("pointerdown", chartPointer);
+  document.addEventListener("pointermove", chartPointer);
+  document.addEventListener("visibilitychange", function () {
+    if (document.visibilityState !== "visible") return;
+    if (ui.renderedDate !== todayISO()) render();
+    if (ui.rest && ui.rest.end) tickRest();
+    if (store.sync.url && (!store.lastSync || Date.now() - store.lastSync > 60000)) syncNow();
+  });
+
+  /* ---------- start ---------- */
+  loadStore();
+  var linked = readSetupLink();
+  render();
+  if (linked) { ui.tab = "workout"; }
+  if (store.sync.url) syncNow();
+})();
+</script>
+</body>
+</html>
