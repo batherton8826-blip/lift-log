@@ -742,6 +742,10 @@
     h += '<p class="sub">Aim: 3 sets of ' + store.settings.low + " to " + store.settings.high + " reps. You should feel a bit tired towards the end of each set. Rest 1 to 2 minutes between sets.</p>";
     if (!exs.length) h += '<div class="panel"><p class="sub">No exercises in this session yet. Add some in Plan.</p></div>';
     h += exs.map(function (ex) { return exCard(ex, s); }).join("");
+    var ms = ui.msgs.session || {};
+    if (exs.length || wa.length || wx.length) {
+      h += '<div class="panel"><button data-act="save-all">Save session</button><p class="sub">Saves every exercise you\'ve filled in. Empty ones are skipped, so it doesn\'t matter if you didn\'t do them all.</p><p class="msg ' + esc(ms.kind || "") + '" role="status">' + esc(ms.text || "") + "</p></div>";
+    }
     return h;
   }
 
@@ -1117,15 +1121,19 @@
     }
     return out;
   }
-  function saveEx(s, id, sess) {
+  // Saves one exercise from its card. Returns "saved", "empty" or "error"; the card's message is set either way.
+  function saveCore(s, id, sess, batch) {
     var ex = (store.plan[s] || []).filter(function (e) { return e.id === id; })[0];
-    if (!ex) return;
+    if (!ex) return "error";
     var k = exKey(s, ex);
     var w = ex.noW ? 0 : num((document.getElementById("w-" + k) || {}).value);
     var sets = [1, 2, 3].map(function (n) { return num((document.getElementById("s" + n + "-" + k) || {}).value); });
-    if (!ex.noW && (w == null || w < 0)) { setMsg(k, "Enter the weight you used (0 if none).", "err"); render(); return; }
-    if (!sets.some(function (v) { return v != null; })) { setMsg(k, "Enter the " + (ex.type === "time" ? "seconds" : "reps") + " for at least one set.", "err"); render(); return; }
-    if (sets.some(function (v) { return v != null && (v <= 0 || (ex.type === "reps" && !Number.isInteger(v))); })) { setMsg(k, ex.type === "time" ? "Use whole seconds above 0." : "Reps must be whole numbers above 0.", "err"); render(); return; }
+    if (!sets.some(function (v) { return v != null; })) {
+      if (batch) return "empty";
+      setMsg(k, "Enter the " + (ex.type === "time" ? "seconds" : "reps") + " for at least one set.", "err"); return "error";
+    }
+    if (!ex.noW && (w == null || w < 0)) { setMsg(k, "Enter the weight you used (0 if none).", "err"); return "error"; }
+    if (sets.some(function (v) { return v != null && (v <= 0 || (ex.type === "reps" && !Number.isInteger(v))); })) { setMsg(k, ex.type === "time" ? "Use whole seconds above 0." : "Reps must be whole numbers above 0.", "err"); return "error"; }
     var all = logsFor(ex.id), prev = all[all.length - 1] || null;
     var warm = isWarm(s);
     var rec = { date: todayISO(), session: warm ? (sess || nextSession()) : s, exId: ex.id, name: ex.name, type: ex.type, weight: ex.noW ? null : w, sets: sets, synced: false, seq: 1000000 + store.uid++ };
@@ -1135,9 +1143,34 @@
     saveStore();
     clearTouched(["w-" + k, "s1-" + k, "s2-" + k, "s3-" + k]);
     setMsg(k, wd.text, wd.kind);
-    if (wd.pb) ui.pb = wd.pb;
+    if (wd.pb && !ui.pb) ui.pb = wd.pb;
     ui.session = rec.session;
-    afterLocalSave(k, wd.text);
+    ui.lastSavedKey = k;
+    return "saved";
+  }
+  function saveEx(s, id, sess) {
+    var r = saveCore(s, id, sess, false);
+    if (r !== "saved") { render(); return; }
+    var m = ui.msgs[ui.lastSavedKey] || {};
+    afterLocalSave(ui.lastSavedKey, m.text);
+  }
+  function saveAll() {
+    var btns = Array.prototype.slice.call(document.querySelectorAll('#app [data-act="save-ex"]'));
+    var saved = 0, empty = 0, errors = 0, wins = 0;
+    btns.forEach(function (b) {
+      var r = saveCore(b.getAttribute("data-s"), b.getAttribute("data-v"), b.getAttribute("data-sess"), true);
+      if (r === "saved") { saved++; if (/^Well done/.test((ui.msgs[ui.lastSavedKey] || {}).text || "")) wins++; }
+      else if (r === "empty") empty++;
+      else errors++;
+    });
+    var t;
+    if (!saved && !errors) { setMsg("session", "Nothing filled in yet. Enter the sets you did, then save.", "err"); render(); return; }
+    t = "Saved " + saved + (saved === 1 ? " exercise" : " exercises") + (empty ? ". " + empty + " left empty, that's fine" : "") + ".";
+    if (wins) t += " " + wins + (wins === 1 ? " improvement" : " improvements") + " on last time. Well done!";
+    if (errors) t += " " + errors + (errors === 1 ? " needs" : " need") + " fixing: see the red message" + (errors === 1 ? "" : "s") + " above.";
+    setMsg("session", t, errors ? "err" : wins ? "well" : "ok");
+    if (!saved) { render(); return; }
+    afterLocalSave("session", t);
   }
   function saveBody() {
     var w = num(($("#b-w") || {}).value);
@@ -1237,6 +1270,7 @@
     if (a === "tab") { ui.tab = v; ui.sel = null; window.scrollTo && window.scrollTo(0, 0); render(); }
     else if (a === "session") { ui.session = v; render(); }
     else if (a === "save-ex") saveEx(s, v, b.getAttribute("data-sess"));
+    else if (a === "save-all") saveAll();
     else if (a === "swap-open") { var se = findInList(s, v); ui.swap = { s: s, id: v, area: se && CAT[se.cat] ? CAT[se.cat].a : "All" }; ui.swapFocus = true; render(); }
     else if (a === "swap-close") { ui.swap = null; render(); }
     else if (a === "swap-area") { ui.swap.area = v; render(); }
