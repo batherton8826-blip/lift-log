@@ -289,6 +289,9 @@
     { id: "single-arm-db-row", n: "Single-arm dumbbell row", a: "Back", e: "Dumbbell", t: "reps", p: "each arm", inc: 2.5,
       how: ["Put one hand and knee on a bench, back flat, dumbbell in the other hand.", "Pull the dumbbell up towards your hip, elbow close to your body.", "Lower slowly. Do all reps, then swap sides."],
       tips: ["Keep your back flat and still.", "Lead with the elbow, not the hand."] },
+    { id: "bent-over-row", n: "Bent-over row", a: "Back", e: "Dumbbell", t: "reps", p: "each hand", inc: 2.5, next: "single-arm-db-row",
+      how: ["Hold a dumbbell in each hand, feet hip-width apart and knees slightly bent.", "Push your hips back and lean forward to about 45 degrees, back flat and arms hanging straight down.", "Pull the dumbbells up towards your lower ribs, squeezing your shoulder blades together, then lower slowly."],
+      tips: ["Keep your back flat and your neck in line; look at the floor a little ahead of you.", "If your lower back feels it, use a lighter weight or the single-arm row with a hand on a bench."] },
     { id: "face-pull", n: "Face pull", a: "Back", e: "Cable", t: "reps", inc: 2.5,
       how: ["Set a rope on a pulley at about head height and hold the ends, palms facing in.", "Pull the rope towards your face, hands moving apart, elbows high.", "Return slowly."],
       tips: ["Light weight, slow and controlled.", "Great for posture and shoulder health."] },
@@ -308,6 +311,9 @@
     { id: "incline-db-press", n: "Incline dumbbell press", a: "Chest", e: "Dumbbell", t: "reps", p: "each hand", inc: 2.5,
       how: ["Set the bench to a low incline and lie back with a dumbbell in each hand at shoulder level.", "Press up until your arms are almost straight.", "Lower slowly."],
       tips: ["Keep your back on the bench.", "Control the lowering."] },
+    { id: "floor-press", n: "Dumbbell floor press", a: "Chest", e: "Dumbbell", t: "reps", p: "each hand", inc: 2.5, next: "db-bench-press",
+      how: ["Lie on your back on a mat with knees bent and feet flat, a dumbbell in each hand.", "Start with your upper arms on the floor, elbows at about 45 degrees from your body and the weights above your chest.", "Press the dumbbells up until your arms are almost straight, then lower slowly until your upper arms touch the floor again."],
+      tips: ["Let your arms rest lightly on the floor at the bottom; don't bounce them.", "Keep your wrists straight over your elbows."] },
     { id: "incline-pushup", n: "Incline push-up", a: "Chest", e: "Bodyweight", t: "reps", nw: true,
       how: ["Put your hands on a bench or raised surface, a little wider than your shoulders.", "Keep your body in a straight line and lower your chest towards the edge.", "Push away until your arms are straight."],
       tips: ["A higher surface is easier; lower it as you get stronger.", "Don't let your hips sag."] },
@@ -372,17 +378,18 @@
   var DEFAULT_PLAN = {
     "W": [["rope-pull", 30]],
     "WX": [["step-up", 5, "", "wu-step-up"], ["kb-rdl", 8]],
-    "1": [["lateral-raise", 2.5], ["front-raise", 2.5], ["chest-press-machine", 0, "Seat 5, handles 3"], ["lat-pulldown", 27.5], ["calf-raise", 7.5],
-      ["triceps-rope", 11.25], ["shoulder-press-machine", 12.5, "Seat 5, narrow grip"], ["step-up", 5], ["single-arm-cable-row", 7.5], ["pec-fly-machine", 20, "Seat 4"], ["pallof-press", 13.75]]
+    "1": [["lat-pulldown", 27.5], ["leg-extension", 0, "", "", "Chair leg extension"], ["triceps-rope", 13.75, "", "", "Cable triceps extension"],
+      ["pallof-press", 13.75, "", "", "Pallof press (wood chopper)"], ["bent-over-row", 0], ["floor-press", 0, "", "", "Lying chest press (on floor)"],
+      ["plank", 45, "On knees, 45 to 60 seconds", "", "Kneeling plank"]]
   };
 
-  function fromCat(id, start, note, uid) {
+  function fromCat(id, start, note, uid, name) {
     var c = CAT[id];
-    return { id: uid || c.id, cat: c.id, name: c.n + (uid && uid.indexOf("wu-") === 0 ? " (warm-up)" : ""), type: c.t, per: c.p || "", start: start != null ? start : (c.t === "time" ? 30 : 0), inc: c.inc || 0, note: note || "", equip: c.e, noW: !!c.nw, how: "" };
+    return { id: uid || c.id, cat: c.id, name: (name || c.n) + (uid && uid.indexOf("wu-") === 0 ? " (warm-up)" : ""), type: c.t, per: c.p || "", start: start != null ? start : (c.t === "time" ? 30 : 0), inc: c.inc || 0, note: note || "", equip: c.e, noW: !!c.nw, how: "" };
   }
   function freshPlan() {
     var p = {};
-    Object.keys(DEFAULT_PLAN).forEach(function (s) { p[s] = DEFAULT_PLAN[s].map(function (x) { return fromCat(x[0], x[1], x[2], x[3]); }); });
+    Object.keys(DEFAULT_PLAN).forEach(function (s) { p[s] = DEFAULT_PLAN[s].map(function (x) { return fromCat(x[0], x[1], x[2], x[3], x[4]); }); });
     return p;
   }
   function freshSettings() {
@@ -609,7 +616,8 @@
     }
     if (ex.type === "time") {
       if (!last) { var s0 = ex.start || 30; return { weight: ex.noW ? null : 0, sets: [s0, s0, s0], hint: "Aim for " + s0 + " seconds on each set." }; }
-      return { weight: ex.noW ? null : last.weight, sets: last.sets.map(function (v) { return v == null ? null : v + 5; }), hint: "Try 5 seconds more on each set." };
+      var atTop = last.sets.every(function (v) { return v == null || v >= 60; });
+      return { weight: ex.noW ? null : last.weight, sets: last.sets.map(function (v) { return v == null ? null : Math.min(v + 5, Math.max(60, v)); }), hint: atTop ? "You're at 60 seconds. Keep it there, or swap for a harder version." : "Try 5 seconds more on each set, up to 60." };
     }
     if (!last) {
       return { weight: ex.noW ? null : (ex.start || 0), range: true, sets: [], hint: ex.noW || ex.start > 0 ? "Aim for " + L + " to " + H + " reps on each set." : "Pick a weight you can lift " + L + " to " + H + " times, then enter it." };
