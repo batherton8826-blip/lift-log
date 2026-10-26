@@ -402,7 +402,9 @@
     return { name: "", sex: "", age: null, heightCm: null, activity: "", goal: "250", low: 8, high: 12, planStart: "", dismissUntil: "" };
   }
 
-  var store = { plan: freshPlan(), logs: [], body: [], settings: freshSettings(), planDirty: false, settingsDirty: false, sync: { url: "", key: "" }, uid: 1, lastSync: null };
+  // Bump when the default exercise list changes: phones with an older saved list get the new one.
+  var PLAN_VERSION = 3;
+  var store = { planVersion: PLAN_VERSION, plan: freshPlan(), logs: [], body: [], settings: freshSettings(), planDirty: false, settingsDirty: false, sync: { url: "", key: "" }, uid: 1, lastSync: null };
   var ui = { tab: "workout", session: null, msgs: {}, touched: {}, busy: {}, syncing: false, syncError: null, info: null, pb: null, rest: null, editing: null, removing: null, adding: null, area: "All", showKey: false, chart: null, metric: "weight", sel: null, forceSuggest: null, installHidden: false, storageWarn: false, renderedDate: "", sessionDone: null };
 
   /* ---------- helpers ---------- */
@@ -462,6 +464,11 @@
       store.planDirty = !!s.planDirty; store.settingsDirty = !!s.settingsDirty;
       store.sync = Object.assign({ url: "", key: "" }, s.sync || {});
       store.uid = s.uid || 1; store.lastSync = s.lastSync || null;
+      if (s.planVersion !== PLAN_VERSION) {
+        // Saved before the current default list: switch to it. Logged history is kept.
+        store.plan = freshPlan(); store.planDirty = true; store.planVersion = PLAN_VERSION;
+        store.settings.warmChoice = "";
+      }
     } catch (e) { /* start fresh */ }
   }
   function saveStore() {
@@ -1010,6 +1017,10 @@
       if (ui.adding === s) h += catalogueHtml(s);
       h += "</div>";
     });
+    var mr = ui.msgs.reset || {};
+    h += '<div class="panel"><h3>Start again</h3><p class="sub">Put back the default warm-up and exercises. History stays in Progress.</p>' +
+      (ui.confirmReset ? '<p>Replace the whole list with the defaults?</p><div class="row"><button data-act="reset-yes">Yes, reset</button><button class="quiet" data-act="reset-no">Cancel</button></div>' : '<button class="quiet" data-act="reset">Reset to default exercises</button>') +
+      '<p class="msg ' + esc(mr.kind || "") + '" role="status">' + esc(mr.text || "") + "</p></div>";
     return h + '<p class="foot">Removing an exercise doesn\'t delete its history. It stays in Progress and the sheet.</p></section>';
   }
 
@@ -1287,6 +1298,9 @@
     else if (a === "session") { ui.session = v; render(); }
     else if (a === "save-ex") saveEx(s, v, b.getAttribute("data-sess"));
     else if (a === "save-all") saveAll();
+    else if (a === "reset") { ui.confirmReset = true; render(); }
+    else if (a === "reset-no") { ui.confirmReset = false; render(); }
+    else if (a === "reset-yes") { ui.confirmReset = false; store.plan = freshPlan(); store.settings.warmChoice = ""; ui.editing = ui.removing = ui.adding = null; planChanged("reset", "Default exercises are back."); }
     else if (a === "swap-open") { var se = findInList(s, v); ui.swap = { s: s, id: v, area: se && CAT[se.cat] ? CAT[se.cat].a : "All" }; ui.swapFocus = true; render(); }
     else if (a === "swap-close") { ui.swap = null; render(); }
     else if (a === "swap-area") { ui.swap.area = v; render(); }
