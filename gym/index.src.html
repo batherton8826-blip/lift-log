@@ -61,7 +61,8 @@
   .swatches button[aria-pressed="true"] { border-color: var(--ink); }
   .swatches i { width: 22px; height: 22px; border-radius: 999px; flex: 0 0 auto; }
   .headrow { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
-  .aa { flex: 0 0 auto; min-width: 48px; min-height: 48px; padding: 0 10px; background: var(--surface); color: var(--ink); border: 1px solid var(--line); font: 700 1.125rem var(--body); }
+  .aa { position: relative; flex: 0 0 auto; min-width: 48px; min-height: 48px; padding: 0 10px; display: inline-flex; align-items: center; justify-content: center; background: var(--surface); color: var(--ink); border: 1px solid var(--line); }
+  .aa .aa-lv { position: absolute; right: 4px; bottom: 2px; font: 700 0.6875rem/1 var(--body); color: var(--muted); }
   * { box-sizing: border-box; }
   html { -webkit-text-size-adjust: 100%; }
   body {
@@ -754,7 +755,7 @@
     }
     var top = last.sets.every(function (r) { return r != null && r >= H; });
     if (top && !ex.noW) return { weight: (last.weight || 0) + (ex.inc || 0), sets: [L, L, L], up: true, hint: "You did " + H + " on every set, so the weight goes up a step. Aim for at least " + L + " reps." };
-    return { weight: ex.noW ? null : last.weight, sets: last.sets.map(function (r) { return r == null ? L : Math.min(top ? r + 1 : H, r + 1); }), hint: top ? "Try one more rep on each set." : "Aim for one more rep on sets under " + H + "." };
+    return { weight: ex.noW ? null : last.weight, sets: last.sets.map(function (r) { return r == null ? L : r + 1; }), hint: "Aim for one more rep than last time on each set." + (top ? "" : " When you get " + H + " on all three, the weight goes up.") };
   }
   function isReady(ex) {
     var last = lastLog(ex.id);
@@ -1028,7 +1029,7 @@
       }).join("") + "</div>" +
       '<span class="lab">Light or dark</span>' + chip("look-mode", L.mode, [["auto", "Match phone"], ["light", "Light"], ["dark", "Dark"]]) +
       '<span class="lab">Text size</span>' + chip("look-size", L.size, LOOK_SIZES) +
-      '<p class="sub">Tip: the Aa button at the top changes text size quickly. You can also pinch to zoom.</p></div>';
+      '<p class="sub">Tip: the magnifying glass at the top makes the text bigger with each tap. You can also pinch to zoom.</p></div>';
   }
 
   /* ---------- me ---------- */
@@ -1233,7 +1234,7 @@
     var s = store.settings;
     var sz = LOOK_SIZES.filter(function (x) { return x[0] === store.look.size; })[0] || LOOK_SIZES[0];
     var h = '<header class="headrow"><div><p class="eyebrow">' + esc(fmtDate(todayISO(), { weekday: "long", day: "numeric", month: "long" })) + "</p><h1>" + (s.name ? esc(s.name) + "'s gym" : "Gym") + "</h1></div>" +
-      '<button type="button" class="aa" data-act="look-cycle" aria-label="Text size: ' + sz[1] + '. Tap to change.">Aa</button></header>';
+      '<button type="button" class="aa" data-act="look-cycle" aria-label="Zoom: text size ' + sz[1] + '. Tap to make it bigger."><svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M15.5 15.5 L21 21" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><path d="M10.5 7.5 V13.5 M7.5 10.5 H13.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span class="aa-lv">' + (LOOK_SIZES.map(function (x) { return x[0]; }).indexOf(store.look.size) + 1) + "</span></button></header>";
     h += '<p class="status" role="status">' + esc(statusText()) + "</p>";
     if (ui.storageWarn) h += '<div class="banner" role="alert">This browser isn\'t saving data. Turn off private browsing, or entries will be lost.</div>';
     var standalone = (window.navigator && window.navigator.standalone) || (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches);
