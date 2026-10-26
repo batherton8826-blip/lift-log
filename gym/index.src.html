@@ -40,10 +40,32 @@
     --warn-bg: #3a2f10; --warn-ink: #f3d58a;
     color-scheme: dark;
   }
+
+  /* Colour themes (Customise). Teal is the default above. */
+  :root[data-accent="berry"] { --accent: #be185d; --accent-ink: #ffffff; --accent-soft: #fce7f3; }
+  :root[data-accent="purple"] { --accent: #6d28d9; --accent-ink: #ffffff; --accent-soft: #ede9fe; }
+  :root[data-accent="blue"] { --accent: #1d4ed8; --accent-ink: #ffffff; --accent-soft: #dbeafe; }
+  :root[data-accent="coral"] { --accent: #c2410c; --accent-ink: #ffffff; --accent-soft: #ffedd5; }
+  @media (prefers-color-scheme: dark) {
+    :root[data-accent="berry"]:not([data-theme="light"]) { --accent: #f472b6; --accent-ink: #2a0718; --accent-soft: #3a1529; }
+    :root[data-accent="purple"]:not([data-theme="light"]) { --accent: #b39dfa; --accent-ink: #1a1033; --accent-soft: #261c45; }
+    :root[data-accent="blue"]:not([data-theme="light"]) { --accent: #7aa2ff; --accent-ink: #0b1220; --accent-soft: #172554; }
+    :root[data-accent="coral"]:not([data-theme="light"]) { --accent: #fb923c; --accent-ink: #2a1206; --accent-soft: #3b1d0c; }
+  }
+  :root[data-accent="berry"][data-theme="dark"] { --accent: #f472b6; --accent-ink: #2a0718; --accent-soft: #3a1529; }
+  :root[data-accent="purple"][data-theme="dark"] { --accent: #b39dfa; --accent-ink: #1a1033; --accent-soft: #261c45; }
+  :root[data-accent="blue"][data-theme="dark"] { --accent: #7aa2ff; --accent-ink: #0b1220; --accent-soft: #172554; }
+  :root[data-accent="coral"][data-theme="dark"] { --accent: #fb923c; --accent-ink: #2a1206; --accent-soft: #3b1d0c; }
+  .swatches { display: grid; grid-template-columns: repeat(auto-fit, minmax(92px, 1fr)); gap: 8px; }
+  .swatches button { display: flex; align-items: center; gap: 8px; min-height: 48px; padding: 0 10px; background: var(--surface-2); color: var(--ink); border: 2px solid var(--line); font: 600 0.9375rem var(--body); }
+  .swatches button[aria-pressed="true"] { border-color: var(--ink); }
+  .swatches i { width: 22px; height: 22px; border-radius: 999px; flex: 0 0 auto; }
+  .headrow { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+  .aa { flex: 0 0 auto; min-width: 48px; min-height: 48px; padding: 0 10px; background: var(--surface); color: var(--ink); border: 1px solid var(--line); font: 700 1.125rem var(--body); }
   * { box-sizing: border-box; }
   html { -webkit-text-size-adjust: 100%; }
   body {
-    margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.45 var(--body);
+    margin: 0; background: var(--bg); color: var(--ink); font: 1rem/1.45 var(--body);
     padding-top: max(20px, env(safe-area-inset-top, 0px));
     padding-bottom: max(96px, calc(env(safe-area-inset-bottom, 0px) + 80px));
     padding-left: max(16px, env(safe-area-inset-left, 0px));
@@ -104,6 +126,8 @@
   .ex-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
   .ex-head h3 { flex: 1 1 auto; min-width: 0; }
   .ex-head .swapbtn { flex: 0 0 auto; }
+  .swapped { display: flex; gap: 8px; align-items: center; justify-content: space-between; background: var(--warn-bg); color: var(--warn-ink); border-radius: 8px; padding: 8px 10px; font-size: 0.9375rem; }
+  .swapped button { flex: 0 0 auto; }
   .info { flex: 0 0 auto; width: 44px; min-height: 44px; padding: 0; border-radius: 999px; background: var(--accent-soft); color: var(--accent); font: 700 1.25rem/1 Georgia, "Times New Roman", serif; font-style: italic; }
   .pill { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; padding: 4px 8px; border-radius: 999px; background: var(--up-bg); color: var(--up); white-space: nowrap; }
   .meta { display: flex; gap: 6px; flex-wrap: wrap; }
@@ -141,7 +165,8 @@
   .restbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 10; background: var(--surface); border-top: 1px solid var(--line); padding: 10px 16px; padding-bottom: max(10px, env(safe-area-inset-bottom, 0px)); }
   .restbar .inner { max-width: 760px; margin: 0 auto; display: flex; gap: 8px; align-items: center; }
   .restbar .rlabel { flex: 1 1 auto; font: 700 1.25rem/1 var(--display); text-transform: uppercase; font-variant-numeric: tabular-nums; }
-  .restbar button { min-height: 44px; padding: 0 12px; }
+  .restbar button { min-height: 44px; padding: 0 12px; white-space: nowrap; }
+  .restbar .rlabel { min-width: 0; font-size: 1.125rem; }
 
   /* plan */
   .plist { display: flex; flex-direction: column; gap: 8px; margin: 0; padding: 0; list-style: none; }
@@ -228,6 +253,12 @@
     { id: "incline-walk", n: "Incline walk", a: "Cardio", e: "Cardio machine", t: "mins", nw: true,
       how: ["Start the treadmill at a comfortable walking pace, holding the handrails lightly to begin.", "Raise the incline gradually until you're working hard but can still talk.", "Walk tall with a natural arm swing. For the last minute, lower the incline and speed to cool down."],
       tips: ["Once you're steady, try not to lean on the handrails.", "Put your incline and speed in the settings note (Plan, Edit) so you can match or beat it next time."] },
+    { id: "exercise-bike", n: "Exercise bike", a: "Cardio", e: "Cardio machine", t: "mins", nw: true,
+      how: ["Set the seat so your leg is almost straight when the pedal is at the bottom.", "Pedal at an easy level for a couple of minutes to start.", "Raise the level until you're working but can still talk, then ease off for the last minute."],
+      tips: ["Sit tall with relaxed shoulders.", "If your knees ache, check the seat height."] },
+    { id: "cross-trainer", n: "Cross-trainer", a: "Cardio", e: "Cardio machine", t: "mins", nw: true,
+      how: ["Step onto the pedals and hold the moving handles.", "Start at a low level, pushing and pulling the handles as your legs move.", "Build up to a level where you're working but can still talk, and ease off at the end."],
+      tips: ["Stand tall; don't lean on the handles.", "Hold the fixed handles instead if you feel unsteady."] },
     { id: "rowing-machine", n: "Rowing machine", a: "Cardio", e: "Cardio machine", t: "time", nw: true,
       how: ["Strap your feet in, sit tall and hold the handle with straight arms.", "Push with your legs first, then lean back slightly and pull the handle to your lower ribs.", "Return in reverse: arms forward, lean forward, then bend your knees."],
       tips: ["Your legs do most of the work.", "Keep your back straight and shoulders relaxed."] },
@@ -238,6 +269,9 @@
     { id: "leg-press", n: "Leg press", a: "Legs", e: "Machine", t: "reps", inc: 5, next: "goblet-squat",
       how: ["Sit with your back flat against the pad and feet hip-width apart on the platform.", "Release the safety handles and bend your knees to lower the platform until your knees are about at a right angle.", "Push through your whole foot to straighten your legs, without locking your knees."],
       tips: ["Keep your lower back pressed into the pad.", "Knees point the same way as your toes."] },
+    { id: "box-squat", n: "Box squat (sit to stand)", a: "Legs", e: "Bodyweight", t: "reps", nw: true, next: "goblet-squat",
+      how: ["Stand in front of a bench, feet hip-width apart, arms out in front for balance.", "Sit back and down slowly until you lightly touch the bench.", "Push through your heels to stand up tall without rocking forward."],
+      tips: ["Knees follow your toes.", "When it feels easy, hold a dumbbell at your chest (that's a goblet squat)."] },
     { id: "goblet-squat", n: "Goblet squat", a: "Legs", e: "Dumbbell", t: "reps", inc: 2.5, next: "reverse-lunge",
       how: ["Hold one dumbbell upright against your chest with both hands.", "Stand with feet just wider than hips, toes turned out a little.", "Sit your hips back and down with your chest up, then push through your heels to stand."],
       tips: ["Go only as low as you can keep your chest up and heels down.", "Knees follow your toes."] },
@@ -296,6 +330,9 @@
     { id: "bent-over-row", n: "Bent-over row", a: "Back", e: "Dumbbell", t: "reps", p: "each hand", inc: 2.5, next: "single-arm-db-row",
       how: ["Hold a dumbbell in each hand, feet hip-width apart and knees slightly bent.", "Push your hips back and lean forward to about 45 degrees, back flat and arms hanging straight down.", "Pull the dumbbells up towards your lower ribs, squeezing your shoulder blades together, then lower slowly."],
       tips: ["Keep your back flat and your neck in line; look at the floor a little ahead of you.", "If your lower back feels it, use a lighter weight or the single-arm row with a hand on a bench."] },
+    { id: "machine-row", n: "Seated row machine", a: "Back", e: "Machine", t: "reps", inc: 2.5, next: "seated-cable-row",
+      how: ["Adjust the seat so the handles are at chest height, with your chest against the pad.", "Pull the handles towards you, squeezing your shoulder blades together.", "Return slowly until your arms are straight."],
+      tips: ["Keep your chest on the pad.", "Shoulders down, away from your ears."] },
     { id: "face-pull", n: "Face pull", a: "Back", e: "Cable", t: "reps", inc: 2.5,
       how: ["Set a rope on a pulley at about head height and hold the ends, palms facing in.", "Pull the rope towards your face, hands moving apart, elbows high.", "Return slowly."],
       tips: ["Light weight, slow and controlled.", "Great for posture and shoulder health."] },
@@ -344,6 +381,12 @@
     { id: "triceps-rope", n: "Triceps extension (rope)", a: "Arms", e: "Cable", t: "reps", inc: 1.25, next: "overhead-triceps",
       how: ["Attach the rope to a high pulley and stand tall, elbows tucked at your sides.", "Push the rope down until your arms are straight, spreading the ends apart at the bottom.", "Let it rise slowly until your elbows are at about a right angle."],
       tips: ["Elbows stay pinned to your sides.", "Don't lean over the weight."] },
+    { id: "triceps-bar", n: "Triceps pushdown (bar)", a: "Arms", e: "Cable", t: "reps", inc: 1.25,
+      how: ["Attach a short bar to a high pulley and hold it palms down, elbows at your sides.", "Push the bar down until your arms are straight.", "Let it rise slowly until your elbows are at about a right angle."],
+      tips: ["Elbows stay pinned to your sides.", "Stand tall rather than leaning over the bar."] },
+    { id: "triceps-kickback", n: "Dumbbell triceps kickback", a: "Arms", e: "Dumbbell", t: "reps", p: "each arm", inc: 1,
+      how: ["Put one hand and knee on a bench, back flat, with a light dumbbell in the other hand.", "Hold your upper arm against your side with the elbow bent.", "Straighten your arm behind you, pause, then bend it back slowly. Do all reps, then swap."],
+      tips: ["Only your forearm moves.", "Use a light weight; it's harder than it looks."] },
     { id: "overhead-triceps", n: "Overhead triceps extension", a: "Arms", e: "Dumbbell", t: "reps", inc: 2.5,
       how: ["Sit tall holding one dumbbell overhead with both hands.", "Bend your elbows to lower it behind your head.", "Straighten your arms to lift it back up."],
       tips: ["Keep your elbows pointing forward, close to your head.", "Brace your stomach so your back doesn't arch."] },
@@ -378,6 +421,67 @@
   ];
   var CAT = {};
   CATALOGUE.forEach(function (c) { CAT[c.id] = c; });
+  // Close, beginner-friendly alternatives for when the equipment is in use: same muscles, often different kit.
+  var ALTS = {
+    "rope-pull": ["rowing-machine", "exercise-bike", "cross-trainer", "incline-walk"],
+    "rowing-machine": ["exercise-bike", "cross-trainer", "incline-walk"],
+    "incline-walk": ["exercise-bike", "cross-trainer", "rowing-machine"],
+    "exercise-bike": ["incline-walk", "cross-trainer", "rowing-machine"],
+    "cross-trainer": ["incline-walk", "exercise-bike", "rowing-machine"],
+    "farmers-carry": ["plank", "side-plank"],
+    "leg-press": ["box-squat", "goblet-squat", "step-up"],
+    "goblet-squat": ["box-squat", "leg-press", "step-up"],
+    "box-squat": ["goblet-squat", "leg-press", "step-up"],
+    "step-up": ["box-squat", "leg-press", "goblet-squat"],
+    "reverse-lunge": ["step-up", "box-squat", "goblet-squat"],
+    "rdl": ["kb-rdl", "glute-bridge", "leg-curl"],
+    "kb-rdl": ["rdl", "glute-bridge", "leg-curl"],
+    "glute-bridge": ["hip-thrust", "cable-kickback", "kb-rdl"],
+    "hip-thrust": ["glute-bridge", "cable-kickback", "kb-rdl"],
+    "leg-extension": ["box-squat", "goblet-squat", "leg-press", "step-up"],
+    "leg-curl": ["glute-bridge", "kb-rdl", "rdl"],
+    "hip-abduction": ["cable-kickback", "glute-bridge"],
+    "hip-adduction": ["goblet-squat", "box-squat"],
+    "calf-raise": ["step-up", "box-squat"],
+    "cable-kickback": ["glute-bridge", "hip-thrust", "hip-abduction"],
+    "lat-pulldown": ["close-grip-pulldown", "machine-row", "straight-arm-pulldown", "seated-cable-row"],
+    "close-grip-pulldown": ["lat-pulldown", "machine-row", "straight-arm-pulldown"],
+    "seated-cable-row": ["machine-row", "single-arm-db-row", "single-arm-cable-row"],
+    "single-arm-cable-row": ["single-arm-db-row", "machine-row", "seated-cable-row"],
+    "single-arm-db-row": ["machine-row", "seated-cable-row", "single-arm-cable-row"],
+    "bent-over-row": ["single-arm-db-row", "machine-row", "seated-cable-row"],
+    "machine-row": ["seated-cable-row", "single-arm-db-row", "single-arm-cable-row"],
+    "face-pull": ["rear-delt-fly", "seated-cable-row"],
+    "straight-arm-pulldown": ["lat-pulldown", "close-grip-pulldown"],
+    "chest-press-machine": ["floor-press", "db-bench-press", "incline-pushup"],
+    "pec-fly-machine": ["chest-press-machine", "floor-press", "incline-pushup"],
+    "db-bench-press": ["floor-press", "chest-press-machine", "incline-pushup"],
+    "incline-db-press": ["db-bench-press", "chest-press-machine", "floor-press"],
+    "incline-pushup": ["floor-press", "chest-press-machine", "db-bench-press"],
+    "floor-press": ["chest-press-machine", "incline-pushup", "db-bench-press"],
+    "shoulder-press-machine": ["db-shoulder-press", "lateral-raise", "front-raise"],
+    "db-shoulder-press": ["shoulder-press-machine", "lateral-raise", "front-raise"],
+    "lateral-raise": ["cable-lateral-raise", "shoulder-press-machine", "front-raise"],
+    "front-raise": ["lateral-raise", "shoulder-press-machine", "db-shoulder-press"],
+    "cable-lateral-raise": ["lateral-raise", "shoulder-press-machine"],
+    "rear-delt-fly": ["face-pull", "machine-row"],
+    "triceps-rope": ["triceps-bar", "overhead-triceps", "triceps-kickback"],
+    "triceps-bar": ["triceps-rope", "overhead-triceps", "triceps-kickback"],
+    "overhead-triceps": ["triceps-kickback", "triceps-rope", "triceps-bar"],
+    "triceps-kickback": ["overhead-triceps", "triceps-rope", "triceps-bar"],
+    "db-curl": ["hammer-curl", "cable-curl"],
+    "hammer-curl": ["db-curl", "cable-curl"],
+    "cable-curl": ["db-curl", "hammer-curl"],
+    "pallof-press": ["dead-bug", "side-plank", "bird-dog", "cable-woodchop"],
+    "cable-woodchop": ["pallof-press", "dead-bug", "side-plank"],
+    "plank": ["dead-bug", "bird-dog", "side-plank"],
+    "side-plank": ["plank", "bird-dog", "pallof-press"],
+    "dead-bug": ["bird-dog", "plank", "pallof-press"],
+    "bird-dog": ["dead-bug", "plank", "side-plank"]
+  };
+  function equipText(c) {
+    return { "Machine": "a machine", "Cable": "the cable machine", "Dumbbell": "dumbbells", "Kettlebell": "a kettlebell", "Bodyweight": "no equipment", "Cardio machine": "a cardio machine" }[c.e] || c.e;
+  }
 
   var DEFAULT_PLAN = {
     "W": [["rope-pull", 30]],
@@ -404,7 +508,7 @@
 
   // Bump when the default exercise list changes: phones with an older saved list get the new one.
   var PLAN_VERSION = 3;
-  var store = { planVersion: PLAN_VERSION, plan: freshPlan(), logs: [], body: [], settings: freshSettings(), planDirty: false, settingsDirty: false, sync: { url: "", key: "" }, uid: 1, lastSync: null };
+  var store = { planVersion: PLAN_VERSION, daySwaps: { date: "", map: {} }, look: { accent: "teal", mode: "auto", size: "normal" }, plan: freshPlan(), logs: [], body: [], settings: freshSettings(), planDirty: false, settingsDirty: false, sync: { url: "", key: "" }, uid: 1, lastSync: null };
   var ui = { tab: "workout", session: null, msgs: {}, touched: {}, busy: {}, syncing: false, syncError: null, info: null, pb: null, rest: null, editing: null, removing: null, adding: null, area: "All", showKey: false, chart: null, metric: "weight", sel: null, forceSuggest: null, installHidden: false, storageWarn: false, renderedDate: "", sessionDone: null };
 
   /* ---------- helpers ---------- */
@@ -464,6 +568,8 @@
       store.planDirty = !!s.planDirty; store.settingsDirty = !!s.settingsDirty;
       store.sync = Object.assign({ url: "", key: "" }, s.sync || {});
       store.uid = s.uid || 1; store.lastSync = s.lastSync || null;
+      store.daySwaps = s.daySwaps && s.daySwaps.map ? s.daySwaps : { date: "", map: {} };
+      store.look = Object.assign({ accent: "teal", mode: "auto", size: "normal" }, s.look || {});
       if (s.planVersion !== PLAN_VERSION) {
         // Saved before the current default list: switch to it. Logged history is kept.
         store.plan = freshPlan(); store.planDirty = true; store.planVersion = PLAN_VERSION;
@@ -608,6 +714,12 @@
   }
 
   /* ---------- derived data ---------- */
+  // The plan as shown today: "just for today" swaps replace their exercise until the date changes.
+  function activeList(s) {
+    var list = store.plan[s] || [], ds = store.daySwaps;
+    if (!ds || ds.date !== todayISO()) return list;
+    return list.map(function (ex) { return ds.map[s + "|" + ex.id] || ex; });
+  }
   function planExercises() {
     var seen = {}, out = [];
     PLAN_KEYS.forEach(function (k) { store.plan[k].forEach(function (ex) { if (!seen[ex.id]) { seen[ex.id] = true; out.push(ex); } }); });
@@ -706,6 +818,7 @@
     if (ex.per === "each arm" || ex.per === "each side") tags.push('<span class="tag">' + (ex.type === "reps" ? "Reps" : "Time") + " " + esc(ex.per) + "</span>");
     if (ex.per === "each hand") tags.push('<span class="tag">Weight in each hand</span>');
     if (tags.length) h += '<div class="meta">' + tags.join("") + "</div>";
+    if (ex.origId) h += '<div class="swapped"><span>Swapped for today. Back to <b>' + esc(ex.tempFor) + '</b> next time.</span><button type="button" class="quiet small" data-act="swap-undo" data-s="' + s + '" data-v="' + esc(ex.origId) + '">Undo</button></div>';
     var w = function (v) { return ex.noW || v == null ? "" : "<b>" + nt(v) + " " + esc(wl) + "</b>"; };
     var lastBox = last
       ? '<div class="box"><span class="lab">Last time · ' + esc(last.date === today ? "today" : shortDate(last.date)) + "</span>" + w(last.weight) + '<span class="v">' + esc(setsText(last.sets, unit)) + "</span></div>"
@@ -747,19 +860,19 @@
     s = "1";
     var h = "";
     h += suggestCard(s, suggestion(s, false), "workout");
-    var wa = store.plan.W || [], wx = store.plan.WX || [];
+    var wa = activeList("W"), wx = activeList("WX");
     if (wa.length || wx.length) {
       h += '<div class="sec-head"><h2>Warm-up</h2><span>Every session</span></div>';
       h += wa.map(function (ex) { return exCard(ex, "W", s); }).join("");
       if (wx.length) {
-        var pick = wx.filter(function (ex) { return ex.id === store.settings.warmChoice; })[0] || wx[0];
+        var pick = wx.filter(function (ex) { return ex.id === store.settings.warmChoice || ex.origId === store.settings.warmChoice; })[0] || wx[0];
         if (wx.length > 1) h += '<div class="panel"><span class="lab">Then choose one</span><div class="chips" role="group" aria-label="Warm-up choice">' + wx.map(function (ex) {
           return '<button type="button" data-act="warm-choice" data-v="' + esc(ex.id) + '" aria-pressed="' + (ex === pick ? "true" : "false") + '">' + esc(ex.name.replace(/ \(warm-up\)$/, "")) + "</button>";
         }).join("") + "</div></div>";
         h += exCard(pick, "WX", s);
       }
     }
-    var exs = store.plan[s] || [];
+    var exs = activeList(s);
     var doneN = exs.filter(function (ex) { var l = lastLog(ex.id); return l && l.date === today; }).length;
     h += '<div class="sec-head"><h2>Exercises</h2><span>' + (doneN ? doneN + " of " + exs.length + " done today" : "Do the ones you choose today") + "</span></div>";
     h += '<p class="sub">Aim: 3 sets of ' + store.settings.low + " to " + store.settings.high + " reps. You should feel a bit tired towards the end of each set. Rest 1 to 2 minutes between sets.</p>";
@@ -893,6 +1006,31 @@
     return h;
   }
 
+
+  /* ---------- customise: colour, light/dark and text size ---------- */
+  var LOOK_THEMES = [["teal", "Teal", "#0f766e"], ["berry", "Berry", "#be185d"], ["purple", "Purple", "#6d28d9"], ["blue", "Blue", "#1d4ed8"], ["coral", "Coral", "#c2410c"]];
+  var LOOK_SIZES = [["normal", "Normal", "100%"], ["large", "Large", "115%"], ["xl", "Extra large", "130%"]];
+  function applyLook() {
+    var r = document.documentElement, L = store.look;
+    if (L.accent && L.accent !== "teal") r.setAttribute("data-accent", L.accent); else r.removeAttribute("data-accent");
+    if (L.mode === "light" || L.mode === "dark") r.setAttribute("data-theme", L.mode); else r.removeAttribute("data-theme");
+    var sz = LOOK_SIZES.filter(function (x) { return x[0] === L.size; })[0] || LOOK_SIZES[0];
+    r.style.fontSize = sz[2];
+  }
+  function lookHtml() {
+    var L = store.look;
+    var chip = function (act, cur, opts) {
+      return '<div class="chips" role="group">' + opts.map(function (o) { return '<button type="button" data-act="' + act + '" data-v="' + o[0] + '" aria-pressed="' + (cur === o[0] ? "true" : "false") + '">' + o[1] + "</button>"; }).join("") + "</div>";
+    };
+    return '<div class="panel" id="customise"><h3>Customise</h3><p class="sub">These settings are just for this phone.</p>' +
+      '<span class="lab">Colour</span><div class="swatches" role="group" aria-label="Colour theme">' + LOOK_THEMES.map(function (t) {
+        return '<button type="button" data-act="look-accent" data-v="' + t[0] + '" aria-pressed="' + (L.accent === t[0] ? "true" : "false") + '"><i style="background:' + t[2] + '"></i>' + t[1] + "</button>";
+      }).join("") + "</div>" +
+      '<span class="lab">Light or dark</span>' + chip("look-mode", L.mode, [["auto", "Match phone"], ["light", "Light"], ["dark", "Dark"]]) +
+      '<span class="lab">Text size</span>' + chip("look-size", L.size, LOOK_SIZES) +
+      '<p class="sub">Tip: the Aa button at the top changes text size quickly. You can also pinch to zoom.</p></div>';
+  }
+
   /* ---------- me ---------- */
   function latestWeight() { var b = store.body.slice().sort(byDate); return b.length ? b[b.length - 1] : null; }
   function readCalc(src) {
@@ -932,6 +1070,7 @@
       '<div id="calc">' + calcHtml(readCalc()) + "</div>" +
       '<button data-act="save-settings">Save details</button><p class="msg ' + esc(ms.kind || "") + '" role="status">' + esc(ms.text || "") + "</p></div>";
 
+    h += lookHtml();
     h += '<details class="panel" id="syncbox"' + (ui.syncOpen ? " open" : "") + '><summary>Google Sheet connection</summary>' +
       '<p class="sub">' + esc(store.sync.url ? "Connected. Entries are saved to the Google Sheet as well as this phone." : "Not connected. Entries are saved on this phone only.") + "</p>" +
       '<div class="field"><label for="sync-url">Web app URL</label><input class="text" id="sync-url" type="url" autocomplete="off" autocapitalize="off" spellcheck="false" value="' + val(store.sync.url) + '" placeholder="https://script.google.com/macros/s/…/exec"></div>' +
@@ -1043,22 +1182,30 @@
   }
   function swapHtml() {
     if (!ui.swap) return "";
-    var sw = ui.swap, list = store.plan[sw.s] || [], ex = list.filter(function (e) { return e.id === sw.id; })[0];
+    var sw = ui.swap, act = activeList(sw.s), ex = act.filter(function (e) { return e.id === sw.id; })[0];
     if (!ex) return "";
+    var orig = ex.origId ? findInList(sw.s, ex.origId) || ex : ex;
     var have = {};
-    list.forEach(function (e) { if (e.cat) have[e.cat] = 1; });
-    var area = sw.area;
-    var opts = CATALOGUE.filter(function (c) { return !have[c.id] && (area === "All" || c.a === area); });
+    act.concat(store.plan[sw.s] || []).forEach(function (e) { if (e.cat) have[e.cat] = 1; have[e.id] = 1; });
+    var row = function (c) {
+      return '<div class="catrow"><div class="cname"><b>' + esc(c.n) + '</b><span class="sub">Uses ' + esc(equipText(c)) + (c.t === "time" ? " · timed" : c.t === "mins" ? " · minutes" : "") + (c.p ? " · " + esc(c.p) : "") + '</span></div><button type="button" class="info" data-act="info-cat" data-v="' + c.id + '" aria-label="How to do ' + esc(c.n) + '">i</button><button class="small" data-act="swap-pick" data-v="' + c.id + '">Choose</button></div>';
+    };
+    var alts = (ALTS[orig.cat] || []).map(function (id) { return CAT[id]; }).filter(function (c) { return c && !have[c.id]; });
     var h = '<div class="overlay" data-act="swap-close"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="swap-title" data-stop="1">';
     h += '<div class="sheet-head"><h3 id="swap-title">Swap ' + esc(ex.name) + '</h3><button type="button" class="quiet small" data-act="swap-close" id="swap-close">Close</button></div>';
-    h += '<p class="sub">Pick another exercise to do instead. ' + esc(ex.name) + "'s history stays in Progress, and you can swap back any time.</p>";
-    h += '<div class="chips" role="group" aria-label="Body area">' + ["All"].concat(AREAS).map(function (a) {
-      return '<button type="button" data-act="swap-area" data-v="' + a + '" aria-pressed="' + (a === area ? "true" : "false") + '">' + a + "</button>";
-    }).join("") + '</div><div class="cat">';
-    h += opts.length ? opts.map(function (c) {
-      return '<div class="catrow"><div class="cname"><b>' + esc(c.n) + '</b><span class="sub">' + esc(c.e + (c.t === "time" ? " · timed" : c.t === "mins" ? " · minutes" : "") + (c.p ? " · " + c.p : "")) + '</span></div><button type="button" class="info" data-act="info-cat" data-v="' + c.id + '" aria-label="How to do ' + esc(c.n) + '">i</button><button class="small" data-act="swap-pick" data-v="' + c.id + '">Choose</button></div>';
-    }).join("") : '<p class="sub">Everything in this area is already in the list. Try another area.</p>';
-    return h + "</div></div></div>";
+    h += '<div class="chips" role="group" aria-label="How long for">' + [["today", "Just for today"], ["keep", "Change my plan"]].map(function (m) {
+      return '<button type="button" data-act="swap-mode" data-v="' + m[0] + '" aria-pressed="' + (sw.mode === m[0] ? "true" : "false") + '">' + m[1] + "</button>";
+    }).join("") + "</div>";
+    h += '<p class="sub">' + (sw.mode === "today" ? "Equipment busy? Pick something similar for today. Next time you're back on " + esc(orig.name) + "." : "This replaces " + esc(orig.name) + " in your plan. Its history stays in Progress, and you can swap back any time.") + "</p>";
+    if (alts.length) h += '<span class="lab">Similar exercises, easy to pick up</span><div class="cat">' + alts.map(row).join("") + "</div>";
+    if (!sw.all && alts.length) h += '<button type="button" class="quiet" data-act="swap-all">Browse all exercises</button>';
+    else {
+      var area = sw.area, opts = CATALOGUE.filter(function (c) { return !have[c.id] && (area === "All" || c.a === area); });
+      h += '<span class="lab">All exercises</span><div class="chips" role="group" aria-label="Body area">' + ["All"].concat(AREAS).map(function (a) {
+        return '<button type="button" data-act="swap-area" data-v="' + a + '" aria-pressed="' + (a === area ? "true" : "false") + '">' + a + "</button>";
+      }).join("") + '</div><div class="cat">' + (opts.length ? opts.map(row).join("") : '<p class="sub">Everything in this area is already in the list. Try another area.</p>') + "</div>";
+    }
+    return h + "</div></div>";
   }
   function confettiHtml() {
     var cols = ["#f5b700", "#e4572e", "#2f9be8", "#2fbf71", "#c05cf0"], h = '<div class="confetti" aria-hidden="true">';
@@ -1084,7 +1231,9 @@
 
   function html() {
     var s = store.settings;
-    var h = '<header><p class="eyebrow">' + esc(fmtDate(todayISO(), { weekday: "long", day: "numeric", month: "long" })) + "</p><h1>" + (s.name ? esc(s.name) + "'s gym" : "Gym") + "</h1></header>";
+    var sz = LOOK_SIZES.filter(function (x) { return x[0] === store.look.size; })[0] || LOOK_SIZES[0];
+    var h = '<header class="headrow"><div><p class="eyebrow">' + esc(fmtDate(todayISO(), { weekday: "long", day: "numeric", month: "long" })) + "</p><h1>" + (s.name ? esc(s.name) + "'s gym" : "Gym") + "</h1></div>" +
+      '<button type="button" class="aa" data-act="look-cycle" aria-label="Text size: ' + sz[1] + '. Tap to change.">Aa</button></header>';
     h += '<p class="status" role="status">' + esc(statusText()) + "</p>";
     if (ui.storageWarn) h += '<div class="banner" role="alert">This browser isn\'t saving data. Turn off private browsing, or entries will be lost.</div>';
     var standalone = (window.navigator && window.navigator.standalone) || (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches);
@@ -1150,7 +1299,7 @@
   }
   // Saves one exercise from its card. Returns "saved", "empty" or "error"; the card's message is set either way.
   function saveCore(s, id, sess, batch) {
-    var ex = (store.plan[s] || []).filter(function (e) { return e.id === id; })[0];
+    var ex = activeList(s).filter(function (e) { return e.id === id; })[0];
     if (!ex) return "error";
     var k = exKey(s, ex);
     var w = ex.noW ? 0 : num((document.getElementById("w-" + k) || {}).value);
@@ -1237,18 +1386,31 @@
     render();
     if (store.sync.url) syncNow();
   }
+  function findInListActive(s, id) { return activeList(s).filter(function (e) { return e.id === id; })[0] || null; }
   function findInList(s, id) { return (store.plan[s] || []).filter(function (e) { return e.id === id; })[0] || null; }
   function swapPick(catId) {
-    var sw = ui.swap, list = store.plan[sw.s] || [], i = -1;
-    list.forEach(function (e, n) { if (e.id === sw.id) i = n; });
-    if (i < 0 || !CAT[catId]) return;
+    var sw = ui.swap, act = activeList(sw.s), cur = act.filter(function (e) { return e.id === sw.id; })[0];
+    if (!cur || !CAT[catId]) return;
+    var orig = cur.origId ? findInList(sw.s, cur.origId) : cur;
+    if (!orig) return;
     var nid = isWarm(sw.s) && catId !== "rope-pull" ? "wu-" + catId : catId;
-    if (list.some(function (e) { return e.id === nid; })) return;
-    var old = list[i], fresh = fromCat(catId, defaultStart(CAT[catId].t), "", nid);
-    list[i] = fresh;
-    if (sw.s === "WX" && store.settings.warmChoice === old.id) store.settings.warmChoice = nid;
+    var fresh = fromCat(catId, defaultStart(CAT[catId].t), "", nid), key = sw.s + "|" + orig.id;
+    if (!store.daySwaps || store.daySwaps.date !== todayISO()) store.daySwaps = { date: todayISO(), map: {} };
     ui.swap = null; ui.info = null;
-    setMsg(exKey(sw.s, fresh), "Swapped in for " + old.name + ". You can swap back any time." + (lastLog(nid) ? "" : " Enter the weight you use the first time."), "ok");
+    var firstTime = lastLog(nid) ? "" : " Enter the weight you use the first time.";
+    if (sw.mode === "today") {
+      if (catId === orig.cat) delete store.daySwaps.map[key];
+      else { fresh.origId = orig.id; fresh.tempFor = orig.name; store.daySwaps.map[key] = fresh; }
+      setMsg(exKey(sw.s, catId === orig.cat ? orig : fresh), catId === orig.cat ? "Back to your usual exercise." : "Swapped for today." + (fresh.noW ? "" : firstTime), "ok");
+      saveStore(); render();
+      return;
+    }
+    var list = store.plan[sw.s], i = list.indexOf(orig);
+    if (i < 0 || list.some(function (e) { return e.id === nid; })) return;
+    list[i] = fresh;
+    delete store.daySwaps.map[key];
+    if (sw.s === "WX" && store.settings.warmChoice === orig.id) store.settings.warmChoice = nid;
+    setMsg(exKey(sw.s, fresh), "Swapped in for " + orig.name + ". You can swap back any time." + firstTime, "ok");
     planChanged();
   }
   function applyPlan(s) {
@@ -1298,10 +1460,20 @@
     else if (a === "session") { ui.session = v; render(); }
     else if (a === "save-ex") saveEx(s, v, b.getAttribute("data-sess"));
     else if (a === "save-all") saveAll();
+    else if (a === "look-accent") { store.look.accent = v; saveStore(); applyLook(); render(); }
+    else if (a === "look-mode") { store.look.mode = v; saveStore(); applyLook(); render(); }
+    else if (a === "look-size") { store.look.size = v; saveStore(); applyLook(); render(); }
+    else if (a === "look-cycle") {
+      var ids = LOOK_SIZES.map(function (x) { return x[0]; }), n = (ids.indexOf(store.look.size) + 1) % ids.length;
+      store.look.size = ids[n]; saveStore(); applyLook(); render();
+    }
     else if (a === "reset") { ui.confirmReset = true; render(); }
     else if (a === "reset-no") { ui.confirmReset = false; render(); }
     else if (a === "reset-yes") { ui.confirmReset = false; store.plan = freshPlan(); store.settings.warmChoice = ""; ui.editing = ui.removing = ui.adding = null; planChanged("reset", "Default exercises are back."); }
-    else if (a === "swap-open") { var se = findInList(s, v); ui.swap = { s: s, id: v, area: se && CAT[se.cat] ? CAT[se.cat].a : "All" }; ui.swapFocus = true; render(); }
+    else if (a === "swap-open") { var se = findInListActive(s, v); ui.swap = { s: s, id: v, mode: "today", all: false, area: se && CAT[se.cat] ? CAT[se.cat].a : "All" }; ui.swapFocus = true; render(); }
+    else if (a === "swap-mode") { ui.swap.mode = v === "keep" ? "keep" : "today"; render(); }
+    else if (a === "swap-all") { ui.swap.all = true; render(); }
+    else if (a === "swap-undo") { if (store.daySwaps && store.daySwaps.map) delete store.daySwaps.map[s + "|" + v]; saveStore(); render(); }
     else if (a === "swap-close") { ui.swap = null; render(); }
     else if (a === "swap-area") { ui.swap.area = v; render(); }
     else if (a === "swap-pick") swapPick(v);
@@ -1397,6 +1569,7 @@
 
   /* ---------- start ---------- */
   loadStore();
+  applyLook();
   if (store.planDirty) saveStore(); // keep any upgrade of older saved data
   var linked = readSetupLink();
   render();
