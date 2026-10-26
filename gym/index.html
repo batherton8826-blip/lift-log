@@ -117,6 +117,7 @@
   .box.goal span.v { color: var(--ink); }
   .entry { display: grid; grid-template-columns: 1.35fr 1fr 1fr 1fr; gap: 8px; align-items: end; }
   .entry.three { grid-template-columns: 1fr 1fr 1fr; }
+  .entry.one { grid-template-columns: minmax(0, 200px); }
   .card-done { opacity: 0.92; }
 
   /* suggestion + celebration */
@@ -224,6 +225,9 @@
     { id: "rope-pull", n: "Rope pull", a: "Cardio", e: "Cardio machine", t: "time", nw: true, next: "rowing-machine",
       how: ["Stand facing the rope machine with your feet hip-width apart and knees soft.", "Hold the rope with one hand above the other and pull it down hand over hand in a steady rhythm.", "Keep your chest up and your stomach braced for the whole time."],
       tips: ["Breathe steadily; don't hold your breath.", "Keep a pace you can hold for the full time, then push in the last 10 seconds."] },
+    { id: "incline-walk", n: "Incline walk", a: "Cardio", e: "Cardio machine", t: "mins", nw: true,
+      how: ["Start the treadmill at a comfortable walking pace, holding the handrails lightly to begin.", "Raise the incline gradually until you're working hard but can still talk.", "Walk tall with a natural arm swing. For the last minute, lower the incline and speed to cool down."],
+      tips: ["Once you're steady, try not to lean on the handrails.", "Put your incline and speed in the settings note (Plan, Edit) so you can match or beat it next time."] },
     { id: "rowing-machine", n: "Rowing machine", a: "Cardio", e: "Cardio machine", t: "time", nw: true,
       how: ["Strap your feet in, sit tall and hold the handle with straight arms.", "Push with your legs first, then lean back slightly and pull the handle to your lower ribs.", "Return in reverse: arms forward, lean forward, then bend your knees."],
       tips: ["Your legs do most of the work.", "Keep your back straight and shoulders relaxed."] },
@@ -380,13 +384,15 @@
     "WX": [["step-up", 5, "", "wu-step-up"], ["kb-rdl", 8]],
     "1": [["lat-pulldown", 27.5], ["leg-extension", 0, "", "", "Chair leg extension"], ["triceps-rope", 13.75, "", "", "Cable triceps extension"],
       ["pallof-press", 13.75, "", "", "Pallof press (wood chopper)"], ["bent-over-row", 0], ["floor-press", 0, "", "", "Lying chest press (on floor)"],
-      ["plank", 45, "On knees, 45 to 60 seconds", "", "Kneeling plank"]]
+      ["plank", 45, "On knees, 45 to 60 seconds", "", "Kneeling plank"], ["incline-walk", 10]]
   };
 
   function fromCat(id, start, note, uid, name) {
     var c = CAT[id];
-    return { id: uid || c.id, cat: c.id, name: (name || c.n) + (uid && uid.indexOf("wu-") === 0 ? " (warm-up)" : ""), type: c.t, per: c.p || "", start: start != null ? start : (c.t === "time" ? 30 : 0), inc: c.inc || 0, note: note || "", equip: c.e, noW: !!c.nw, how: "" };
+    return { id: uid || c.id, cat: c.id, name: (name || c.n) + (uid && uid.indexOf("wu-") === 0 ? " (warm-up)" : ""), type: c.t, per: c.p || "", start: start != null ? start : defaultStart(c.t), inc: c.inc || 0, note: note || "", equip: c.e, noW: !!c.nw, how: "" };
   }
+  function defaultStart(t) { return t === "time" ? 30 : t === "mins" ? 10 : 0; }
+  function normType(t) { return t === "time" || t === "mins" ? t : "reps"; }
   function freshPlan() {
     var p = {};
     Object.keys(DEFAULT_PLAN).forEach(function (s) { p[s] = DEFAULT_PLAN[s].map(function (x) { return fromCat(x[0], x[1], x[2], x[3], x[4]); }); });
@@ -424,7 +430,7 @@
   function time(ms) { return new Date(ms).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }); }
   function sum(a) { var t = 0, any = false; a.forEach(function (v) { if (v != null) { t += v; any = true; } }); return any ? t : null; }
   function sessionName(s) { if (s === "W") return "the warm-up"; if (s === "WX") return "the warm-up choices"; return "your exercises"; }
-  function unitOf(ex) { return ex.type === "time" ? "secs" : "reps"; }
+  function unitOf(ex) { return ex.type === "time" ? "secs" : ex.type === "mins" ? "mins" : "reps"; }
   function weightLabel(ex) { return ex.per === "each hand" ? "kg each hand" : "kg"; }
 
   /* ---------- storage ---------- */
@@ -528,7 +534,7 @@
     for (var i = 1; i < rows.length; i++) {
       var r = rows[i] || [], date = normDate(r[0]);
       if (!date || !r[2]) continue;
-      out.push({ date: date, session: String(r[1] || ""), exId: String(r[2]), name: String(r[3] || r[2]), type: r[4] === "time" ? "time" : "reps", weight: num(r[5]), sets: [num(r[6]), num(r[7]), num(r[8])], synced: true, seq: i });
+      out.push({ date: date, session: String(r[1] || ""), exId: String(r[2]), name: String(r[3] || r[2]), type: normType(r[4]), weight: num(r[5]), sets: [num(r[6]), num(r[7]), num(r[8])], synced: true, seq: i });
     }
     return out;
   }
@@ -551,7 +557,7 @@
         if (seenIds[k + "|" + r[2]]) return;
         seenIds[k + "|" + r[2]] = 1;
         any = true;
-        p[k].push({ id: String(r[2]), name: String(r[3] || r[2]), cat: CAT[r[4]] ? String(r[4]) : "", type: r[5] === "time" ? "time" : "reps", per: String(r[6] || ""), start: num(r[7]), inc: num(r[8]) || 0, note: String(r[9] || ""), equip: String(r[10] || ""), noW: String(r[11]) === "yes", how: String(r[12] || "") });
+        p[k].push({ id: String(r[2]), name: String(r[3] || r[2]), cat: CAT[r[4]] ? String(r[4]) : "", type: normType(r[5]), per: String(r[6] || ""), start: num(r[7]), inc: num(r[8]) || 0, note: String(r[9] || ""), equip: String(r[10] || ""), noW: String(r[11]) === "yes", how: String(r[12] || "") });
       });
     return any ? p : null;
   }
@@ -610,6 +616,11 @@
   function nextSession() { return "1"; }
   function target(ex, warm) {
     var L = store.settings.low, H = store.settings.high, last = lastLog(ex.id);
+    if (ex.type === "mins") {
+      var m0 = last ? last.sets[0] : (ex.start || 10);
+      if (warm || !last) return { weight: null, sets: [m0, null, null], hint: warm ? "Warm-up: a steady pace to get warm." : "Aim for " + nt(m0) + " minutes at a pace and incline you can keep up." };
+      return { weight: null, sets: [m0 >= 30 ? m0 : m0 + 1, null, null], hint: m0 >= 30 ? "You're at 30 minutes. Keep it there, or make the incline a little steeper." : "Try 1 minute more, up to 30." };
+    }
     if (warm) {
       var dflt = ex.type === "time" ? (ex.start || 30) : 10;
       return { weight: ex.noW ? null : (last ? last.weight : (ex.start || 0)), sets: last ? last.sets : [dflt, dflt, dflt], hint: ex.type === "time" ? "Warm-up: a steady pace to get warm." : "Warm-up: keep it easy and controlled, 1 to 2 sets is plenty." };
@@ -630,6 +641,7 @@
     var last = lastLog(ex.id);
     if (!last) return false;
     if (ex.type === "time") return last.sets.every(function (v) { return v != null && v >= 60; });
+    if (ex.type === "mins") return (last.sets[0] || 0) >= 30;
     return last.sets.every(function (r) { return r != null && r >= store.settings.high; });
   }
   function inPlan(id) { return !!findEx(id); }
@@ -670,7 +682,7 @@
       return '<button type="button" data-act="tab" data-v="' + t[0] + '"' + (ui.tab === t[0] ? ' aria-current="page"' : "") + ">" + t[1] + "</button>";
     }).join("") + "</nav>";
   }
-  function setsText(sets, unit) { return sets.map(function (v) { return v == null ? "–" : nt(v); }).join(" · ") + " " + unit; }
+  function setsText(sets, unit) { if (unit === "mins") return (sets[0] == null ? "–" : nt(sets[0])) + " mins"; return sets.map(function (v) { return v == null ? "–" : nt(v); }).join(" · ") + " " + unit; }
   function exKey(s, ex) { return s + "-" + slug(ex.id); }
 
   function exCard(ex, s, sess) {
@@ -684,7 +696,7 @@
     var tags = [];
     if (ex.note) tags.push('<span class="tag note">' + esc(ex.note) + "</span>");
     if (ex.equip) tags.push('<span class="tag">' + esc(ex.equip) + "</span>");
-    if (ex.per === "each arm" || ex.per === "each side") tags.push('<span class="tag">' + (ex.type === "time" ? "Time" : "Reps") + " " + esc(ex.per) + "</span>");
+    if (ex.per === "each arm" || ex.per === "each side") tags.push('<span class="tag">' + (ex.type === "reps" ? "Reps" : "Time") + " " + esc(ex.per) + "</span>");
     if (ex.per === "each hand") tags.push('<span class="tag">Weight in each hand</span>');
     if (tags.length) h += '<div class="meta">' + tags.join("") + "</div>";
     var w = function (v) { return ex.noW || v == null ? "" : "<b>" + nt(v) + " " + esc(wl) + "</b>"; };
@@ -696,12 +708,16 @@
     h += '<div class="pair">' + lastBox + goalBox + "</div>";
     h += '<p class="sub">' + esc(tg.hint) + "</p>";
     var ph = function (i) { return tg.range ? store.settings.low + "+" : (tg.sets[i] == null ? "" : tg.sets[i]); };
+    if (ex.type === "mins") {
+      h += '<div class="entry one"><div class="field"><label for="s1-' + k + '">Minutes</label><input id="s1-' + k + '" type="number" inputmode="decimal" step="0.5" min="0" placeholder="' + esc(tg.sets[0] == null ? "" : tg.sets[0]) + '"></div></div>';
+    } else {
     h += '<div class="entry' + (ex.noW ? " three" : "") + '">';
     if (!ex.noW) h += '<div class="field"><label for="w-' + k + '">' + esc(wl) + '</label><input id="w-' + k + '" type="number" inputmode="decimal" step="0.25" min="0" value="' + (tg.weight > 0 ? esc(nt(tg.weight).replace(/,/g, "")) : "") + '"></div>';
     for (var i = 0; i < 3; i++) {
       h += '<div class="field"><label for="s' + (i + 1) + "-" + k + '">Set ' + (i + 1) + (ex.type === "time" ? " secs" : "") + '</label><input id="s' + (i + 1) + "-" + k + '" type="number" inputmode="numeric" step="1" min="0" placeholder="' + esc(ph(i)) + '"></div>';
     }
     h += "</div>";
+    }
     h += '<button data-act="save-ex" data-s="' + s + '" data-sess="' + esc(sess || s) + '" data-v="' + esc(ex.id) + '"' + (ui.busy[k] ? " disabled" : "") + ">Save " + esc(ex.name) + "</button>";
     h += '<p class="msg ' + esc(m.kind || "") + '" role="status">' + esc(m.text || "") + "</p>";
     return h + "</article>";
@@ -810,7 +826,7 @@
     var by = {};
     logsFor(id).forEach(function (r) { by[r.date] = r; });
     return Object.keys(by).sort().map(function (d) {
-      var r = by[d], tot = sum(r.sets), u = r.type === "time" ? "secs" : "reps";
+      var r = by[d], tot = sum(r.sets), u = r.type === "time" ? "secs" : r.type === "mins" ? "mins" : "reps";
       var v = metric === "weight" ? r.weight : tot;
       if (v == null) return null;
       return { date: d, v: v, main: metric === "weight" ? nt(v) + " kg" : nt(v) + " " + u + " in total", sub: (r.weight ? nt(r.weight) + " kg · " : "") + setsText(r.sets, u), r: r };
@@ -831,12 +847,12 @@
     var type = ex ? ex.type : anyLog ? anyLog.type : "reps", noW = ex ? ex.noW : (anyLog ? !anyLog.weight : false);
     var metric = isBody ? "weight" : (noW ? "total" : ui.metric);
     if (!isBody && !noW) {
-      h += '<div class="chips" role="group" aria-label="Measure">' + [["weight", "Weight"], ["total", type === "time" ? "Total time" : "Total reps"]].map(function (m) {
+      h += '<div class="chips" role="group" aria-label="Measure">' + [["weight", "Weight"], ["total", type === "reps" ? "Total reps" : "Total time"]].map(function (m) {
         return '<button type="button" id="met-' + m[0] + '" data-act="metric" data-v="' + m[0] + '" aria-pressed="' + (m[0] === metric ? "true" : "false") + '">' + m[1] + "</button>";
       }).join("") + "</div>";
     }
     if (isBody) { pts = bodyPoints(); label = "Body weight (kg)"; }
-    else { pts = exPoints(t, metric); unit = metric === "weight" ? "kg" : (type === "time" ? "secs" : "reps"); label = (targets.filter(function (x) { return x[0] === t; })[0] || ["", ""])[1] + (metric === "weight" ? ": weight (kg)" : type === "time" ? ": total time (secs, all sets)" : ": total reps (all sets)"); }
+    else { pts = exPoints(t, metric); unit = metric === "weight" ? "kg" : (type === "time" ? "secs" : type === "mins" ? "mins" : "reps"); label = (targets.filter(function (x) { return x[0] === t; })[0] || ["", ""])[1] + (metric === "weight" ? ": weight (kg)" : type === "time" ? ": total time (secs, all sets)" : type === "mins" ? ": total time (mins)" : ": total reps (all sets)"); }
     h += '<p class="lab">' + esc(label) + "</p>";
     chartPts = pts;
     if (!pts.length) {
@@ -921,7 +937,7 @@
   function planItem(s, ex, i, n) {
     var key = s + ":" + i, h = '<li class="pitem">';
     h += '<div class="ptop"><span class="pname">' + esc(ex.name) + '</span><button type="button" class="info" style="width:40px;min-height:40px" data-act="info" data-v="' + esc(ex.id) + '" aria-label="How to do ' + esc(ex.name) + '">i</button></div>';
-    var bits = [ex.equip, ex.type === "time" ? "Timed" : "", ex.per ? (ex.per === "each hand" ? "weight in each hand" : ex.per) : "", ex.note].filter(Boolean);
+    var bits = [ex.equip, ex.type === "time" ? "Timed" : ex.type === "mins" ? "Minutes" : "", ex.per ? (ex.per === "each hand" ? "weight in each hand" : ex.per) : "", ex.note].filter(Boolean);
     if (bits.length) h += '<span class="sub">' + esc(bits.join(" · ")) + "</span>";
     if (ui.removing === key) {
       h += '<p>Remove ' + esc(ex.name) + " from " + esc(sessionName(s)) + '? Its history stays in Progress.</p><div class="tools"><button data-act="remove-yes" data-s="' + s + '" data-i="' + i + '">Remove</button><button class="quiet" data-act="remove-no">Keep</button></div>';
@@ -931,7 +947,7 @@
         '<div class="field"><label for="e-name">Name</label><input class="text" id="e-name" value="' + esc(ex.name) + '"></div>' +
         '<div class="field"><label for="e-note">Settings note</label><input class="text" id="e-note" placeholder="e.g. Seat 5" value="' + esc(ex.note) + '"></div>' +
         '<div class="field"><label for="e-per">Weight/reps are</label><select id="e-per">' + perOpts + "</select></div>" +
-        '<div class="field"><label for="e-type">Measured in</label><select id="e-type"><option value="reps"' + (ex.type === "reps" ? " selected" : "") + '>Reps</option><option value="time"' + (ex.type === "time" ? " selected" : "") + ">Seconds</option></select></div>" +
+        '<div class="field"><label for="e-type">Measured in</label><select id="e-type"><option value="reps"' + (ex.type === "reps" ? " selected" : "") + '>Reps</option><option value="time"' + (ex.type === "time" ? " selected" : "") + ">Seconds</option><option value=\"mins\"" + (ex.type === "mins" ? " selected" : "") + ">Minutes</option></select></div>" +
         (ex.noW ? "" : '<div class="field"><label for="e-inc">Weight step kg</label><input id="e-inc" type="number" inputmode="decimal" step="0.25" min="0" value="' + esc(ex.inc) + '"></div>') +
         "</div>" +
         '<div class="tools"><button data-act="edit-save" data-s="' + s + '" data-i="' + i + '">Save</button><button class="quiet" data-act="edit-cancel">Cancel</button></div>';
@@ -953,7 +969,7 @@
       return '<button type="button" data-act="area" data-v="' + a + '" aria-pressed="' + (a === area ? "true" : "false") + '">' + a + "</button>";
     }).join("") + "</div><div class=\"cat\">";
     h += list.map(function (c) {
-      return '<div class="catrow"><div class="cname"><b>' + esc(c.n) + '</b><span class="sub">' + esc(c.e + (c.t === "time" ? " · timed" : "") + (c.p ? " · " + c.p : "")) + '</span></div><button type="button" class="info" data-act="info-cat" data-v="' + c.id + '" aria-label="How to do ' + esc(c.n) + '">i</button>' +
+      return '<div class="catrow"><div class="cname"><b>' + esc(c.n) + '</b><span class="sub">' + esc(c.e + (c.t === "time" ? " · timed" : c.t === "mins" ? " · minutes" : "") + (c.p ? " · " + c.p : "")) + '</span></div><button type="button" class="info" data-act="info-cat" data-v="' + c.id + '" aria-label="How to do ' + esc(c.n) + '">i</button>' +
         (inS[c.id] ? '<span class="tag">Added</span>' : '<button class="small" data-act="add-cat" data-s="' + s + '" data-v="' + c.id + '">Add</button>') + "</div>";
     }).join("") + "</div>";
     var equipOpts = EQUIP.map(function (e) { return "<option>" + e + "</option>"; }).join("");
@@ -962,7 +978,7 @@
     h += '<div class="group"><h3>Add your own</h3><div class="fields">' +
       '<div class="field"><label for="c-name">Name</label><input class="text" id="c-name" autocomplete="off"></div>' +
       '<div class="field"><label for="c-equip">Equipment</label><select id="c-equip">' + equipOpts + "</select></div>" +
-      '<div class="field"><label for="c-type">Measured in</label><select id="c-type"><option value="reps">Reps</option><option value="time">Seconds</option></select></div>' +
+      '<div class="field"><label for="c-type">Measured in</label><select id="c-type"><option value="reps">Reps</option><option value="time">Seconds</option><option value="mins">Minutes</option></select></div>' +
       '<div class="field"><label for="c-per">Weight/reps are</label><select id="c-per">' + perOpts + "</select></div>" +
       '<div class="field"><label for="c-start">Starting weight kg</label><input id="c-start" type="number" inputmode="decimal" step="0.25" min="0" placeholder="0 if none"></div></div>' +
       '<div class="field"><label for="c-how">How to do it (optional)</label><textarea id="c-how" placeholder="Steps or tips from the instructor"></textarea></div>' +
@@ -1029,7 +1045,7 @@
       return '<button type="button" data-act="swap-area" data-v="' + a + '" aria-pressed="' + (a === area ? "true" : "false") + '">' + a + "</button>";
     }).join("") + '</div><div class="cat">';
     h += opts.length ? opts.map(function (c) {
-      return '<div class="catrow"><div class="cname"><b>' + esc(c.n) + '</b><span class="sub">' + esc(c.e + (c.t === "time" ? " · timed" : "") + (c.p ? " · " + c.p : "")) + '</span></div><button type="button" class="info" data-act="info-cat" data-v="' + c.id + '" aria-label="How to do ' + esc(c.n) + '">i</button><button class="small" data-act="swap-pick" data-v="' + c.id + '">Choose</button></div>';
+      return '<div class="catrow"><div class="cname"><b>' + esc(c.n) + '</b><span class="sub">' + esc(c.e + (c.t === "time" ? " · timed" : c.t === "mins" ? " · minutes" : "") + (c.p ? " · " + c.p : "")) + '</span></div><button type="button" class="info" data-act="info-cat" data-v="' + c.id + '" aria-label="How to do ' + esc(c.n) + '">i</button><button class="small" data-act="swap-pick" data-v="' + c.id + '">Choose</button></div>';
     }).join("") : '<p class="sub">Everything in this area is already in the list. Try another area.</p>';
     return h + "</div></div></div>";
   }
@@ -1100,7 +1116,7 @@
     });
   }
   function wellDone(prev, all, rec, ex) {
-    var unit = rec.type === "time" ? "seconds" : "reps", H = store.settings.high;
+    var unit = rec.type === "time" ? "seconds" : rec.type === "mins" ? "minutes" : "reps", H = store.settings.high;
     var tot = sum(rec.sets) || 0, out = { kind: "ok", text: "", pb: null };
     if (!prev) {
       out.text = "First one logged. This is your starting point!";
@@ -1114,7 +1130,7 @@
       var maxW = Math.max.apply(null, all.map(function (r) { return r.weight || 0; }));
       var maxT = Math.max.apply(null, all.map(function (r) { return sum(r.sets) || 0; }));
       if (!ex.noW && (rec.weight || 0) > maxW) out.pb = { title: "New personal best!", text: "Heaviest " + ex.name + " yet: " + nt(rec.weight) + " " + weightLabel(ex) + "." };
-      else if ((ex.noW || ex.type === "time") && tot > maxT) out.pb = { title: "New personal best!", text: "Your best " + ex.name + " yet: " + nt(tot) + " " + unit + " in total." };
+      else if ((ex.noW || ex.type !== "reps") && tot > maxT) out.pb = { title: "New personal best!", text: "Your best " + ex.name + " yet: " + nt(tot) + " " + unit + " in total." };
     }
     if (rec.type === "reps" && !ex.noW && rec.sets.every(function (r) { return r != null && r >= H; })) {
       out.text += " You did " + H + " on every set, so next time the target goes up to " + nt((rec.weight || 0) + (ex.inc || 0)) + " kg.";
@@ -1130,10 +1146,10 @@
     var sets = [1, 2, 3].map(function (n) { return num((document.getElementById("s" + n + "-" + k) || {}).value); });
     if (!sets.some(function (v) { return v != null; })) {
       if (batch) return "empty";
-      setMsg(k, "Enter the " + (ex.type === "time" ? "seconds" : "reps") + " for at least one set.", "err"); return "error";
+      setMsg(k, ex.type === "mins" ? "Enter how many minutes you did." : "Enter the " + (ex.type === "time" ? "seconds" : "reps") + " for at least one set.", "err"); return "error";
     }
     if (!ex.noW && (w == null || w < 0)) { setMsg(k, "Enter the weight you used (0 if none).", "err"); return "error"; }
-    if (sets.some(function (v) { return v != null && (v <= 0 || (ex.type === "reps" && !Number.isInteger(v))); })) { setMsg(k, ex.type === "time" ? "Use whole seconds above 0." : "Reps must be whole numbers above 0.", "err"); return "error"; }
+    if (sets.some(function (v) { return v != null && (v <= 0 || (ex.type === "reps" && !Number.isInteger(v))); })) { setMsg(k, ex.type === "time" ? "Use whole seconds above 0." : ex.type === "mins" ? "Use minutes above 0." : "Reps must be whole numbers above 0.", "err"); return "error"; }
     var all = logsFor(ex.id), prev = all[all.length - 1] || null;
     var warm = isWarm(s);
     var rec = { date: todayISO(), session: warm ? (sess || nextSession()) : s, exId: ex.id, name: ex.name, type: ex.type, weight: ex.noW ? null : w, sets: sets, synced: false, seq: 1000000 + store.uid++ };
@@ -1217,7 +1233,7 @@
     if (i < 0 || !CAT[catId]) return;
     var nid = isWarm(sw.s) && catId !== "rope-pull" ? "wu-" + catId : catId;
     if (list.some(function (e) { return e.id === nid; })) return;
-    var old = list[i], fresh = fromCat(catId, CAT[catId].t === "time" ? 30 : 0, "", nid);
+    var old = list[i], fresh = fromCat(catId, defaultStart(CAT[catId].t), "", nid);
     list[i] = fresh;
     if (sw.s === "WX" && store.settings.warmChoice === old.id) store.settings.warmChoice = nid;
     ui.swap = null; ui.info = null;
@@ -1229,7 +1245,7 @@
     if (!sug || !sug.swaps) return;
     sug.swaps.forEach(function (w) {
       var list = store.plan[s], i = list.indexOf(w.from);
-      if (i >= 0) list[i] = fromCat(w.to.id, w.to.t === "time" ? 30 : 0);
+      if (i >= 0) list[i] = fromCat(w.to.id, defaultStart(w.to.t));
     });
     store.settings.planStart = todayISO(); store.settings.dismissUntil = ""; store.settingsDirty = true;
     ui.forceSuggest = null;
@@ -1301,7 +1317,7 @@
     else if (a === "edit-save") {
       var ex = store.plan[s][i], nm = ($("#e-name").value || "").trim();
       if (nm) ex.name = nm;
-      ex.note = ($("#e-note").value || "").trim(); ex.per = $("#e-per").value; ex.type = $("#e-type").value === "time" ? "time" : "reps";
+      ex.note = ($("#e-note").value || "").trim(); ex.per = $("#e-per").value; ex.type = normType($("#e-type").value);
       if ($("#e-inc")) { var inc = num($("#e-inc").value); if (inc != null && inc >= 0) ex.inc = inc; }
       ui.editing = null; clearTouched(["e-name", "e-note", "e-per", "e-type", "e-inc"]);
       planChanged("plan", ex.name + " updated.");
@@ -1321,9 +1337,9 @@
     else if (a === "add-custom") {
       var name = ($("#c-name").value || "").trim();
       if (!name) { setMsg("custom", "Give the exercise a name.", "err"); render(); return; }
-      var eq = $("#c-equip").value, typ = $("#c-type").value === "time" ? "time" : "reps";
+      var eq = $("#c-equip").value, typ = normType($("#c-type").value);
       var st = num($("#c-start").value);
-      store.plan[s].push({ id: "my-" + slug(name) + "-" + Date.now().toString(36).slice(-4), cat: "", name: name, type: typ, per: $("#c-per").value, start: typ === "time" ? 30 : (st || 0), inc: eq === "Dumbbell" ? 2.5 : 2.5, note: "", equip: eq, noW: eq === "Bodyweight" || eq === "Cardio machine", how: ($("#c-how").value || "").trim() });
+      store.plan[s].push({ id: "my-" + slug(name) + "-" + Date.now().toString(36).slice(-4), cat: "", name: name, type: typ, per: $("#c-per").value, start: typ === "reps" ? (st || 0) : defaultStart(typ), inc: eq === "Dumbbell" ? 2.5 : 2.5, note: "", equip: eq, noW: eq === "Bodyweight" || eq === "Cardio machine", how: ($("#c-how").value || "").trim() });
       clearTouched(["c-name", "c-equip", "c-type", "c-per", "c-start", "c-how"]);
       setMsg("custom", name + " added to " + sessionName(s) + ".", "ok");
       planChanged();
