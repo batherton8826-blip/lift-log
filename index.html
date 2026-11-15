@@ -181,6 +181,7 @@
   @media (prefers-reduced-motion: reduce) { .confetti { display: none; } }
   .bests { display: flex; gap: 6px; flex-wrap: wrap; }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 </head>
 <body>
 <div class="wrap" id="app"></div>
@@ -539,13 +540,15 @@
         var gap = need - goal;
         cal += '<p class="sub">Maintenance ' + esc(fmtInt(need)) + " kcal, planned " + (gap >= 0 ? "deficit " : "surplus ") + esc(fmtInt(Math.abs(gap))) + " kcal.</p>";
       }
-      if (bt.cal != null) {
-        var left = goal - bt.cal;
-        cal += '<p class="sub">Eaten today ' + esc(fmtInt(bt.cal)) + " kcal, " + (left >= 0 ? esc(fmtInt(left)) + " left." : esc(fmtInt(-left)) + " over.") + "</p>";
+      var eatenToday = bt.cal != null ? bt.cal : fuel.cal[todayISO()];
+      if (eatenToday != null) {
+        var left = goal - eatenToday;
+        cal += '<p class="sub">Eaten today ' + esc(fmtInt(eatenToday)) + " kcal" + (bt.cal == null ? " (from Fuel Log)" : "") + ", " + (left >= 0 ? esc(fmtInt(left)) + " left." : esc(fmtInt(-left)) + " over.") + "</p>";
       }
     } else {
       cal += '<p class="sub">Set a daily calorie goal in Settings.</p>';
     }
+    if (fuel.state === "signed-out") cal += '<p class="sub">Sign in to <a href="../fuel-log/">Fuel Log</a> on this phone to bring in calories eaten automatically.</p>';
     cal += "</div>";
 
     var stepsNow = stepsToday();
@@ -625,6 +628,28 @@
   var GIFT_FROM = "Brad";   // named in the "under a multiple of 10 kg" banner
   var LB_KCAL = 3500;       // calories in about one pound of body fat
 
+  /* ---------- calories from Fuel Log (same website, so the Fuel Log sign-in is shared) ---------- */
+  var FUEL_URL = "https://vjngnnhvkhzzzdvqeqlw.supabase.co", FUEL_KEY = "sb_publishable_81DO0yFERJpLcuSxqXcLeA_y6bLUixn";
+  var FUEL_PERSON = "16711a5c-5ec4-49b3-9dfa-fa8c44aa9923";   // Chaz's Fuel Log account
+  var fuel = { cal: {}, state: "off" };   // date -> kcal eaten, as logged in Fuel Log
+  async function loadFuel() {
+    try {
+      if (!window.supabase) return;
+      var sb = window.supabase.createClient(FUEL_URL, FUEL_KEY, { auth: { persistSession: true, autoRefreshToken: true } });
+      var ses = (await sb.auth.getSession()).data.session;
+      if (!ses) { fuel.state = "signed-out"; render(); return; }
+      var res = await sb.from("docs").select("doc_id,data").eq("scope", "u:" + FUEL_PERSON).like("doc_id", "day-%");
+      if (res.error) { fuel.state = "error"; render(); return; }
+      var cal = {};
+      res.data.forEach(function (r) {
+        var items = (r.data && r.data.items) || [], t = 0;
+        items.forEach(function (i) { t += Number(i.kcal) || 0; });
+        if (items.length) cal[r.doc_id.slice(4)] = Math.round(t);
+      });
+      fuel.cal = cal; fuel.state = "on"; render();
+    } catch (e) { fuel.state = "error"; }
+  }
+  // A calorie figure typed into Lift Log wins; otherwise Fuel Log's total for that day is used.
   function dailyCalories() {
     var by = {}, order = [];
     store.body.forEach(function (r) {
@@ -632,6 +657,9 @@
       if (!(r.date in by)) order.push(r.date);
       by[r.date] = r.cal;
     });
+    // Fuel Log days count once they're finished (not today, which is still being logged)
+    var today = todayISO();
+    Object.keys(fuel.cal).forEach(function (d) { if (d < today && !(d in by)) { order.push(d); by[d] = fuel.cal[d]; } });
     return order.sort().map(function (d) { return { date: d, cal: by[d] }; });
   }
   // Running total of calories under maintenance. Only days under maintenance add to it.
@@ -1207,6 +1235,8 @@
 
   /* ---------- start ---------- */
   loadStore();
+  loadFuel();
+  document.addEventListener("visibilitychange", function () { if (!document.hidden) loadFuel(); });
   render();
   if (store.sync.url) syncNow();
 })();
