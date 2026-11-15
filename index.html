@@ -333,6 +333,7 @@
     } catch (e) { /* start fresh */ }
   }
   function saveStore() {
+    if (typeof pushToFuel === "function") pushToFuel();
     try { localStorage.setItem(STORE_KEY, JSON.stringify(store)); ui.storageWarn = false; }
     catch (e) { ui.storageWarn = true; }
   }
@@ -455,6 +456,7 @@
       ui.syncError = syncErrText(e);
     }
     ui.syncing = false; saveStore(); render();
+    if (ok) pushToFuel();
     return ok;
   }
 
@@ -548,7 +550,10 @@
     } else {
       cal += '<p class="sub">Set a daily calorie goal in Settings.</p>';
     }
-    if (fuel.state === "signed-out") cal += '<p class="sub">Sign in to <a href="../fuel-log/">Fuel Log</a> on this phone to bring in calories eaten automatically.</p>';
+    if (fuel.state === "signed-out") cal += '<form id="fuel-form" class="sub" style="display:flex;flex-direction:column;gap:6px;margin-top:8px"><span>Sign in with your Fuel Log account to bring in calories eaten automatically.</span>' +
+      '<input class="text" id="fuel-email" type="email" placeholder="Fuel Log email" autocomplete="email" required>' +
+      '<input class="text" id="fuel-pass" type="password" placeholder="Fuel Log password" autocomplete="current-password" required>' +
+      '<button type="submit" class="quiet">Connect Fuel Log</button><span id="fuel-msg" role="status"></span></form>';
     cal += "</div>";
 
     var stepsNow = stepsToday();
@@ -631,13 +636,19 @@
   /* ---------- calories from Fuel Log (same website, so the Fuel Log sign-in is shared) ---------- */
   var FUEL_URL = "https://vjngnnhvkhzzzdvqeqlw.supabase.co", FUEL_KEY = "sb_publishable_81DO0yFERJpLcuSxqXcLeA_y6bLUixn";
   var FUEL_PERSON = "16711a5c-5ec4-49b3-9dfa-fa8c44aa9923";   // Chaz's Fuel Log account
-  var fuel = { cal: {}, state: "off" };   // date -> kcal eaten, as logged in Fuel Log
+  var fuel = { cal: {}, state: "off", me: null };   // date -> kcal eaten, as logged in Fuel Log
+  var fsb = null;
+  function fuelClient() {
+    if (!fsb && window.supabase) fsb = window.supabase.createClient(FUEL_URL, FUEL_KEY, { auth: { persistSession: true, autoRefreshToken: true } });
+    return fsb;
+  }
   async function loadFuel() {
     try {
-      if (!window.supabase) return;
-      var sb = window.supabase.createClient(FUEL_URL, FUEL_KEY, { auth: { persistSession: true, autoRefreshToken: true } });
+      var sb = fuelClient();
+      if (!sb) return;
       var ses = (await sb.auth.getSession()).data.session;
       if (!ses) { fuel.state = "signed-out"; render(); return; }
+      fuel.me = ses.user.id;
       var res = await sb.from("docs").select("doc_id,data").eq("scope", "u:" + FUEL_PERSON).like("doc_id", "day-%");
       if (res.error) { fuel.state = "error"; render(); return; }
       var cal = {};
@@ -647,7 +658,30 @@
         if (items.length) cal[r.doc_id.slice(4)] = Math.round(t);
       });
       fuel.cal = cal; fuel.state = "on"; render();
+      pushToFuel();
     } catch (e) { fuel.state = "error"; }
+  }
+  // When Chaz is signed in, copy her weights and lifts into Fuel Log so Brad's Chaz page can show them.
+  var pushTimer = null;
+  function pushToFuel() {
+    if (fuel.me !== FUEL_PERSON) return;
+    clearTimeout(pushTimer);
+    pushTimer = setTimeout(async function () {
+      try {
+        await fuelClient().from("docs").upsert({ scope: "u:" + FUEL_PERSON, doc_id: "liftlog", updated_at: new Date().toISOString(), updated_by: FUEL_PERSON,
+          data: { updated: new Date().toISOString(), startWeight: store.settings.startWeight,
+            body: store.body.map(function (r) { return { date: r.date, weight: r.weight, cal: r.cal }; }),
+            lifts: store.lifts.map(function (r) { return { date: r.date, lift: r.lift, weight: r.weight, reps: r.reps }; }) } });
+      } catch (e) {}
+    }, 1500);
+  }
+  async function fuelSignIn(email, pass) {
+    var sb = fuelClient(), msg = document.getElementById("fuel-msg");
+    if (!sb) return;
+    if (msg) msg.textContent = "Signing in…";
+    var r = await sb.auth.signInWithPassword({ email: email, password: pass });
+    if (r.error) { if (msg) msg.textContent = r.error.message === "Invalid login credentials" ? "That email and password don't match your Fuel Log account." : r.error.message; return; }
+    loadFuel();
   }
   // A calorie figure typed into Lift Log wins; otherwise Fuel Log's total for that day is used.
   function dailyCalories() {
@@ -1234,6 +1268,11 @@
   });
 
   /* ---------- start ---------- */
+  document.addEventListener("submit", function (e) {
+    if (!e.target || e.target.id !== "fuel-form") return;
+    e.preventDefault();
+    fuelSignIn(document.getElementById("fuel-email").value.trim(), document.getElementById("fuel-pass").value);
+  });
   loadStore();
   loadFuel();
   document.addEventListener("visibilitychange", function () { if (!document.hidden) loadFuel(); });
