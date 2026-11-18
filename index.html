@@ -661,14 +661,16 @@
       pushToFuel();
     } catch (e) { fuel.state = "error"; }
   }
-  // When Chaz is signed in, copy her weights and lifts into Fuel Log so Brad's Chaz page can show them.
+  // Copy her weights and lifts into Fuel Log so Brad's Chaz page can show them.
+  // From Chaz's phone it goes into her account; from Brad's phone (signed in as Brad) into his.
   var pushTimer = null;
   function pushToFuel() {
-    if (fuel.me !== FUEL_PERSON) return;
+    if (!fuel.me) return;
+    if (!store.body.length && !store.lifts.length) return;   // never overwrite with an empty copy
     clearTimeout(pushTimer);
     pushTimer = setTimeout(async function () {
       try {
-        await fuelClient().from("docs").upsert({ scope: "u:" + FUEL_PERSON, doc_id: "liftlog", updated_at: new Date().toISOString(), updated_by: FUEL_PERSON,
+        await fuelClient().from("docs").upsert({ scope: "u:" + fuel.me, doc_id: "liftlog", updated_at: new Date().toISOString(), updated_by: fuel.me,
           data: { updated: new Date().toISOString(), startWeight: store.settings.startWeight,
             body: store.body.map(function (r) { return { date: r.date, weight: r.weight, cal: r.cal }; }),
             lifts: store.lifts.map(function (r) { return { date: r.date, lift: r.lift, weight: r.weight, reps: r.reps }; }) } });
